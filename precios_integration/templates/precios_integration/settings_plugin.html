@@ -1,0 +1,17 @@
+{% load cms_tags menu_tags sekizai_tags static i18n static %}
+<h1>
+    
+
+    
+    instance= {{ instance }} <br/>
+
+
+    instance.settings.key= {{ instance.Settings.key }}   <br/>
+    instance.settings.value= {{ instance.Settings.value }}   <br/>
+    instance.settings.description= {{ instance.Settings.description }}   <br/>
+{{ instance.key }}
+{{ instance.value }}
+{{ instance.description }}
+
+</h1>
+

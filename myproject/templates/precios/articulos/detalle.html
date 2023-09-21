@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+ 
+{% load cms_tags menu_tags sekizai_tags static i18n static thumbnail meta page_meta_tags%}
+{% page_meta request.current_page as page_meta %}
+
+
+{% block title %}
+            {{ context.resumen.marca.articulo__marca__nombre|title }}: {{ context.resumen.marca.articulo__nombre|title }} 
+            {% if context.resumen.marca.articulo__medida_cant %}{{ context.resumen.marca.articulo__medida_cant }} {{ context.resumen.marca.articulo__medida_um }}{% endif %} 
+            {% if context.resumen.marca.articulo__grados2 %}{{ context.resumen.marca.articulo__grados2 }}° {% endif %} 
+            {% if context.resumen.marca.articulo__unidades != 1 %}{{ context.resumen.marca.articulo__unidades }} Unidades {% endif %}
+{% endblock %}
+
+
+
+{% spaceless %}
+{% block meta %}
+    <meta property="og:title" content="{{ context.resumen.marca.articulo__nombre|title }} 
+            {% if context.resumen.marca.articulo__grados2 %}{{ context.resumen.marca.articulo__grados2 }}° {% endif %}
+            {% if context.resumen.marca.articulo__envase %}{{ context.resumen.marca.articulo__envase }} {% endif %}
+            {% if context.resumen.marca.articulo__medida_cant %}{{ context.resumen.marca.articulo__medida_cant }} {{ context.resumen.marca.articulo__medida_um }}{% endif %} 
+            {% if context.resumen.marca.articulo__unidades != 1 %}{{ context.resumen.marca.articulo__unidades }} Unidades {% endif %}
+            {{ context.resumen.marca.articulo__marca__nombre|title }}"/>
+    <meta property="og:description" content="Quienes venden {{ context.resumen.marca.articulo__marca__nombre|title }}    "/>
+    <meta property="og:type" content="product"/>
+
+    <meta property="product:brand" content="{{ context.resumen.marca.articulo__marca__nombre|title }}">
+    {% if context.resumen.meta.ean13 %}
+    <meta property="product:retailer_item_id" content="{{ context.resumen.meta.ean13 }}">
+    {% endif %}
+    <meta property="product:condition" content="new">
+    <meta property="product:price:amount" content="{{context.resumen.marca.vendidoen__precio__min}}">
+    <meta property="product:price:currency" content="CLP">
+{% endblock %}
+
+{% endspaceless %}
+{% block content %}
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script>
+    $( document ).ready(function() 
+    {
+        loadCarrito();
+    })
+</script>
+<script type="text/javascript">
+    
+    google.charts.load('current', {
+       'packages': ['corechart' ],
+       'mapsApiKey': 'AIzaSyDDLOovUfJyFFjHp_G94V_-vbtnTijIK60'
+     });
+
+    
+    google.charts.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+      var data = new google.visualization.DataTable();
+
+      data.addColumn('date', 'Período');
+      {% for col in table %}
+        {% if forloop.first %}
+            {% for li in col.valores %}
+                data.addColumn('number', '{{li.name}}');
+            {% endfor %}
+        {% endif %}
+      {% endfor %}
+      data.addRows([{% for col in table %}[
+                    new Date('{{col.fecha|date:"Y"}}-{{col.fecha|date:"m"}}-{{col.fecha|date:"d"}}T00:00:00-0400'),
+                    {% for li in col.valores %}
+                        {{li.valor}}{% if not forloop.last %},{% endif %}
+                    {% endfor %}
+                ]
+                {% if not forloop.last %},{% endif %}
+            {% endfor %}
+      ]);
+
+    var options = {
+         title: 'Precios históricos',
+         subtitle: 'en miles de pesos',
+         curveType: 'function',
+         legend: { position: 'bottom' },
+
+        vAxis: { 
+            title: "Precio" ,
+            format: 'currency',
+            gridlines: { count: 7 }
+        },
+      };
+
+      
+      var materialChart = new google.visualization.LineChart(document.getElementById('chart_div'));
+      materialChart.draw(data, options);
+    
+
+    };
+    $(window).resize(function(){
+        drawChart();
+    });
+
+    </script>
+--> detalle.html
+<section class="breadcrumbs">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2>{{ context.resumen.marca.articulo__marca__nombre|title }}: {{ context.resumen.marca.articulo__nombre|title }} 
+            {% if context.resumen.marca.articulo__medida_cant %}{{ context.resumen.marca.articulo__medida_cant }} {{ context.resumen.marca.articulo__medida_um }}{% endif %} 
+            {% if context.resumen.marca.articulo__grados2 %}{{ context.resumen.marca.articulo__grados2 }}° {% endif %} 
+            {% if context.resumen.marca.articulo__unidades != 1 %}{{ context.resumen.marca.articulo__unidades }} Unidades {% endif %} 
+        </h2>
+        <ol>
+            <li><a href="/">Home</a></li>
+            <li><a href="/precios/brands/">Marcas</a></li>
+            <li><a href="/precios/brandProducts/{{ context.resumen.marca.articulo__marca__slug }}">{{ context.resumen.marca.articulo__marca__nombre|title }}</a></li>
+        </ol>
+      </div>
+    </div>
+  </section><!-- Breadcrumbs Section -->
+
+
+<section id="portfolio" class="d-flex">
+    <div class="container" data-aos="fade-up">
+    
+    
+    {% for row in articulos_dict %}
+        
+        <div class="row ">
+            <div class="col-sm-6">
+                <div class="card " style="border: none; padding-top: 15px; padding-bottom: 0pc;">
+                    {% include "precios/includes/articulo.html" %}
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="card " style="border: none; padding-top: 15px; padding-bottom: 0pc;">
+                    <div class="card-header">
+                        Precios actuales  
+                    </div>
+                </div>
+                <ol class="list-group list-group list-group-numbered" >
+                    {% for vendedor in detalle %}
+                        <li class="list-group-item d-flex justify-content-start align-items-start" >
+                            {% include "precios/includes/vendedor_detalle.html" %}
+                        </li>
+                    {% endfor %}
+                </ol>
+                
+                
+            
+            </div>
+        </div>
+        <div class="clearfix"></div>
+        <div class="row ">
+            <div class="col-sm-12">
+                <div class="card " style="border: none; padding-top: 15px; padding-bottom: 0pc;">
+                    <div class="card-header">
+                        Gráfica  
+                    </div>
+                    <div id="chart_div" class="chart"></div>
+                </div>
+            </div>
+        </div>
+        
+    {% endfor %}
+    
+        
+        
+      
+</div>
+</section>
+
+{% endblock %}
+
+{% block footer %}
+{% include "footer.html" %}
+{% endblock %}

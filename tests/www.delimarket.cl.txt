@@ -1,0 +1,34 @@
++----+--------------------------------------------------------------+---------+------------------------------------+-----------+-----------+-----------+-----------+-----------+
+|    | url                                                          |   nivel | grupo_1                            | grupo_2   | grupo_3   | grupo_4   | grupo_5   | grupo_6   |
+|----+--------------------------------------------------------------+---------+------------------------------------+-----------+-----------+-----------+-----------+-----------|
+|  0 | https://www.delimarket.cl/customer/login                     |       1 | customer                           | login     |           |           |           |           |
+|  1 | https://www.delimarket.cl/                                   |       1 |                                    |           |           |           |           |           |
+|  2 | https://www.delimarket.cl/cart                               |       1 | cart                               |           |           |           |           |           |
+|  3 | https://www.delimarket.cl/contact                            |       1 | contact                            |           |           |           |           |           |
+|  4 | https://www.delimarket.cl/promociones                        |       1 | promociones                        |           |           |           |           |           |
+|  5 | https://www.delimarket.cl/abarrotes                          |       1 | abarrotes                          |           |           |           |           |           |
+|  6 | https://www.delimarket.cl/cocktel-y-condimentos              |       1 | cocktel-y-condimentos              |           |           |           |           |           |
+|  7 | https://www.delimarket.cl/galletas-y-chocolate               |       1 | galletas-y-chocolate               |           |           |           |           |           |
+|  8 | https://www.delimarket.cl/productos-importados               |       1 | productos-importados               |           |           |           |           |           |
+|  9 | https://www.delimarket.cl/liquidos                           |       1 | liquidos                           |           |           |           |           |           |
+| 10 | https://www.delimarket.cl/lacteos                            |       1 | lacteos                            |           |           |           |           |           |
+| 11 | https://www.delimarket.cl/helados                            |       1 | helados                            |           |           |           |           |           |
+| 12 | https://www.delimarket.cl/congelados                         |       1 | congelados                         |           |           |           |           |           |
+| 13 | https://www.delimarket.cl/carnes-y-pescados                  |       1 | carnes-y-pescados                  |           |           |           |           |           |
+| 14 | https://www.delimarket.cl/fiambreria                         |       1 | fiambreria                         |           |           |           |           |           |
+| 15 | https://www.delimarket.cl/panaderia                          |       1 | panaderia                          |           |           |           |           |           |
+| 16 | https://www.delimarket.cl/platos-preparados                  |       1 | platos-preparados                  |           |           |           |           |           |
+| 17 | https://www.delimarket.cl/perfumeria                         |       1 | perfumeria                         |           |           |           |           |           |
+| 18 | https://www.delimarket.cl/aseo-y-limpieza                    |       1 | aseo-y-limpieza                    |           |           |           |           |           |
+| 19 | https://www.delimarket.cl/mascotas                           |       1 | mascotas                           |           |           |           |           |           |
+| 20 | https://www.delimarket.cl/sandwich-ciabatta-pollo-1          |       1 | sandwich-ciabatta-pollo-1          |           |           |           |           |           |
+| 21 | https://www.delimarket.cl/pizza-familiar-queso-tomate        |       1 | pizza-familiar-queso-tomate        |           |           |           |           |           |
+| 22 | https://www.delimarket.cl/hot-dog-xl-1                       |       1 | hot-dog-xl-1                       |           |           |           |           |           |
+| 23 | https://www.delimarket.cl/pollo-asado-unidad-1               |       1 | pollo-asado-unidad-1               |           |           |           |           |           |
+| 24 | https://www.delimarket.cl/galleta-triton-126gr-x-3-unidades  |       1 | galleta-triton-126gr-x-3-unidades  |           |           |           |           |           |
+| 25 | https://www.delimarket.cl/donuts-x-4-unidades-1              |       1 | donuts-x-4-unidades-1              |           |           |           |           |           |
+| 26 | https://www.delimarket.cl/empanada-pino-clasica-x-3-unidades |       1 | empanada-pino-clasica-x-3-unidades |           |           |           |           |           |
+| 27 | https://www.delimarket.cl/contact#stores                     |       1 | contact#stores                     |           |           |           |           |           |
+| 28 | https://www.delimarket.cl/novedades                          |       1 | novedades                          |           |           |           |           |           |
+| 29 | https://www.delimarket.cl/customer/login#                    |       2 | customer                           | login#    |           |           |           |           |
++----+--------------------------------------------------------------+---------+------------------------------------+-----------+-----------+-----------+-----------+-----------+

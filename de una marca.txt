@@ -1,0 +1,82 @@
+de una marca
+    cuantos vendedores hay
+    
+
+
+
+
+de una marca
+    obtener todos los alternativas de vendedores y cantidad de urls de esa marca
+        ( Basicamente esa marca no deberia tener mas productos que el vendedor con mas url )
+        Del vendedor que mas URL tenga (-> MV Mayor Vendedor ):
+            obtener todos los articulos
+             de nombre 
+            Establecer relacion entre marca y nombres
+            Por cada nombre:               
+                obtener todas las alternativas de medida       
+                Establecer relacion entre medida y nombre
+                Por cada nombre y medida         
+                    obtener todas las alternativas de unidades              
+                    Por cada unidad:
+                        obtener todas las alternativas de los grados            
+                        obtener todas las alternativas de esos los ean          
+
+        Por cada URL del MV
+            Por cada uno de los otros vendedores (OV Otro vendedor):
+                Si Hay URLs con MV.medida == OV.medida:
+                    Si Hay URLs con MV.unidades == OV.unidades:
+                        Si Hay URLs con MV.envase == OV.envase:
+                        
+
+
+                    Obtengo:
+                        ven_nombre
+                        ven_medida
+                        ven_unidades
+                        ven_envase
+                        ven_grados
+                    Si ven_nombre == 
+
+obtener todas las alternativas de envase                y cantidad de vendedores de esas nombre
+obtener todas las alternativas de nombre                y cantidad de vendedores de esas nombre
+obtener todas las alternativas de medida                y cantidad de vendedores de esas medida
+obtener todas las alternativas de los grados            y cantidad de vendedores de esos grados
+obtener todas las alternativas de unidades              y cantidad de vendedores de esos unidades
+obtener todas als alternativas de esos los ean          y cantidad de vendedores de esos ean            
+
+
+
+
+Marca -> Nombre -> Medida -> Unidades -> Envase
+Nescafe :
+    - Café Black Roast 170,0 gr 
+    - Café Cappuccino 140,0 gr
+    - Café Cappuccino Descafeinado 125,0 gr    
+    - Café Con Leche Cappuccino 330,0 cc 
+    - Café Con Leche Mokaccino 330,0 cc 
+    - Café Decaf 100,0 gr tarro 
+    - Café Decaf 170,0 gr tarro 
+    - Café Doble Choca Moka 184,0 gr
+    - Café Dolca 50,0 gr tarro
+    - Café Dolca 170,0 gr tarro
+    - Café Fina Selección 50,0 gr
+    - Café Fina Selección 100,0 gr
+    - Café Fina Selección 200,0 gr
+    - Café Fina Selección Alta Rica 100,0 gr Frasco
+    - Café Fina Selección Alta Rica 250,0 gr 
+    - Café Fina Selección Colombia 100,0 gr Frasco 
+    - Café Fina Selección Colombia 250,0 gr 
+    - Café Fina Selección Espresso 100,0 gr 
+    - Café Fina Selección Sumatra 100,0 gr Frasco
+    - Café Instantáneo Orgánico 100,0 gr 
+    - Café Moka 144,0 gr - 8 Unidades
+    - Café Tradición 24,0 gr - 3 Unidades
+    - Café Tradición 50,0 gr 
+    - Café Tradición 100,0 gr
+    - Café Tradición 125,0 gr
+    - Café Tradición 170,0 gr - Tarro
+    - Café Tradición 170,0 gr - Frasco
+    - Café Tradición 400,0 gr
+    - Café Vainilla Latte 148,0 gr - 8 Unidades
+
+

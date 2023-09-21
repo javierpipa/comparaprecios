@@ -1,0 +1,92 @@
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <div class="card-body">
+                <h5 class="card-title">Robots URL: <span>| {{ context.robots_url}}</span></h5>
+            
+                <div class="bd-example ">
+                    <div class="overflow-auto bg-light" style="max-height: 120px;">
+                        <table class="table table-condensed">
+                        {% for key in context.robots_data %}
+                            <tr>
+                                <td>{{ key.directive }}</td>
+                                <td>{{ key.content }}</td>
+                            </tr>
+                        {% endfor %}
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            {%if context.sitemap_url %}
+            <div class="card-body">
+                <h5 class="card-title">Sitemap URL: <span>| {{ context.sitemap_url}}</span></h5>
+                <div class="bd-example">
+                    <div class="overflow-auto  bg-light" style="max-height: 120px;">
+                        Seleccione sitemaps de productos.
+                        
+                            <input type="checkbox" id="selectall" name="selectall" autocomplete="off" checked onclick="eventCheckBox()" aria-checked="false">
+                            {% for key in context.sitemap_data %}
+                            <div class="form-check">
+                                <input class="sites" type="checkbox" value="{{ key.loc }}" >- {{ key.loc }} {{ key.exist}}
+                            </div>
+                            {% endfor %}
+                        </div>                    
+                    
+                    </div>
+                    <button type="button" id="dos" class="btn btn-primary">Get Sitemap Records</button>
+                    {% if context.site_exist %}
+                        <button type="button" id="dosymedio" class="btn btn-danger">Add Records to SiteURLResults</button>
+                    {%endif%}
+                    
+            
+            {%else%}
+                <h4>No hay sitemap</h4>
+            {%endif%}
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    
+    function eventCheckBox() {
+        let checkboxs = document.getElementsByTagName("input");
+        for(let i = 0; i < checkboxs.length ; i++) { //zero-based array
+            checkboxs[i].checked = !checkboxs[i].checked;
+        }
+    }
+    
+    // $("#dos").click(function () {
+    //     const url = ajax_sitemap;
+
+    //     var checkedValue = '';
+
+    //     var checkboxes = document.getElementsByClassName('sites')
+    //     for (var i = 0; i < checkboxes.length; i++) {
+    //         if (checkboxes[i].type == "checkbox") {
+    //             var isChecked = checkboxes[i].checked;
+    //             if (checkboxes[i].checked){
+    //                 checkedValue = checkedValue + checkboxes[i].value + ',';
+    //             }
+    //         }
+    //     }
+        
+    //     // console.log('checkedValue: ', checkedValue);
+    //     $.ajax({                      
+    //         url: url,                    
+    //         data: {
+    //             'SiteMapList': checkedValue
+    //         },
+    //         success: function (data) {   
+    //             $("#url_products").html(data);  
+    //             $("#myTabjustifiedContent li:eq(1) a").tab("show");
+                
+
+    //             // console.log('checkedValue: ', data);
+    //         }
+    //     });
+  
+    // });
+    
+  </script>

@@ -1,0 +1,20 @@
+[Unit]
+Description=Gunicorn daemon for Django Project
+Before=nginx.service
+Requires=gunicorn.socket
+After=network.target
+
+[Service]
+User=javier
+Group=javier
+WorkingDirectory=/home/javier/myproject/scrap-cms
+ExecStart=/home/javier/myproject/bin/gunicorn \
+         --access-logfile - \
+         --workers 3 \
+         --bind unix:/run/gunicorn.sock \
+         --name=scrap \
+         myproject.wsgi:application
+
+
+[Install]
+WantedBy=multi-user.target

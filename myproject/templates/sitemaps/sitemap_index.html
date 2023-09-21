@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>https://www.devop.cl/sitemap.xml</loc>
+    <lastmod>{% now "Y-m-d" %}</lastmod>    
+  </sitemap>
+  {% for url in context %}
+    <sitemap>
+        <loc>{{ url.url }}</loc>
+        <lastmod>{{ url.lastmod }}</lastmod>    
+    </sitemap>
+  {% endfor %}
+  
+</sitemapindex>

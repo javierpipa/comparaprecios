@@ -1,0 +1,53 @@
+{% load humanize mathfilters%}
+
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="float-start">
+                <span class="badge rounded-pill bg-light text-dark">
+                    <a href="{{ vendedor.vendidoen.url }}?{{ resumen.ExternalUrlPostUrl }}" class="link-dark">{{ vendedor.vendidoen.site.siteName }}</a>&nbsp;<i class="bi bi-box-arrow-up-right"></i>
+                </span>
+                {% if vendedor.vendidoen.stock %}
+                        <span class="badge bg-danger">{{ vendedor.vendidoen.stock }}</span>
+                {% endif %}
+                {% if row.articulo.unidades > 1 %}
+                    <span class="badge bg-info">{{ row.articulo.unidades }} Unidades $ {{ vendedor.vendidoen.precio|div:row.articulo.unidades|floatformat:0|intcomma }}  C/U</span>
+                {% endif %}
+                <p class="card-text">
+                    <p class="text-muted">
+                        
+                        <a href="{% url 'precios:SiteURLResults_detail' vendedor.vendidoen.id %}" rel="nofollow">
+                            Hace {{ vendedor.vendidoen.updated|timesince }} atrás.
+                        </a>
+                    </p>
+                    
+                </p>
+            </div>
+
+            <div class="float-end">
+                <h5><span class="badge bg-info">$ {{ vendedor.vendidoen.precio|floatformat:0|intcomma }} </span></h5>
+            </div>
+        </div>
+        
+    </div>
+    {% if user.is_active and user.is_staff %}
+        <div class="row">
+            <div class="col-sm-12">
+                <p class="card-text">
+                    <small class="text-muted">
+                        {% if vendedor.reglas %}
+                            {{ vendedor.vendidoen.nombre }}
+                            <span class="badge bg-dark"><abbr title="id_url">{{ vendedor.id}}</abbr></span>
+                            <span class="badge bg-dark"><abbr title="reglas">{{ vendedor.reglas }} reglas</abbr></span>
+                        {% endif %}
+                    </small>
+                </p>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+
+   
+

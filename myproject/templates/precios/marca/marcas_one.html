@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+ 
+{% load humanize mathfilters %}
+
+{% block title %}{{ context.marca|title}}{% endblock %}
+
+
+{% block breadcrumbs %}
+  {% if not is_popup %}
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'precios:home' %}">Home</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'precios:brands' %}">Marcas</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ context.marca|title}}</li>
+    </ol>
+  </nav>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+---> marcas_one,html
+<div class="container-fluid ventas">
+    <div class="p-1 mb-2 bg-light border rounded-2">
+        
+        <h6> Cache: {{ context.cache|title}}</h6>
+    </div>
+    <form  method="post">
+        {% csrf_token %}
+        <script>
+            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        </script>
+        
+    </form>
+    <div class="table-responsive">
+        
+        <div class="row">
+        
+            {% for row in context.marcas %}
+               {% if row.resultsCount != 0 %}
+                <div class="col-lg-2">
+                    <div class="card py-1 my-2">
+                        <p class="fw-normal ">
+                            <h4 class="h5">
+                                <a class="btn btn-primary stretched-link" href="{% url 'precios:brandProducts' row.id %} ">{{ row.nombre|title }}</a>
+                            </h4>
+                        </p>
+                        
+                    </div>
+            
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+                                            
+    </div>
+    
+    
+
+</div>
+
+{% endblock %}

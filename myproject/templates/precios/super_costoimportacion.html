@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load  mathfilters %}
+
+
+
+{% block title %}Estado de indexacion{% endblock %}
+{% block content %}
+
+<div class="table-responsive">
+    <table class="table table-bordered table-sm">
+        <thead class="bg-light">
+            <tr>
+                <th colspan="1" class="d-none d-sm-table-cell"></th>
+                <th colspan="1" scope="col" >Sitio</th>
+                <th colspan="2" scope="col" class="d-none d-sm-table-cell"></th>
+
+                <th colspan="1">URLs</th>
+                <th colspan="6" class="d-none d-sm-table-cell">Obtener datos</th>
+                
+               
+            </tr>
+            <tr>
+                <!-- ## Sitio ## -->
+                <th class="d-none d-sm-table-cell">Id</th>
+                <th class="d-none d-sm-table-cell">Grupo</th>
+                <th>Nombre</th>
+                <th  class="d-none d-md-table-cell">Search w.</th>
+
+                <!-- URLs  -->
+               
+                <th>Ok</th>
+
+                <!-- Resultados  -->
+                <th class="d-none d-sm-table-cell">Get Avg<br/>(s)</th>
+                <th class="d-none d-sm-table-cell">Total Get<br/>(Minutos)</th>
+                <th class="d-none d-sm-table-cell">Total Get<br/>(Horas)</th>
+                <th class="d-none d-sm-table-cell">Total Get al mes<br/>(Horas)</th>
+                <th class="d-none d-sm-table-cell">Valor core mensual<br/>(USD)</th>
+                {% if request.user.is_staff %}
+                    <th class="d-none d-sm-table-cell">Costo cores mensual<br/>(USD)</th>
+                {% endif %}
+
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in context %}
+            <tr>
+                <!-- ## Sitio ## -->
+                <td class="d-none d-sm-table-cell">
+                    {{ row.id }}
+                </td>
+                <td class="d-none d-sm-table-cell">
+                    {{ row.corporacion }}
+                </td>
+                <th class="bg-light" scope="row">
+                    
+                    <a href="{%url 'precios:supermercado' row.id %}" target="_blank">
+                        {{ row.name }}
+                    </a>
+                </th>
+                <td class="d-none d-md-table-cell">
+                    {{ row.crawler }}
+                </td>
+                
+                <td class="text-right">{{ row.sin404|intcomma }}</td>
+                <!-- Resultados  -->
+               
+                <td class="d-none d-sm-table-cell text-right">
+                    {{ row.ReSeconds.average_time|floatformat:2|intcomma }}
+                </td >
+                <td class="d-none d-sm-table-cell text-right">
+                    {{ row.ReSeconds.average_time|mul:row.sin404|div:60|floatformat:2|intcomma }} 
+                </td >
+                <td class="d-none d-sm-table-cell text-right">
+                    {{ row.ReSeconds.average_time|mul:row.sin404|div:60|div:60|floatformat:2|intcomma }}
+                </td >
+                <td class="d-none d-sm-table-cell text-right">
+                    {{ row.ReSeconds.average_time|mul:row.sin404|div:60|div:60|mul:30|floatformat:2|intcomma }}
+                </td >
+                <td class="d-none d-sm-table-cell text-right">
+                    {% for row2 in resumen %}
+                        {{ row2.costoCoresMensualUsd }} 
+                    {% endfor %}
+                    
+                </td >
+                {% if request.user.is_staff %}
+                    <td class="d-none d-sm-table-cell text-right">
+                        {% for row2 in resumen %}
+                            
+                            {{ row.ReSeconds.average_time|mul:row.sin404|div:60|div:60|div:24|mul:row2.costoCoresMensualUsd|floatformat:2|intcomma }} 
+                        {% endfor %}
+                        
+                    </td >
+                {% endif %}
+
+               
+
+                
+                
+                
+            </tr>
+
+            {% endfor %}
+        </tbody>
+        
+    </table>
+</div>
+
+{% endblock %}

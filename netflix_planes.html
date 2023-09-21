@@ -1,0 +1,91 @@
+<div class="planGrid planGrid--has3Plans" data-uia="plan-grid">
+    <div class="planGrid__header">
+        <div class="planGrid__selector planGrid__planSelector" role="radiogroup" aria-label="Plan" aria-describedby="planGrid_planChoice_description" data-uia="plan-grid-plan-selector">
+            <span class="planGrid__selectorDescription" id="planGrid_planChoice_description" data-uia="plan-grid-plan-selector+description" aria-hidden="true">Selecciona el plan que más te guste</span>
+            <label class="planGrid__selectorChoice planGrid__planChoice" for="planGrid_planChoice_0" data-uia="plan-grid-plan-selector+label-text_1_stream_name">
+                <input type="radio" name="planChoice" class="planGrid__selectorInput planGrid__planInput" id="planGrid_planChoice_0" data-uia="plan-grid-plan-selector+input-text_1_stream_name" value="314001031">
+                <span class="planGrid__selectorLabel planGrid__planLabel">Basic</span>
+            </label>
+            <label class="planGrid__selectorChoice planGrid__planChoice" for="planGrid_planChoice_1" data-uia="plan-grid-plan-selector+label-text_2_stream_name">
+                <input type="radio" name="planChoice" class="planGrid__selectorInput planGrid__planInput" id="planGrid_planChoice_1" data-uia="plan-grid-plan-selector+input-text_2_stream_name" value="10322" checked="">
+                <span class="planGrid__selectorLabel planGrid__planLabel">Standard</span>
+            </label>
+            <label class="planGrid__selectorChoice planGrid__planChoice" for="planGrid_planChoice_2" data-uia="plan-grid-plan-selector+label-text_4_stream_name">
+                <input type="radio" name="planChoice" class="planGrid__selectorInput planGrid__planInput" id="planGrid_planChoice_2" data-uia="plan-grid-plan-selector+input-text_4_stream_name" value="10341">
+                <span class="planGrid__selectorLabel planGrid__planLabel">Premium</span>
+            </label>
+        </div>
+    </div>
+    <table class="planGrid__featureTable" role="table" data-uia="plan-grid-feature-table">
+        <caption class="planGrid__featureTableCaption">Características de los planes de Netflix</caption>
+        <tbody class="planGrid__featureTableBody" data-uia="plan-grid-feature-table-body">
+            <tr role="row" class="planGrid__featureTableRow planGrid__featureTableRow--planPrice">
+                <td class="planGrid__cell planGrid__featureCell" role="cell" data-uia="plan-grid-feature-table-cell+planPrice-feature">Precio mensual</td>
+                <td class="planGrid__cell planGrid__stringCell" role="cell" data-uia="plan-grid-feature-table-cell+planPrice-text_1_stream_name" aria-label="Basic">CLP5,940</td>
+                <td class="planGrid__cell planGrid__cell--isSelected planGrid__stringCell" role="cell" data-uia="plan-grid-feature-table-cell+planPrice-text_2_stream_name" aria-label="Standard">CLP8,320</td>
+                <td class="planGrid__cell planGrid__stringCell" role="cell" data-uia="plan-grid-feature-table-cell+planPrice-text_4_stream_name" aria-label="Premium">CLP10,700</td>
+            </tr>
+            <tr role="row" class="planGrid__featureTableRow planGrid__featureTableRow--videoQuality">
+                <td class="planGrid__cell planGrid__featureCell" role="cell" data-uia="plan-grid-feature-table-cell+videoQuality-feature">Calidad de video</td>
+                <td class="planGrid__cell planGrid__videoQualityCell" role="cell" data-uia="plan-grid-feature-table-cell+videoQuality-text_1_stream_name" aria-label="Basic">
+                    <div class="planGrid__videoQualityLabel">Buena</div>
+                </td>
+                <td class="planGrid__cell planGrid__cell--isSelected planGrid__videoQualityCell" role="cell" data-uia="plan-grid-feature-table-cell+videoQuality-text_2_stream_name" aria-label="Standard">
+                    <div class="planGrid__videoQualityLabel">Mejor</div>
+                </td>
+                <td class="planGrid__cell planGrid__videoQualityCell" role="cell" data-uia="plan-grid-feature-table-cell+videoQuality-text_4_stream_name" aria-label="Premium">
+                    <div class="planGrid__videoQualityLabel">Óptima</div>
+                </td>
+            </tr>
+            <tr role="row" class="planGrid__featureTableRow planGrid__featureTableRow--resolution">
+                <td class="planGrid__cell planGrid__featureCell" role="cell" data-uia="plan-grid-feature-table-cell+resolution-feature">Resolución</td>
+                <td class="planGrid__cell planGrid__videoQualityCell" role="cell" data-uia="plan-grid-feature-table-cell+resolution-text_1_stream_name" aria-label="Basic">
+                    <div class="planGrid__videoQualityLabel">720p</div>
+                </td>
+                <td class="planGrid__cell planGrid__cell--isSelected planGrid__videoQualityCell" role="cell" data-uia="plan-grid-feature-table-cell+resolution-text_2_stream_name" aria-label="Standard">
+                    <div class="planGrid__videoQualityLabel">1080p</div>
+                </td>
+                <td class="planGrid__cell planGrid__videoQualityCell" role="cell" data-uia="plan-grid-feature-table-cell+resolution-text_4_stream_name" aria-label="Premium">
+                    <div class="planGrid__videoQualityLabel">4K+HDR</div>
+                </td>
+            </tr>
+            <tr role="row" class="planGrid__featureTableRow planGrid__featureTableRow--noField">
+                <td class="planGrid__cell planGrid__featureCell" role="cell" data-uia="plan-grid-feature-table-cell+3-feature">Ve Netflix en tu TV, computadora, celular y tablet</td>
+                <td class="planGrid__cell planGrid__booleanCell" role="cell" data-uia="plan-grid-feature-table-cell+3-text_1_stream_name" aria-label="Basic">
+                    <span class="planGrid__booleanLabel">Sí</span>
+                    <span class="planGrid__booleanIcon" aria-hidden="true">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="planGrid__booleanGraphic planGrid__booleanGraphic--isCheck default-ltr-cache-0 e1mhci4z1" data-name="Checkmark" aria-hidden="true" focusable="false">
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M21.2928 4.29285L22.7071 5.70706L8.70706 19.7071C8.51952 19.8946 8.26517 20 7.99995 20C7.73474 20 7.48038 19.8946 7.29285 19.7071L0.292847 12.7071L1.70706 11.2928L7.99995 17.5857L21.2928 4.29285Z" fill="currentColor"></path>
+                        </svg>
+                    </span>
+                </td>
+                <td class="planGrid__cell planGrid__cell--isSelected planGrid__booleanCell" role="cell" data-uia="plan-grid-feature-table-cell+3-text_2_stream_name" aria-label="Standard">
+                    <span class="planGrid__booleanLabel">Sí</span>
+                    <span class="planGrid__booleanIcon" aria-hidden="true">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="planGrid__booleanGraphic planGrid__booleanGraphic--isCheck default-ltr-cache-0 e1mhci4z1" data-name="Checkmark" aria-hidden="true" focusable="false">
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M21.2928 4.29285L22.7071 5.70706L8.70706 19.7071C8.51952 19.8946 8.26517 20 7.99995 20C7.73474 20 7.48038 19.8946 7.29285 19.7071L0.292847 12.7071L1.70706 11.2928L7.99995 17.5857L21.2928 4.29285Z" fill="currentColor"></path>
+                        </svg>
+                    </span>
+                </td>
+                <td class="planGrid__cell planGrid__booleanCell" role="cell" data-uia="plan-grid-feature-table-cell+3-text_4_stream_name" aria-label="Premium">
+                    <span class="planGrid__booleanLabel">Sí</span>
+                    <span class="planGrid__booleanIcon" aria-hidden="true">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="planGrid__booleanGraphic planGrid__booleanGraphic--isCheck default-ltr-cache-0 e1mhci4z1" data-name="Checkmark" aria-hidden="true" focusable="false">
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M21.2928 4.29285L22.7071 5.70706L8.70706 19.7071C8.51952 19.8946 8.26517 20 7.99995 20C7.73474 20 7.48038 19.8946 7.29285 19.7071L0.292847 12.7071L1.70706 11.2928L7.99995 17.5857L21.2928 4.29285Z" fill="currentColor"></path>
+                        </svg>
+                    </span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div>
+        <small class="planGrid__disclaimer planGrid__standardDisclaimer">
+            <span id="" data-uia="plan-grid-legal">La disponibilidad del contenido en HD (720p), Full HD (1080p), Ultra HD (4K) y HDR depende de tu servicio de internet y del dispositivo en uso. No todo el contenido está disponible en todas las resoluciones. Consulta nuestros <a href="https://help.netflix.com/legal/termsofuse" target="_blank">Términos de uso</a>
+                 para obtener más información.
+            </span>
+        </small>
+        <small class="planGrid__disclaimer planGrid__standardDisclaimer">
+            <span id="" data-uia="plan-grid-legal">Solo las personas que vivan contigo pueden usar tu cuenta. Puedes ver Netflix en 4&nbsp;dispositivos al mismo tiempo con el plan Premium, en 2&nbsp;con el plan Estándar y en 1&nbsp;con el plan Básico.</span>
+        </small>
+    </div>
+</div>

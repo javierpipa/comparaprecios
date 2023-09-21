@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load humanize mathfilters%}
+{% block extrahead %}
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+    google.load('visualization','1', {'packages': ['geochart']});
+    google.setOnLoadCallback(drawRegionsMap);
+
+    function drawRegionsMap() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string','Country');
+        data.addColumn('number','Jumbo');
+        data.addColumn('number','Lider');
+        data.addRows([
+            [{f:'Aisén del General Carlos Ibañez del Campo', v:'CL-AI'},5,1], 
+            [{f:'Antofagasta', v:'CL-AN'},3,0], 
+            [{f:'Araucanía', v:'CL-AR'},10,1], 
+            [{f:'Arica y Parinacota', v:'CL-AP'},7,1], 
+            [{f:'Atacama', v:'CL-AT'},10,1], 
+            [{f:'Bío-Bío', v:'CL-BI'},3,1], 
+            [{f:'Coquimbo', v:'CL-CO'},10,1], 
+            [{f:'Libertador General Bernardo OHiggins', v:'CL-LI'},7,1], 
+            [{f:'Los Lagos', v:'CL-LL'},1,1], 
+            [{f:'Los Ríos', v:'CL-LR'},3,0], 
+            [{f:'Magallanes', v:'CL-MA'},4,0], 
+            [{f:'Maule', v:'CL-ML'},8,0], 
+            [{f:'Región Metropolitana de Santiago', v:'CL-RM'},1,0], 
+            [{f:'Tarapacá', v:'CL-TA'},4,0], 
+            [{f:'Valparaíso', v:'CL-VS'},6,0]]);
+
+        var options = {'title':'Map','width':550,'height':400,'region':'CL','resolution':'provinces', 'displayMode': 'markers'};
+        var container = document.getElementById('chart_div2');
+        var geochart = new google.visualization.GeoChart(container);
+        geochart.draw(data, options);
+    };
+</script>
+
+{% endblock %}
+{% block content %}
+
+
+    <div class="container-lg my-4"> 
+
+        <div class="p-4 mb-2 bg-light border rounded-3">
+            <h1>
+                Parte del grupo {{ context.supermercado.corporacion }}
+            </h1>
+            <p class="lead"></p>
+            <p>Su URL principal es <a href="{{ context.supermercado.siteURL }}" target="_blank">{{ context.supermercado.siteURL }}</a>.</p>
+            {%if context.supermercado.sitemap_url %}
+                <p> Utiliza <a href="{{ context.supermercado.sitemap_url }}" target="_blank">sitemap</a></p>
+            {% endif %}
+            <p>  Y su cobertura esta definida en <a href="{{ context.supermercado.cobertura_url }}" target="_blank">{{ context.supermercado.cobertura_url }}</a></p>
+            {%if context.supermercado.reclamos_url %}
+                <p>  Reclamos en  <a href="{{ context.supermercado.reclamos_url }}" target="_blank">{{ context.supermercado.reclamos_url }}</a></p>
+            {% endif %}
+            
+            <!-- <p><a href="https://www.tutorialrepublic.com" target="_blank" class="btn btn-primary btn-lg">Start learning today</a></p> -->
+            <p>
+                Contiene {{ context.pages.count }} Pages, {{ context.sitemaps.count }} sitemaps y {{ context.momentos.count }} costos de despacho.
+            </p>
+        </div>
+
+       
+        
+    </div>
+    <div class="dashboard-item-content">
+        <div id="chart_div2" style="width: 700px; height: 450px"></div>
+        <div id="chart_div" style="width: 700px; height: 450px"></div>
+    </div>
+    
+
+
+{% endblock %}

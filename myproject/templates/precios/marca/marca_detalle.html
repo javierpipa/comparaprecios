@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% load humanize mathfilters cms_tags menu_tags sekizai_tags static i18n static thumbnail meta page_meta_tags%}
+
+{% page_meta request.current_page as page_meta %}
+
+{% block title %}{{ context.marca|title}}{% endblock %}
+{% block breadcrumbs %}
+  {% if not is_popup %}
+  <section class="breadcrumbs">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2>{{ context.marca|title}}</h2>
+        <ol>
+            <li><a href="{% url 'precios:home' %}">Home</a></li>
+            <li><a href="{% url 'precios:brands' %}">Marcas</a></li>
+        </ol>
+      </div>
+    </div>
+  </section><!-- Breadcrumbs Section -->
+  
+  {% endif %}
+{% endblock %}
+
+{% block extrahead %}
+    <meta property="product:brand" content="{{ context.marca|title}}">
+    {% if row.articulo.ean_13 %}
+        <meta property="product:retailer_item_id" content="{{ context.articulo.ean_13}}">
+    {% endif %}
+    <script>
+        $( document ).ready(function() 
+        {
+            loadCarrito();
+        })
+    </script>
+{% endblock %}
+
+
+{% block content %}
+
+---> marca_detalle.html
+<main id="main">
+    <section id="featured-services" class="featured-services">
+        <div class="container" data-aos="fade-up">
+            <div class="row">
+                <div class="p-1 mb-2 bg-light border rounded-2">
+                    <div class="col">
+                        <h5> Productos: {{ context.resumen.num_prods}}</h5>
+                        <h6> Cache: {{ context.resumen.cache|title}}</h6>
+                    </div>
+                </div> 
+            </div>
+            <div class="row">
+                {% for row in articulos_dict %}
+                    <div class="col-lg-6 border">
+                       
+                        <div class="row ">
+        
+                            <div class="div-img col-sm-3 ">
+                                <img class="rounded mx-auto d-block imageover" src="{{row.articulo.image1}}" alt="{{ row.vendidoen.site }}" >
+                            </div>
+                            <div class="col-sm-7 ">
+                                <p class="fw-normal mb-1">
+                                    {{ row.articulo.marca|title }}
+                                </p>
+                                <p class="fw-bold mb-1">
+                                    {% if user.is_active and user.is_staff %}
+                                        <!-- {{ row.articulo.id }} <br/> -->
+                                    {% endif %}
+
+                                    <a  href='{% url "precios:detalle" row.articulo.slug %}'>
+                                        {% if row.articulo.nombre %}
+                                            {{ row.articulo.nombre|title }}
+                                        {% else %}
+                                            {{ row.articulo.grados2 }}°
+                                            {{ row.articulo.medida_cant }} {{ row.articulo.medida_um }}    
+                                        {% endif %}
+                                    </a>
+                                    {% if row.articulo.color %}
+                                        <span class="badge bg-dark">Color: {{ row.articulo.color }}</span>
+                                    {% endif %}
+                                </p>
+                                {% if row.articulo.unidades > 1 %}
+                                    <p class="text-muted mb-0"><span class="badge bg-dark">Unidades: {{ row.articulo.unidades }}</span></p>
+                                {% endif %}
+                                <p class="text-muted mb-0">
+                                    <span class="badge bg-secondary">
+                                        {% if row.articulo.envase != None %}
+                                            {{ row.articulo.envase }}
+                                        {% endif %}
+                                    </span>
+                                    {% if row.articulo.grados2 %}
+                                        <span class="badge bg-danger">{{ row.articulo.grados2 }}°</span>&nbsp;
+                                    {% endif %}
+                                    {% if row.articulo.medida_cant %}
+                                        <span class="badge bg-secondary">{{ row.articulo.medida_cant }} {{ row.articulo.medida_um }}</span>
+                                    {% endif %}
+                                </p>
+                                {% if row.articulo.ean_13 %}
+                                    <p class="text-muted mb-0">{{ row.articulo.ean_13}} </p>
+                                {% endif %}
+                                {{ row.dimension }}
+                            </div>
+                            <div class="col-sm-2 ">
+                                {%  include "precios/includes/boton_add_product.html" with id_prod=row.articulo.pk %}
+                            </div>
+                        </div>
+                        <ol class="list-group list-group list-group-numbered" >
+                            {% for vendedor in row.detalle %}
+                                <li class="list-group-item d-flex justify-content-start align-items-start" >
+                                    {% include "precios/includes/vendedor_detalle.html" %}
+                                </li>
+                            {% endfor %}
+                        </ol>
+
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    
+
+                 
+    
+    
+    
+</main>
+
+{% endblock %}
+
+{% block pagination %}
+<ul class="pagination justify-content-center">
+    
+    {% if articulos_dict.has_previous %}
+        <li class="page-item"><a class="page-link" href="{{ context.supermercado.id }}?page={{ articulos_dict.previous_page_number }}">Anterior</a></li>
+    {% endif %}
+    
+    {% if articulos_dict.has_previous or articulos_dict.has_next %}
+        {% if articulos_dict %}
+            <li class="page-item active"><a class="page-link" href="#">{{articulos_dict.number}} de {{articulos_dict.paginator.num_pages}}</a></li>
+        {% endif %}
+    {% endif %}
+    
+    {% if articulos_dict.has_next %}
+        
+        <li class="page-item"><a class="page-link" href="{{ context.supermercado.id }}?page={{ articulos_dict.next_page_number }}">Próxima</a></li>
+        <li class="page-item"><a class="page-link" href="{{ context.supermercado.id }}?page={{ articulos_dict.paginator.num_pages }}">Última</a></li>
+
+    {% endif %}
+    
+</ul>
+{% endblock %}
+
+{% block footer %}
+    {% include "footer.html" %}
+{% endblock %}
+

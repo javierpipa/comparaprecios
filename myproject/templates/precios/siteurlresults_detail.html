@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+{% load humanize mathfilters static %}
+
+{% block title %} {{ title|title }}{% endblock %}
+
+{% block breadcrumbs %}
+      {% include "template_breadcrums.html"  %}
+{% endblock %}
+
+{% block content %}
+
+---> SiteURLResults_detail.html
+<div class="container-xl px-4 mt-4">
+    <!-- Account page navigation-->
+    
+    <div class="row">
+        <div class="col-lg-4 mb-4">
+            <!-- Billing card 1-->
+            <div class="card h-100 border-start-lg border-start-primary">
+                <div class="card-body">
+                    <div class="small text-muted">Created</div>
+                    <div class="h5">{{ object.created }}</div>
+
+                    <div class="small text-muted">Updated</div>
+                    <div class="h5">{{ object.updated }}</div>
+
+
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 mb-4">
+            <!-- Billing card 2-->
+            <div class="card h-100 border-start-lg border-start-secondary">
+                <div class="card-body">
+                    <div class="small text-muted">Site</div>
+                    <div class="h5">
+                        <a href="{%url 'precios:supermercado' object.site.id %}">
+                            {{ object.site }}
+                        </a>
+                    
+                    </div>
+                    
+                    <div class="small text-muted">Precio</div>
+                    <div class="h5">{{ object.precio|intcomma  }}</div>
+                    {% if object.error404 %}
+                        <span class="badge bg-danger">
+                            Error 404 {{ object.error404 }}
+                        </span>
+                    {% endif %}
+                    
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 mb-4">
+            <!-- Billing card 3-->
+            <div class="card h-100 border-start-lg border-start-success">
+                <div class="card-body">
+                    <div class="small text-muted">URL</div>
+                    <div class="h5 d-flex align-items-center"><a href="{{ object.url }}">{{ object.url }}</a> <i class="bi bi-box-arrow-up-right"></i></span></div>
+                    
+                    <div class="small text-muted">Marca</div>
+                    <div class="h5">
+                            {{ object.marca|title }}
+                            {{ object.marca.slug }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+
+          <!-- Info -->
+            <div class="card mb-4">
+                <div class="card-body">
+
+                    <div class="row mb-2">
+                        <div class="col-md-3 text-muted">Nombre:</div>
+                        <div class="col-md-9">
+                            {{ object.nombre|title }}
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-md-3 text-muted">Stock:</div>
+                        <div class="col-md-9">
+                            {{ object.stock }}
+                        </div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-md-3 text-muted">Imagen:</div>
+                        <div class="col-md-9">
+                            <img class="imageover card-img-top" src="{{ object.image }}">
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card mb-4">
+                <div class="card-body">
+                <div class="row mb-2">
+                    <div class="col-md-3 text-muted">idproducto:</div>
+                    <div class="col-md-9">
+                        {{ object.idproducto }}
+                    </div>
+                </div>
+            
+                <div class="row mb-2">
+                    <div class="col-md-3 text-muted">Descripcion:</div>
+                    <div class="col-md-9">
+                        {{ object.descripcion }}
+                    </div>
+                </div>
+            
+                <div class="row mb-2">
+                    <div class="col-md-3 text-muted">Tipo:</div>
+                    <div class="col-md-9">
+                        {{ object.tipo }}
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-3 text-muted">Categoria:</div>
+                    <div class="col-md-9">
+                        {{ object.categoria }}
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-3 text-muted">Medida:</div>
+                    <div class="col-md-9">
+                        {{ object.medida_cant }}{{ object.medida_um }}
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-3 text-muted">Unidades:</div>
+                    <div class="col-md-9">
+                        {{ object.unidades }}
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+    
+   
+     <div class="card mb-4">
+        <div class="card-header">Precios historicos ({{ object.HistoryCount }})</div>
+        <div class="card-body p-0">
+
+            <div class="table-responsive table-billing-history">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th class="border-gray-200" scope="col">ID</th>
+                            <th class="border-gray-200" scope="col">Fecha</th>
+                            <th class="border-gray-200" scope="col">Precios</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for precio in precios %}
+                        <tr>
+                            <td>{{ precio.id }}</td>
+                            <td>{{ precio.OldDate }}</td>
+                            <td class="text-right">{{ precio.Oldprecio|intcomma }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="card mb-4">
+        <div class="card-header">Reglas </div>
+        <div class="card-body p-0">
+
+            <div class="table-responsive table-billing-history">
+                <table class="table mb-0">
+                    
+                    <tbody>
+                        {% for regla in reglas %}
+                        <thead>
+                            <tr>
+                                <th class="border-gray-200" scope="col">ID regla</th>
+                                <th class="border-gray-200" scope="col">Tipo</th>
+                                
+                            </tr>
+                        </thead>
+                        <tr>
+                            <td>{{ regla.pk }}</td>
+                            <td>{{ regla.tipo }}</td>
+                        </tr>
+                        <thead>
+                            <tr>
+                                <th class="border-gray-200" scope="col">Caso</th>
+                                <th class="border-gray-200" scope="col">Marca</th>
+                                <th class="border-gray-200" scope="col">Nombre</th>
+                                <th class="border-gray-200" scope="col">Envase</th>
+                                <th class="border-gray-200" scope="col">Grados</th>
+                                <th class="border-gray-200" scope="col">Medida</th>
+                                <th class="border-gray-200" scope="col">Unidades</th>
+                            </tr>
+                        </thead>
+                        <tr>
+                            <td>SI:</td>
+                            <td>{{ regla.si_marca }}</td>
+                            <td>{{ regla.si_nombre }}</td>
+                            <td>{{ regla.si_envase }}</td>
+                            <td>{{ regla.si_grados2 }}</td>
+                            <td>{{ regla.si_medida_cant }}</td>
+                            <td>{{ regla.si_unidades }}</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                ENTONCES:
+                            </td>
+                            
+                            <td>
+                                {{regla.entonces_marca }}
+                            </td>
+                            <td>
+                                {{regla.entonces_nombre }}
+                            </td>
+                            <td>
+                                {{regla.entonces_envase }}
+                            </td>
+                            <td>
+                                {{regla.entonces_grados2 }}
+                            </td>
+                            <td>
+                                {{regla.entonces_medida_cant }}
+                            </td>
+                            <td>
+                                {{regla.entonces_unidades }}
+                            </td>                                      
+                                    
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+{% endblock %}
+
+{% block footer %}
+{% include "footer.html" %}
+{% endblock %}

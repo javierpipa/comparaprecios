@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Cobertura{% endblock %}
+
+{% block breadcrumbs %}
+    {% include "template_breadcrums.html"  %}
+{% endblock %}
+
+{% block content %}
+<div id="portfolio" class="d-flex">
+    <div id="controls">
+        <label>
+            <input type="checkbox" id="withSupermarkets" checked> Comunas con supermercados
+        </label>
+        <label>
+            <input type="checkbox" id="withoutSupermarkets" checked> Comunas sin supermercados
+        </label>
+    </div>
+    
+    <div class="container" >
+        <div id="map" style="height: 500px; width: 80%;"></div>
+    </div>
+</div>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDDLOovUfJyFFjHp_G94V_-vbtnTijIK60&region=CL"></script>
+
+<script type="text/javascript">
+    var markersWithSupermarkets = [];
+    var markersWithoutSupermarkets = [];
+
+    function initMap() {
+        var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 4,
+            center: {lat: -33.45, lng: -70.65},
+        });
+
+        var data = {{ data|safe }};
+        
+        data.forEach(function(comuna) {
+            var marker = new google.maps.Marker({
+                position: {lat: comuna.latitud, lng: comuna.longitud},
+                map: map,
+                title: comuna.nombre + ': ' + comuna.cantidad_supermercados + ' supermercados',
+                icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: 10,
+                    fillColor: comuna.color,
+                    fillOpacity: 0.8,
+                    strokeWeight: 0.4
+                }
+            });
+
+            var infoWindow = new google.maps.InfoWindow({
+                content: `<div>${comuna.nombre}: ${comuna.cantidad_supermercados} supermercados. <br> ${comuna.nombres_supermercados}</div>`
+            });
+
+            marker.addListener('click', function() {
+                infoWindow.open(map, marker);
+            });
+
+            if (comuna.cantidad_supermercados > 0) {
+                markersWithSupermarkets.push(marker);
+            } else {
+                markersWithoutSupermarkets.push(marker);
+            }
+        });
+
+        document.getElementById('withSupermarkets').addEventListener('change', updateVisibility);
+        document.getElementById('withoutSupermarkets').addEventListener('change', updateVisibility);
+
+        function updateVisibility() {
+            var withSupermarketsChecked = document.getElementById('withSupermarkets').checked;
+            var withoutSupermarketsChecked = document.getElementById('withoutSupermarkets').checked;
+
+            markersWithSupermarkets.forEach(marker => {
+                marker.setVisible(withSupermarketsChecked);
+            });
+
+            markersWithoutSupermarkets.forEach(marker => {
+                marker.setVisible(withoutSupermarketsChecked);
+            });
+        }
+    }
+
+    google.maps.event.addDomListener(window, 'load', initMap);
+
+
+    
+
+    
+</script>
+
+{% endblock %}
+
+{% block footer %}
+    {% include "footer.html" %}
+{% endblock %}

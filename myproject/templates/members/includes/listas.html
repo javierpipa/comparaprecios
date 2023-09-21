@@ -1,0 +1,43 @@
+
+
+<div class="container-fluid ">
+    <h2>Listas</h2>
+    <table class="table table-bordered table-sm">
+        <thead class="bg-light">
+            <tr>
+                <th colspan="1">Nombre </th>
+                <th colspan="1">Creada</th>
+                <th colspan="1" >Actualizada</th>
+                <th colspan="1" >Articulos</th>
+                <th colspan="1" >Cargar</th>
+                <th colspan="1" >Eliminar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in listas %}
+            <tr>
+                <td nowrap>
+                    {{ row.nombre_lista }}
+                </td>
+                <td>
+                    {{ row.created }}
+                </td>
+                <td>
+                    {{ row.updated }}
+                </td>
+                <td>
+                    {{ row.articleCount }}
+                </td>
+                <td>
+                    <a href="{%url 'precios:loadcart' row.id %}" class="btn-sm btn-success "><i class="bi-pencil"></i>Cargar</a>
+                    
+                </td>
+                <td>
+                    <a href="{%url 'precios:deletecart' row.id %}" class="btn-sm btn-danger "><i class="bi-trash"></i>Eliminar lista</a>
+                    
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

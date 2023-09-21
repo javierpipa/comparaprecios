@@ -1,0 +1,112 @@
+{% load humanize mathfilters %}
+            {% if context.resumen.articulos_count %}
+                
+                    <section id="filterContainer" class="bg-white h-screen max-h-resultFilter mobile:hidden desktop:block rounded sticky top-10 overflow-scroll border">
+                        
+                        
+
+                        <div class="accordion" id="myAccordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingOne">
+                                    <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#Marcasfilter">Marcas</button>									
+                                </h2>
+                                <div id="Marcasfilter" class="accordion-collapse collapse">
+                                    <div class="card-body" style="max-height:250px; overflow-y: scroll;">
+                                        <ul class="list-group">
+                                            {% for row in filtro.marcas %}
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                <input type="checkbox" ngmodel="" name="marca" aria-label="marca" value="{{ row.marca_id}}" class="form-check-input"> 
+                                                {{ row.marca__nombre|title }} 
+                                                <span class="badge bg-primary rounded-pill">{{ row.id__count }}</span>
+                                                
+                                            </li>
+                                            {% endfor %}
+                                        </ul>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                            {% if  filtro.grados|length > 1 %}
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="headingTwo">
+                                        <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#gradosfilter">Grados</button>
+                                    </h2>
+                                    <div id="gradosfilter" class="accordion-collapse collapse">
+                                        <div class="card-body" style="max-height:250px; overflow-y: scroll;">
+                                            <ul class="list-group">
+                                                {% for row in filtro.grados %}
+                                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                    <input type="checkbox" ngmodel="" name="grados" aria-label="grados" value="{{ row.grados2}}" class="form-check-input"> 
+                                                    {{ row.grados2|title }} °
+                                                    <span class="badge bg-primary rounded-pill">{{ row.id__count }}</span>
+                                                </li>
+                                                {% endfor %}
+                                            </ul>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingThree">
+                                    <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#envasefilter">Envase</button>                     
+                                </h2>
+                                <div id="envasefilter" class="accordion-collapse collapse">
+                                    <div class="card-body"  style="max-height:250px; overflow-y: scroll;">
+                                        <ul class="list-group">
+                                            {% for row in filtro.envase %}
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                <input type="checkbox" ngmodel="" name="envase" aria-label="envase" value="{{ row.envase}}" class="form-check-input"> 
+                                                {{ row.envase|title }} 
+                                                <span class="badge bg-primary rounded-pill">{{ row.id__count }}</span>
+                                            </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            {% if  filtro.color|length > 1 %}
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="headingFour">
+                                        <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#colorfilter">Color</button>                     
+                                    </h2>
+                                    <div id="colorfilter" class="accordion-collapse collapse">
+                                        <div class="card-body"  style="max-height:250px; overflow-y: scroll;">
+                                            <ul class="list-group">
+                                                {% for row in filtro.color %}
+                                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                    <input type="checkbox" ngmodel="" name="color" aria-label="color" value="{{ row.color}}"  class="form-check-input"> 
+                                                    {{ row.color|title }}
+                                                    <span class="badge bg-primary rounded-pill">{{ row.id__count }}</span>
+                                                </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingFive">
+                                    <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#medida_cantfilter">Medida</button>                     
+                                </h2>
+                                <div id="medida_cantfilter" class="accordion-collapse collapse">
+                                    <div class="card-body"  style="max-height:250px; overflow-y: scroll;">
+                                        <ul class="list-group">
+                                            {% for row in filtro.medida_cant %}
+                                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                    <input type="checkbox" ngmodel="" name="medida_cant" aria-label="medida_cant" value="{{ row.medida_cant|floatformat:0}}" class="form-check-input"> 
+                                                    {{ row.medida_cant|floatformat:0|intcomma  }} 
+                                                    <span class="badge bg-primary rounded-pill">{{ row.id__count }}</span>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </section> 
+                
+                    {% endif  %}

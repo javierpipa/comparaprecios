@@ -1,0 +1,73 @@
+Error al buscar_enlaces https://www.santaisabel.cl/: Message: stale element reference: stale element not found
+  (Session info: headless chrome=114.0.5735.198)
+Stacktrace:
+#0 0x561367b12233 <unknown>
+#1 0x5613678418e6 <unknown>
+#2 0x5613678461ac <unknown>
+#3 0x5613678480f0 <unknown>
+#4 0x5613678b5bf2 <unknown>
+#5 0x56136789cc82 <unknown>
+#6 0x5613678b4fce <unknown>
+#7 0x56136789ca53 <unknown>
+#8 0x561367871f4d <unknown>
+#9 0x561367872fbe <unknown>
+#10 0x561367ad2114 <unknown>
+#11 0x561367ad5f67 <unknown>
+#12 0x561367ae06b0 <unknown>
+#13 0x561367ad6bb3 <unknown>
+#14 0x561367aa495a <unknown>
+#15 0x561367afb4f8 <unknown>
+#16 0x561367afb687 <unknown>
+#17 0x561367b0af83 <unknown>
+#18 0x7f7b8fea6b43 <unknown>
+ nivel=1
++----+---------------------------------------------------------------------------------------------------+---------+----------------------------------------------------------------------+------------------------+-----------+-----------+-----------+-----------+
+|    | url                                                                                               |   nivel | grupo_1                                                              | grupo_2                | grupo_3   | grupo_4   | grupo_5   | grupo_6   |
+|----+---------------------------------------------------------------------------------------------------+---------+----------------------------------------------------------------------+------------------------+-----------+-----------+-----------+-----------|
+|  0 | https://www.santaisabel.cl/#jumbo-homepage                                                        |       1 | #jumbo-homepage                                                      |                        |           |           |           |           |
+|  1 | https://www.santaisabel.cl/mis-compras                                                            |       1 | mis-compras                                                          |                        |           |           |           |           |
+|  2 | https://www.santaisabel.cl/                                                                       |       1 |                                                                      |                        |           |           |           |           |
+|  3 | https://www.santaisabel.cl/#                                                                      |       1 | #                                                                    |                        |           |           |           |           |
+|  4 | https://www.santaisabel.cl/tomate-larga-vida-granel/p                                             |       1 | tomate-larga-vida-granel                                             | p                      |           |           |           |           |
+|  5 | https://www.santaisabel.cl/frutas-y-verduras-propias                                              |       1 | frutas-y-verduras-propias                                            |                        |           |           |           |           |
+|  6 | https://www.santaisabel.cl/reineta-sin-piel-500-g-cuisine-and-co-1773231/p                        |       1 | reineta-sin-piel-500-g-cuisine-and-co-1773231                        | p                      |           |           |           |           |
+|  7 | https://www.santaisabel.cl/cuisine-co                                                             |       1 | cuisine-co                                                           |                        |           |           |           |           |
+|  8 | https://www.santaisabel.cl/filetes-de-merluza-san-jose-500-g/p                                    |       1 | filetes-de-merluza-san-jose-500-g                                    | p                      |           |           |           |           |
+|  9 | https://www.santaisabel.cl/san-jose                                                               |       1 | san-jose                                                             |                        |           |           |           |           |
+| 10 | https://www.santaisabel.cl/surtido-de-mariscos-500-g-cuisine-and-co-1855313/p                     |       1 | surtido-de-mariscos-500-g-cuisine-and-co-1855313                     | p                      |           |           |           |           |
+| 11 | https://www.santaisabel.cl/papas-prefritas-minuto-verde-1-kg/p                                    |       1 | papas-prefritas-minuto-verde-1-kg                                    | p                      |           |           |           |           |
+| 12 | https://www.santaisabel.cl/minuto-verde                                                           |       1 | minuto-verde                                                         |                        |           |           |           |           |
+| 13 | https://www.santaisabel.cl/papas-duquesas-minuto-verde-1-kg/p                                     |       1 | papas-duquesas-minuto-verde-1-kg                                     | p                      |           |           |           |           |
+| 14 | https://www.santaisabel.cl/helado-brownie-vainilla-2-5-l-1895131/p                                |       1 | helado-brownie-vainilla-2-5-l-1895131                                | p                      |           |           |           |           |
+| 15 | https://www.santaisabel.cl/trendy                                                                 |       1 | trendy                                                               |                        |           |           |           |           |
+| 16 | https://www.santaisabel.cl/helado-trendy-tiramisu-tres-leches-y-chocolate-chips-25-litros/p       |       1 | helado-trendy-tiramisu-tres-leches-y-chocolate-chips-25-litros       | p                      |           |           |           |           |
+| 17 | https://www.santaisabel.cl/helado-trendy-lucuma-nuez-y-vainilla-con-salsa-de-manjar-25-litros/p   |       1 | helado-trendy-lucuma-nuez-y-vainilla-con-salsa-de-manjar-25-litros   | p                      |           |           |           |           |
+| 18 | https://www.santaisabel.cl/helado-trendy-leche-asada-suspiro-limeno-y-arroz-con-leche-25-litros/p |       1 | helado-trendy-leche-asada-suspiro-limeno-y-arroz-con-leche-25-litros | p                      |           |           |           |           |
+| 19 | https://www.santaisabel.cl/helado-trendy-chocolate-suizo-y-frutos-del-bosque-25-litros/p          |       1 | helado-trendy-chocolate-suizo-y-frutos-del-bosque-25-litros          | p                      |           |           |           |           |
+| 20 | https://www.santaisabel.cl/helado-caramel-macchiato-2-5-l-1858299/p                               |       1 | helado-caramel-macchiato-2-5-l-1858299                               | p                      |           |           |           |           |
+| 21 | https://www.santaisabel.cl/tortillas-mexicanas-tia-rosa-bolsa-320-g-10-u/p                        |       1 | tortillas-mexicanas-tia-rosa-bolsa-320-g-10-u                        | p                      |           |           |           |           |
+| 22 | https://www.santaisabel.cl/tia-rosa                                                               |       1 | tia-rosa                                                             |                        |           |           |           |           |
+| 23 | https://www.santaisabel.cl/tortillas-mexicanas-tia-rosa-24-unid-pack-fie/p                        |       1 | tortillas-mexicanas-tia-rosa-24-unid-pack-fie                        | p                      |           |           |           |           |
+| 24 | https://www.santaisabel.cl/pa-ales-pampers-comfort-sec-talla-m-86-unid/p                          |       1 | pa-ales-pampers-comfort-sec-talla-m-86-unid                          | p                      |           |           |           |           |
+| 25 | https://www.santaisabel.cl/pampers                                                                |       1 | pampers                                                              |                        |           |           |           |           |
+| 26 | https://www.santaisabel.cl/panal-pampers-confort-sec-g-72-unid/p                                  |       1 | panal-pampers-confort-sec-g-72-unid                                  | p                      |           |           |           |           |
+| 27 | https://www.santaisabel.cl/panal-pampers-confort-sec-xg-60-unid/p                                 |       1 | panal-pampers-confort-sec-xg-60-unid                                 | p                      |           |           |           |           |
+| 28 | https://www.santaisabel.cl/panal-pampers-confort-sec-xxg-60-unid/p                                |       1 | panal-pampers-confort-sec-xxg-60-unid                                | p                      |           |           |           |           |
+| 29 | https://www.santaisabel.cl/whisky-johnnie-walker-750-cc-40-etiqueta-roja-importado/p              |       1 | whisky-johnnie-walker-750-cc-40-etiqueta-roja-importado              | p                      |           |           |           |           |
+| 30 | https://www.santaisabel.cl/johnnie-walker                                                         |       1 | johnnie-walker                                                       |                        |           |           |           |           |
+| 31 | https://www.santaisabel.cl/bebida-pepsi-15-l-botella-desechable/p                                 |       1 | bebida-pepsi-15-l-botella-desechable                                 | p                      |           |           |           |           |
+| 32 | https://www.santaisabel.cl/pepsi                                                                  |       1 | pepsi                                                                |                        |           |           |           |           |
+| 33 | https://www.santaisabel.cl/bebida-pepsi-light-15-l-botella-desechable/p                           |       1 | bebida-pepsi-light-15-l-botella-desechable                           | p                      |           |           |           |           |
+| 34 | https://www.santaisabel.cl/bebida-pepsi-zero-1-5-l/p                                              |       1 | bebida-pepsi-zero-1-5-l                                              | p                      |           |           |           |           |
+| 35 | https://www.santaisabel.cl/hierbita-8-hierbas-supremo-caja-20-g-20-bolsitas/p                     |       1 | hierbita-8-hierbas-supremo-caja-20-g-20-bolsitas                     | p                      |           |           |           |           |
+| 36 | https://www.santaisabel.cl/supremo                                                                |       1 | supremo                                                              |                        |           |           |           |           |
+| 37 | https://www.santaisabel.cl/hierbas-surtidas-supremo-54-8-g-50-bolsitas/p                          |       1 | hierbas-surtidas-supremo-54-8-g-50-bolsitas                          | p                      |           |           |           |           |
+| 38 | https://www.santaisabel.cl/locales                                                                |       1 | locales                                                              |                        |           |           |           |           |
+| 39 | https://www.santaisabel.cl/institucional/concursos                                                |       1 | institucional                                                        | concursos              |           |           |           |           |
+| 40 | https://www.santaisabel.cl/plan-por-el-futuro                                                     |       1 | plan-por-el-futuro                                                   |                        |           |           |           |           |
+| 41 | https://www.santaisabel.cl/informaciones-legales/terminos-y-condiciones                           |       1 | informaciones-legales                                                | terminos-y-condiciones |           |           |           |           |
+| 42 | https://www.santaisabel.cl/informaciones-legales/seguridad-y-privacidad                           |       1 | informaciones-legales                                                | seguridad-y-privacidad |           |           |           |           |
+| 43 | https://www.santaisabel.cl/panal-pampers-confort-sec-g-72-unid/p#jumbo-homepage                   |       2 | panal-pampers-confort-sec-g-72-unid                                  | p#jumbo-homepage       |           |           |           |           |
+| 44 | https://www.santaisabel.cl/helado-caramel-macchiato-2-5-l-1858299/p#jumbo-homepage                |       2 | helado-caramel-macchiato-2-5-l-1858299                               | p#jumbo-homepage       |           |           |           |           |
+| 45 | https://www.santaisabel.cl/bebida-pepsi-zero-1-5-l/p#jumbo-homepage                               |       2 | bebida-pepsi-zero-1-5-l                                              | p#jumbo-homepage       |           |           |           |           |
++----+---------------------------------------------------------------------------------------------------+---------+----------------------------------------------------------------------+------------------------+-----------+-----------+-----------+-----------+

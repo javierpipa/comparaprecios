@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+{% load humanize mathfilters %}
+
+
+{% block title %}Cobertura{% endblock %}
+{% block extrahead %}
+
+{% endblock %}
+
+
+{% block content %}
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDDLOovUfJyFFjHp_G94V_-vbtnTijIK60&region=CL"></script>
+<script type="text/javascript">
+    var markersWithSupermarkets = [];
+    var markersWithoutSupermarkets = [];
+
+    function initMap() {
+        var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 4,
+            center: {lat: -33.45, lng: -70.65},
+        });
+
+        var data = {{ data|safe }};
+        
+        data.forEach(function(comuna) {
+            var marker = new google.maps.Marker({
+                position: {lat: comuna.latitud, lng: comuna.longitud},
+                map: map,
+                title: comuna.nombre + ': ' + comuna.cantidad_supermercados + ' supermercados',
+                icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: 10,
+                    fillColor: comuna.color,
+                    fillOpacity: 0.8,
+                    strokeWeight: 0.4
+                }
+            });
+
+            var infoWindow = new google.maps.InfoWindow({
+                content: `<div>${comuna.nombre}: ${comuna.cantidad_supermercados} supermercados. <br> ${comuna.nombres_supermercados}</div>`
+            });
+
+            marker.addListener('click', function() {
+                infoWindow.open(map, marker);
+            });
+
+            if (comuna.cantidad_supermercados > 0) {
+                markersWithSupermarkets.push(marker);
+            } else {
+                markersWithoutSupermarkets.push(marker);
+            }
+        });
+
+        document.getElementById('withSupermarkets').addEventListener('change', updateVisibility);
+        document.getElementById('withoutSupermarkets').addEventListener('change', updateVisibility);
+
+        function updateVisibility() {
+            var withSupermarketsChecked = document.getElementById('withSupermarkets').checked;
+            var withoutSupermarketsChecked = document.getElementById('withoutSupermarkets').checked;
+
+            markersWithSupermarkets.forEach(marker => {
+                marker.setVisible(withSupermarketsChecked);
+            });
+
+            markersWithoutSupermarkets.forEach(marker => {
+                marker.setVisible(withoutSupermarketsChecked);
+            });
+        }
+    }
+    google.maps.event.addDomListener(window, 'load', initMap);
+    
+</script>
+
+
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <div id="controls">
+                <label>
+                    <input type="checkbox" id="withSupermarkets" checked> Comunas con supermercados
+                </label>
+                <label>
+                    <input type="checkbox" id="withoutSupermarkets" checked> Comunas sin supermercados
+                </label>
+            </div>
+            
+            <div class="container" >
+                <div id="map" style="height: 500px; width: 80%;"></div>
+            </div>
+        </div>
+        <div class="col">
+            {% for pais in context.datos %}
+                <div class="row">
+                    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#CollapsePais{{ pais.id }}" aria-expanded="true" aria-controls="#CollapsePais{{ pais.id }}">{{ pais.nombre }}  </button>
+                    <!-- {{ pais.num_regiones }} regiones -->
+                    <div class="collapse multi-collapse show" id="CollapsePais{{ pais.id }}">
+                        {% for region in pais.regiones %}
+                            <div class="row">
+                                <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#CollapseRegion{{ region.id }}" aria-expanded="true" aria-controls="#CollapseRegion{{ region.id }}">{{ region.nombre }}</button>
+                                <div class="collapse multi-collapse show" id="CollapseRegion{{ region.id }}">
+                                    <div class="card card-body">
+                                        <p>
+                                            {% for ciudad in region.ciudades %}
+                                                <a href="#CollapseCiudad{{ ciudad.id }}" data-bs-toggle="collapse">{{ ciudad.nombre }} ( {{ ciudad.num_areas}} )</a>
+                                                <!-- <button class="btn btn-info" type="button" data-bs-toggle="collapse" data-bs-target="#CollapseCiudad{{ ciudad.id }}" aria-expanded="true" aria-controls="CollapseCiudad{{ ciudad.id }}">{{ ciudad.nombre }} ( {{ ciudad.num_areas}} )</button> -->
+                                            {% endfor %}
+                                        </p>
+                                        {% for ciudad in region.ciudades %}
+                                            <div class="col">
+                                                
+                                                <div class="collapse multi-collapse show" id="CollapseCiudad{{ ciudad.id }}">
+                                                    <div class="card card-body">
+                                                    <h2>{{ ciudad.nombre }}  ( {{ ciudad.num_areas}} )</h2>
+                                                    
+                                                    {% for area in ciudad.areas %}
+                                                    
+                                                    <table class="table table-bordered table-sm">
+                                                        <thead class="bg-light">
+                                                            <tr>
+                                                                <th colspan="1">Area</th>
+                                                                <th colspan="1">Monto minimo compra</th>
+                                                
+                                                                <th colspan="1" >Valor despacho</th>
+                                                
+                                                                <th colspan="1">Dias para despacho</th>
+                                                                <!-- <th colspan="1">Comunas</th> -->
+                                                                
+                                                                        
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>                                        
+                                                                <td nowrap >
+                                                                    <h3>{{ area.site }}</h3>
+                                                                </td>
+                                                                <td class="text-end">
+                                                                    <h4>{{ area.monto_minimo_compra |floatformat:0|intcomma}}</h4>
+                                                                </td>
+                                                                <td class="text-end">
+                                                                    <h4>{{ area.valor_despacho |floatformat:0|intcomma}}</h4>
+                                                                </td>
+                                                                <td>
+                                                                    {{ area.dias_para_despacho}}
+                                                                </td>
+                                                            </tr>
+                                                                <tr>
+                                                                    <th colspan="1">Dias que se despacha</th>
+                                                                    <th colspan="1">horario</th>
+                                                                </tr>
+                                                                {% for row in area.momentos %}
+                                                                <tr>
+                                                                    <td>
+                                                                        {% for dia in row.dia.all %}
+                                                                            {{ dia }}<br/>
+                                                                        {% endfor %}
+                                                                    </td>
+                                                                    <td>
+                                                                        {% for horario in row.horario.all %}
+                                                                            {{ horario }}<br/>
+                                                                        {% endfor %}
+                                                                    
+                                                                    </td>
+                                                                </tr>
+
+                                                                {% endfor %} 
+                                                        </tbody>
+                                                    </table>   
+                                                    {% endfor %}  
+                                                    
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}  
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        {% endfor %}    
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+
+    
+</div>
+
+{% endblock %}
+
+{% block footer %}
+    {% include "footer.html" %}
+{% endblock %}

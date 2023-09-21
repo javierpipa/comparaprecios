@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load cms_tags menu_tags sekizai_tags static i18n static %}   
+
+{% block title %}Actualizar datos del usuario{% endblock %}
+
+{% block breadcrumbs %}
+  {% if not is_popup %}
+  <section class="breadcrumbs">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2>Actualizar datos del usuario</h2>
+        <ol>
+            <li><a href="/">Home</a></li>
+            <li>Actualizar datos del usuario</li>
+        </ol>
+      </div>
+    </div>
+  </section><!-- Breadcrumbs Section -->
+  
+  {% endif %}
+{% endblock %}
+
+
+{% block content %}
+
+<main id="main">
+    <section id="featured-services" class="featured-services">
+        <div class="container" data-aos="fade-up">
+            {% if form.errors %}
+                    
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <strong>Hubo un error...</strong> 
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endif %}
+
+
+            <form  method="post" id="personForm">
+                {% csrf_token %}
+                {{ member_form.as_p }}
+            
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+    </section>
+</main>
+
+<script>
+  $("#id_country").change(function () {
+      const url = ajax_regiones;
+      const countryId = $("#id_country").val();  // get the selected country ID from the HTML input
+      console.log('countryId=' + countryId);
+
+      $.ajax({                       // initialize an AJAX request
+          url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )
+          data: {
+              'country_id': countryId       // add the country id to the GET parameters
+          },
+          success: function (data) {   // `data` is the return of the `load_cities` view function
+              $("#id_region").html(data);  // replace the contents of the city input with the data that came from the server               
+          }
+      });
+
+  });
+  $("#id_region").change(function () {
+      const url = ajax_regiones; // get the url of the `load_cities` view
+      const countryId = $("#id_country").val();  // get the selected country ID from the HTML input
+      const regionId =  $("#id_region").val();  // get the selected id_region ID from the HTML input
+      console.log('countryId=' + countryId);
+      console.log('regionId=' + regionId);
+
+      $.ajax({                       // initialize an AJAX request
+          url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )
+          data: {
+              'country_id': countryId,       // add the country id to the GET parameters
+              'region_id': regionId,       // add the country id to the GET parameters
+          },
+          success: function (data) {   // `data` is the return of the `load_cities` view function
+              $("#id_comuna").html(data);  // replace the contents of the city input with the data that came from the server
+              
+          }
+      });
+
+  });
+</script>
+{% endblock %}
+
+{% block footer %}
+{% include "footer.html" %}
+{% endblock %}

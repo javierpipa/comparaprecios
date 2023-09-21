@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load  mathfilters %}
+
+
+
+
+{% block title %}Empresas que ofrecen{% endblock %}
+{% block breadcrumbs %}
+  {% if not is_popup %}
+  <section class="breadcrumbs">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2>Empresas que ofrecen</h2>
+        <ol>
+            <li><a href="/">Home</a></li>
+            <li><a href="/precios/acercadevop">Sobre DEVOP</a></li>
+            <li>Empresas que ofrecen</li>
+        </ol>
+      </div>
+    </div>
+  </section><!-- Breadcrumbs Section -->
+  
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+
+<section id="portfolio-details" class="portfolio-details">
+  <div class="container">
+    <div class="mt-5">
+      <div class="col-md-10 col-xl-10 mx-auto">
+          <h1 class="text-center">Tenemos planes para todos los que Ofrecen</h1>
+          <p class="lead text-center mb-4"></p>
+          <div class="tab-content">
+            <div class="row py-4">
+              {% for plan in planes %}
+              <div class="col-sm-4 mb-3 mb-md-0">
+                <div class="card border{{plan.plan.area_class}}">
+                    <div class="card-header border-bottom flex-column align-items-start p-3">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-box text-secondary h3 stroke-width-1 mb-2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                      <h4 class="text{{plan.plan.area_class}} font-weight-light mb-2">{{ plan.plan.nombre }}</h4>
+                      <p class="font-size-sm mb-0">{{ plan.plan.leyenda }}</p>
+                    </div>
+                    <div class="card-header border-bottom justify-content-center py-4">
+                    <h1 class="pricing-price">
+                        <small class="align-self-start">$</small>
+                        {{ plan.plan.valor_agno|floatformat:0|intcomma }}
+                        
+                        {% if plan.plan.leyenda_valor %}
+                            <small class="align-self-end">{{ plan.plan.leyenda_valor }}</small> 
+                        {% endif %}
+                        <small class="align-self-start">Anual</small>
+                    </h1>
+                    {% if plan.plan.costo_implementacion > 0%}
+                      <h4 class="pricing-price">
+                        Implementación
+                        <small class="align-self-start">$</small>
+                        <small class="align-self-end">{{ plan.plan.costo_implementacion|floatformat:0|intcomma }}</small> 
+                      </h4>
+                    {% endif %}
+                    </div>
+                    <div class="card-body">
+                    <ul class="list-unstyled font-size-sm mb-0">
+                        {% for row in plan.incorpora %}
+                        <li>
+                            {% if row.todos or row.cantidad >= 1 %}
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check text-success mr-2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            {%else%}
+                                <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x text-danger mr-2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                    
+                            {% endif %}
+                            <strong>
+                                {% if row.todos %}Todos {%else%} {{row.cantidad|floatformat:0|intcomma}} {% endif %}
+                            </strong>
+                            <span class="text-secondary ml-1">{{row.objeto}}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    
+                    </div>
+                    <div class="card-footer justify-content-center p-3">
+                        <button class="btn btn-outline{{plan.plan.area_class}}">
+                          <a href="{{plan.plan.boton_registrarse_url}}" class="nav-item nav-link">{{plan.plan.boton_registrarse_texto}}</a>
+                        </button>
+                        {% if not user.is_active  %}
+                        {% else %}
+                        <!-- <button class="btn btn-outline{{plan.plan.area_class}}">
+                            Ya esta registrado        
+                        </button> -->
+                        {% endif %}
+                    </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>    
+      </div>
+      <hr>
+    </div>
+  </div>
+  <div class="container">
+    <div class="text-center my-4">
+        <h2>Condiciones generales</h2>
+    </div>
+    <div class="row">
+        <div class="col-md-5 col-sm-6 ml-auto">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="h6 card-title">Que es la Implementación ?</h5>
+                    <p class="mb-0">Es anotar cada url de cada categoria de producto, ver 
+                      si las páginas están completas o son llenadas con Javascript, determinar si utiliza SiteMap y si es correcto, determinar si basta indexar la lista de una categoría o 
+                      es necesario indexar cada URL de un producto.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-5 col-sm-6 mr-auto">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="h6 card-title">El sitio de mi empresa sirve ?</h5>
+                    <p class="mb-0">Depende si contiene una URL con la cobertura de despacho, que indique las comunas, dias y horario de despacho, el costo del depacho y monto mínimo de 
+                      compra para que el despacho pueda hacerse.</p>
+                      <p class="mb-0">Depende también si la estructura del DOM no cambia entre los productos.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-5 col-sm-6 ml-auto">
+          <div class="card">
+              <div class="card-body">
+                  <h5 class="h6 card-title">Y si cambio la gráfica de mi sitio?</h5>
+                  <p class="mb-0">Si el método para encontrar un valor ya no sirve hay que pagar nuevamente la implementación. Hasta ahora se utiliza busqueda por CSS Selector, Meta y XPath 
+                    utilizando Beautiful Soup y Selenium. </p>
+              </div>
+          </div>
+        </div>
+        <div class="col-md-5 col-sm-6 mr-auto">
+          <div class="card">
+              <div class="card-body">
+                  <h5 class="h6 card-title">Puedo suprimir el plan en cualquier momento ?</h5>
+                  <p class="mb-0">Si, aunque por ser pagos anuales, todo un año ya esta pagado. </p>
+              </div>
+          </div>
+        </div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="text-center my-4">
+      <h2>Preguntas frecuentes relativas a las condiciones</h2>
+    </div>
+    <div class="row">
+        <div class="col-md-5 col-sm-6 ml-auto">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="h6 card-title">La Indexación genera carga excesiva en mi sitio ?</h5>
+                    <p class="mb-0">No. Los sitios que tienen menos de 3000 productos son indexados secuencialmente haciendo una carga como si fuera una persona, pero rápida. </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-5 col-sm-6 mr-auto">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="h6 card-title">Acaso escribirán todas las URLs de mis productos ?</h5>
+                    <p class="mb-0">No. Solo anotaremos las URLs de las categorías. Y si el SiteMap es bueno, con eso bastará.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-5 col-sm-6 ml-auto">
+          <div class="card">
+              <div class="card-body">
+                  <h5 class="h6 card-title">Y si ahora quiero el Plan Avanzado?</h5>
+                  <p class="mb-0">Bien pensado. Coticelo en el botón verde "Calcular" y prosiga.</p>
+              </div>
+          </div>
+        </div>
+        <div class="col-md-5 col-sm-6 mr-auto">
+          <div class="card">
+              <div class="card-body">
+                  <h5 class="h6 card-title">Y si quiero agregar mas comunas  ?</h5>
+                  <p class="mb-0">Ingrese a su cuenta, agregue mas comunas y páguelas. </p>
+              </div>
+          </div>
+        </div>
+        
+        
+    </div>
+  </div>
+  
+        
+</section>
+
+{% endblock %}
+    
+    
+
+
+
+
+    
+{% block footer %}
+{% include "footer.html" %}
+{% endblock %}

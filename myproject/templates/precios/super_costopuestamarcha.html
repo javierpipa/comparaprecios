@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load  mathfilters %}
+
+
+
+{% block title %}Estado de indexacion{% endblock %}
+{% block content %}
+
+
+<div class="table-responsive">
+    <table class="table table-bordered table-sm">
+        <thead class="bg-light">
+            <tr>
+                <th colspan="1" class="d-none d-sm-table-cell"></th>
+                <th colspan="1" scope="col" >Sitio</th>
+                <th colspan="1" scope="col" class="d-none d-sm-table-cell"></th>
+                {% if request.user.is_staff %}
+                    <th colspan="3" scope="col" class="d-none d-sm-table-cell">Solo sitio</th>
+                    
+                {% endif %}
+
+                <th colspan="10" class="d-none d-sm-table-cell">Configuración de la recolecta</th>
+                <th colspan="3" class="d-none d-sm-table-cell">Costos de despacho</th>
+                <th colspan="1" class="d-none d-sm-table-cell">Total</th>
+               
+            </tr>
+            <tr>
+                <!-- ## Sitio ## -->
+                <th class="d-none d-sm-table-cell">Id</th>
+                <th class="d-none d-sm-table-cell">Grupo</th>
+                <th>Nombre</th>
+                {% if request.user.is_staff %}
+                    <th class="d-none d-sm-table-cell">Valor hora $</th>
+                    <th class="d-none d-sm-table-cell">Horas</th>
+                    <th class="d-none d-sm-table-cell">Costo</th>
+                {% endif %}
+                
+
+                <!-- Configuración  -->
+                <th colspan="3" class="d-none d-sm-table-cell">Campos <br/> de Listado</th>
+                <th colspan="3" class="d-none d-sm-table-cell">Campos <br/> de Producto</th>
+                <th colspan="3" class="d-none d-sm-table-cell">Campos <br/> de Producto en listado</th>
+                <th colspan="1" class="d-none d-sm-table-cell">Total Recolecta</th>
+
+
+                
+                <!-- Costos de despacho  -->
+                <th colspan="3" class="d-none d-sm-table-cell">Areas de Despacho<br/</th>
+                
+                <th class="d-none d-sm-table-cell"><br/</th>
+                       
+            </tr>
+            <tr>
+                <th colspan="3" class="d-none d-sm-table-cell"></th>
+                <th colspan="3" class="d-none d-sm-table-cell"></th>
+
+                <th colspan="1" class="d-none d-sm-table-cell">#</th>
+                <th colspan="1" class="d-none d-sm-table-cell">Horas</th>
+                <th colspan="1" class="d-none d-sm-table-cell">Valor</th>
+
+                <th colspan="1" class="d-none d-sm-table-cell">#</th>
+                <th colspan="1" class="d-none d-sm-table-cell">Horas</th>
+                <th colspan="1" class="d-none d-sm-table-cell">Valor</th>
+
+                <th colspan="1" class="d-none d-sm-table-cell">#</th>
+                <th colspan="1" class="d-none d-sm-table-cell">Horas</th>
+                <th colspan="1" class="d-none d-sm-table-cell">Valor</th>
+
+                <th colspan="1" class="d-none d-sm-table-cell">$</th>
+
+                <th colspan="1" class="d-none d-sm-table-cell">#</th>
+                <th colspan="1" class="d-none d-sm-table-cell">Horas</th>
+                <th colspan="1" class="d-none d-sm-table-cell">Valor</th>
+
+                <th colspan="1" class="d-none d-sm-table-cell">Pesos</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in context %}
+            <tr>
+                <!-- ## Sitio ## -->
+                <td class="d-none d-sm-table-cell">
+                    {{ row.id }}
+                </td>
+                <td class="d-none d-sm-table-cell">
+                    {{ row.corporacion }}
+                </td>
+                <th class="bg-light" scope="row">
+                    
+                    <a href="{%url 'precios:supermercado' row.id %}" target="_blank">
+                        {{ row.name }}
+                    </a>
+                </th>
+                {% if request.user.is_staff %}
+                    <td class="d-none d-sm-table-cell text-right">
+                        {% for row2 in resumen %}
+                            {{ row2.valorHoraConfigSitioPesos|intcomma }}
+                        {% endfor %}
+                    </td>
+                    <td class="d-none d-sm-table-cell text-right">
+                        {% for row2 in resumen %}
+                            {{ row2.horasregistrositio }} 
+                        {% endfor %}
+                    </td>
+                    <td class="d-none d-sm-table-cell text-right">
+                        {% for row2 in resumen %}
+                            {{ row2.horasregistrositio|mul:row2.valorHoraConfigSitioPesos|intcomma }} 
+                        {% endfor %}
+                    </td>
+                {% endif %}
+
+                <!-- Configuración  de Listado-->
+                <td class="d-none d-sm-table-cell">
+                    {{ row.camposlistado }}
+                </td>
+                <td class="d-none d-sm-table-cell text-right">
+                    {% for row2 in resumen %}
+                        {{ row2.horasregistrocampolistado|mul:row.camposlistado|floatformat:2 }}  
+                    {% endfor %}
+                </td>
+                <td class="d-none d-sm-table-cell text-right">
+                    {% for row2 in resumen %}
+                    {{ row2.horasregistrocampolistado|mul:row.camposlistado|mul:row2.valorHoraConfigSitioPesos|floatformat:0|intcomma }}
+                    {% endfor %}
+                </td>
+
+                <!-- Configuración  de producto -->
+                <td class="d-none d-sm-table-cell text-right">
+                    {{ row.camposproducto }}
+                </td>
+                <td class="d-none d-sm-table-cell text-right">
+                    {% for row2 in resumen %}
+                        {{ row2.horasregistrocampoproducto|mul:row.camposproducto|floatformat:2 }} 
+                    {% endfor %}
+                </td>
+                <td class="d-none d-sm-table-cell text-right">
+                    {% for row2 in resumen %}
+                    {{ row2.horasregistrocampoproducto|mul:row.camposproducto|mul:row2.valorHoraConfigSitioPesos|floatformat:0|intcomma }} 
+                    {% endfor %}
+                </td>
+
+                 <!-- Configuración  de producto en listado -->
+                <td class="d-none d-sm-table-cell text-right">
+                    {{ row.camposd_listado }}
+                </td>
+                <td class="d-none d-sm-table-cell text-right">
+                    {% for row2 in resumen %}
+                        {{ row2.horasregistrocampoProdictolistado|mul:row.camposd_listado }} 
+                    {% endfor %}
+                </td>
+                <td class="d-none d-sm-table-cell text-right">
+                    {% for row2 in resumen %}
+                        {{ row2.horasregistrocampoProdictolistado|mul:row.camposd_listado|mul:row2.valorHoraConfigSitioPesos|floatformat:0|intcomma }} 
+                    {% endfor %}
+                </td>
+                <td class="d-none d-sm-table-cell text-right">
+                    
+                    {{ row.valor_recolecta|floatformat:0|intcomma }} 
+                    
+                </td>
+                
+
+
+               
+
+                <!-- Costos de despacho  -->
+                <td class="d-none d-sm-table-cell text-right">
+                    {{ row.areasDespacho }}
+                </td>
+                <td class="d-none d-sm-table-cell text-right">
+                    {% for row2 in resumen %}
+                        {{ row2.horasregistroAreaDespacho|mul:row.areasDespacho|floatformat:2 }} 
+                    {% endfor %}
+                </td>
+                <td class="d-none d-sm-table-cell text-right">
+                    {% for row2 in resumen %}
+                        {{ row2.horasregistroAreaDespacho|mul:row.areasDespacho|mul:row2.valorHoraConfigSitioPesos|floatformat:0|intcomma }} 
+                    {% endfor %}
+                </td>
+
+
+                
+                <td class="d-none d-sm-table-cell text-right">
+                    {{ row.total_puestaen_marcha|floatformat:0|intcomma  }}
+                </td>
+
+            </tr>
+
+            {% endfor %}
+        </tbody>
+        <tfooter>
+            <tr>
+            <th class="d-none d-sm-table-cell"></th>
+            <th>Sitios: {{ context|length }}</th>
+            {% for row in resumen %}
+            
+                <th class="d-none d-sm-table-cell"></th>
+                <th class="d-none d-sm-table-cell"></th>
+                <th class="d-none d-sm-table-cell"></th>
+                
+               
+                <th class="d-none d-sm-table-cell text-right">{{row.suma_solo_sitio|floatformat:0|intcomma}}</th>
+                <th class="d-none d-sm-table-cell"></th>
+                <th class="d-none d-sm-table-cell"></th>
+                <td class="d-none d-sm-table-cell text-right">{{row.suma_campos_listado|floatformat:0|intcomma}}</td>
+                <th class="d-none d-sm-table-cell"></th>
+                <th class="d-none d-sm-table-cell"></th>
+                <td class="d-none d-sm-table-cell text-right">{{row.suma_campos_producto|floatformat:0|intcomma}}</td>
+                <th class="d-none d-sm-table-cell"></th>
+                <th class="d-none d-sm-table-cell"></th>
+                <td class="d-none d-sm-table-cell text-right">{{row.suma_campos_productolistado|floatformat:0|intcomma}}</td>
+                <th class="d-none d-sm-table-cell text-right">{{row.suma_valor_recolecta|floatformat:0|intcomma}}</th>
+                <th class="d-none d-sm-table-cell"></th>
+                <th class="d-none d-sm-table-cell"></th>
+                <th class="d-none d-sm-table-cell text-right">{{row.suma_valor_despacho|floatformat:0|intcomma}}</th>
+                <th class="d-none d-sm-table-cell text-right">{{row.suma_valor_total|floatformat:0|intcomma}}</th>
+
+                
+                
+            
+            {% endfor %}
+            
+            </tr>
+        </tfooter>
+        
+    </table>
+</div>
+{% endblock %}

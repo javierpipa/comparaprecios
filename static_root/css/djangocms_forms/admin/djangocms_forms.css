@@ -1,0 +1,24 @@
+.inline-related * {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.inline-related h3 {
+    background-color: #FCFCFC;
+    padding: 10px 20px 10px 3px;
+    margin: 0;
+    text-align: center;
+}
+
+.inline-related .inline_label {
+    font-weight: 300;
+}
+
+.inline-related .collapse-expand {
+    display: inline-block;
+    text-transform: uppercase;
+    padding: 0 10px 0 10px;
+    width: 44px;
+    float: left;
+    text-decoration:none!important;
+}

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load humanize mathfilters%}
+
+
+
+
+
+{% block content %}
+
+<div class="container-fluid">
+    
+    <table class="table table-bordered table-sm">
+        <thead class="bg-light">
+            <th colspan="1" scope="col">URL</th>
+
+            <th colspan="1">last_scan</th>
+            
+        </thead>
+        <tbody>
+            {% for row in context.pages %}
+            <tr>
+                <!-- ## Sitio ## -->
+                <td>
+                    {{ row.page }}
+                </td>
+               
+                <td>
+                    {{ row.last_scan }}
+                </td>
+
+            </tr>
+
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+{% endblock %}

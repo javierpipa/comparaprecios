@@ -1,0 +1,91 @@
++----+----------------------------------------------------------+---------+---------------------------+---------------------------+-----------+-----------+-----------+-----------+
+|    | url                                                      |   nivel | grupo_1                   | grupo_2                   | grupo_3   | grupo_4   | grupo_5   | grupo_6   |
+|----+----------------------------------------------------------+---------+---------------------------+---------------------------+-----------+-----------+-----------+-----------|
+|  0 | https://speedmarkt.cl/                                   |       1 |                           |                           |           |           |           |           |
+|  1 | https://speedmarkt.cl/#                                  |       1 | #                         |                           |           |           |           |           |
+|  2 | https://speedmarkt.cl/products                           |       1 | products                  |                           |           |           |           |           |
+|  3 | https://speedmarkt.cl/abouts                             |       1 | abouts                    |                           |           |           |           |           |
+|  4 | https://speedmarkt.cl/contact_abouts                     |       1 | contact_abouts            |                           |           |           |           |           |
+|  5 | https://speedmarkt.cl/login                              |       1 | login                     |                           |           |           |           |           |
+|  6 | https://speedmarkt.cl/products/2224                      |       1 | products                  | 2224                      |           |           |           |           |
+|  7 | https://speedmarkt.cl/products/2223                      |       1 | products                  | 2223                      |           |           |           |           |
+|  8 | https://speedmarkt.cl/products/2234                      |       1 | products                  | 2234                      |           |           |           |           |
+|  9 | https://speedmarkt.cl/products/2231                      |       1 | products                  | 2231                      |           |           |           |           |
+| 10 | https://speedmarkt.cl/checkouts/shipping                 |       1 | checkouts                 | shipping                  |           |           |           |           |
+| 11 | https://speedmarkt.cl/#top                               |       1 | #top                      |                           |           |           |           |           |
+| 12 | https://speedmarkt.cl/login#                             |       2 | login#                    |                           |           |           |           |           |
+| 13 | https://speedmarkt.cl/login#top                          |       2 | login#top                 |                           |           |           |           |           |
+| 14 | https://speedmarkt.cl/products#                          |       2 | products#                 |                           |           |           |           |           |
+| 15 | https://speedmarkt.cl/products/1782                      |       2 | products                  | 1782                      |           |           |           |           |
+| 16 | https://speedmarkt.cl/products/1762                      |       2 | products                  | 1762                      |           |           |           |           |
+| 17 | https://speedmarkt.cl/products/1759                      |       2 | products                  | 1759                      |           |           |           |           |
+| 18 | https://speedmarkt.cl/products/1755                      |       2 | products                  | 1755                      |           |           |           |           |
+| 19 | https://speedmarkt.cl/products/1751                      |       2 | products                  | 1751                      |           |           |           |           |
+| 20 | https://speedmarkt.cl/products/1750                      |       2 | products                  | 1750                      |           |           |           |           |
+| 21 | https://speedmarkt.cl/products/1742                      |       2 | products                  | 1742                      |           |           |           |           |
+| 22 | https://speedmarkt.cl/products/1741                      |       2 | products                  | 1741                      |           |           |           |           |
+| 23 | https://speedmarkt.cl/products/1740                      |       2 | products                  | 1740                      |           |           |           |           |
+| 24 | https://speedmarkt.cl/products/1726                      |       2 | products                  | 1726                      |           |           |           |           |
+| 25 | https://speedmarkt.cl/products/1722                      |       2 | products                  | 1722                      |           |           |           |           |
+| 26 | https://speedmarkt.cl/products/1721                      |       2 | products                  | 1721                      |           |           |           |           |
+| 27 | https://speedmarkt.cl/products/1712                      |       2 | products                  | 1712                      |           |           |           |           |
+| 28 | https://speedmarkt.cl/products/1709                      |       2 | products                  | 1709                      |           |           |           |           |
+| 29 | https://speedmarkt.cl/products/1708                      |       2 | products                  | 1708                      |           |           |           |           |
+| 30 | https://speedmarkt.cl/products/1706                      |       2 | products                  | 1706                      |           |           |           |           |
+| 31 | https://speedmarkt.cl/products#widget-body-1             |       2 | products#widget-body-1    |                           |           |           |           |           |
+| 32 | https://speedmarkt.cl/products#widget-body-2             |       2 | products#widget-body-2    |                           |           |           |           |           |
+| 33 | https://speedmarkt.cl/products#widget-body-3             |       2 | products#widget-body-3    |                           |           |           |           |           |
+| 34 | https://speedmarkt.cl/products#widget-body-4             |       2 | products#widget-body-4    |                           |           |           |           |           |
+| 35 | https://speedmarkt.cl/products#widget-body-5             |       2 | products#widget-body-5    |                           |           |           |           |           |
+| 36 | https://speedmarkt.cl/products#widget-body-6             |       2 | products#widget-body-6    |                           |           |           |           |           |
+| 37 | https://speedmarkt.cl/products#widget-body-7             |       2 | products#widget-body-7    |                           |           |           |           |           |
+| 38 | https://speedmarkt.cl/products#widget-body-8             |       2 | products#widget-body-8    |                           |           |           |           |           |
+| 39 | https://speedmarkt.cl/products#widget-body-9             |       2 | products#widget-body-9    |                           |           |           |           |           |
+| 40 | https://speedmarkt.cl/products#widget-body-10            |       2 | products#widget-body-10   |                           |           |           |           |           |
+| 41 | https://speedmarkt.cl/products#widget-body-11            |       2 | products#widget-body-11   |                           |           |           |           |           |
+| 42 | https://speedmarkt.cl/products#widget-body-12            |       2 | products#widget-body-12   |                           |           |           |           |           |
+| 43 | https://speedmarkt.cl/products#widget-body-16            |       2 | products#widget-body-16   |                           |           |           |           |           |
+| 44 | https://speedmarkt.cl/products#widget-body-18            |       2 | products#widget-body-18   |                           |           |           |           |           |
+| 45 | https://speedmarkt.cl/products#widget-body-19            |       2 | products#widget-body-19   |                           |           |           |           |           |
+| 46 | https://speedmarkt.cl/products#widget-body-20            |       2 | products#widget-body-20   |                           |           |           |           |           |
+| 47 | https://speedmarkt.cl/products#widget-body-21            |       2 | products#widget-body-21   |                           |           |           |           |           |
+| 48 | https://speedmarkt.cl/products#widget-body-prod          |       2 | products#widget-body-prod |                           |           |           |           |           |
+| 49 | https://speedmarkt.cl/products/1297                      |       2 | products                  | 1297                      |           |           |           |           |
+| 50 | https://speedmarkt.cl/products#top                       |       2 | products#top              |                           |           |           |           |           |
+| 51 | https://speedmarkt.cl/products/1762#                     |       3 | products                  | 1762#                     |           |           |           |           |
+| 52 | https://speedmarkt.cl/products/1762#product-desc-content |       3 | products                  | 1762#product-desc-content |           |           |           |           |
+| 53 | https://speedmarkt.cl/products/1762#top                  |       3 | products                  | 1762#top                  |           |           |           |           |
+| 54 | https://speedmarkt.cl/products/1706#                     |       3 | products                  | 1706#                     |           |           |           |           |
+| 55 | https://speedmarkt.cl/products/1706#product-desc-content |       3 | products                  | 1706#product-desc-content |           |           |           |           |
+| 56 | https://speedmarkt.cl/products/1706#top                  |       3 | products                  | 1706#top                  |           |           |           |           |
+| 57 | https://speedmarkt.cl/products/1759#                     |       3 | products                  | 1759#                     |           |           |           |           |
+| 58 | https://speedmarkt.cl/products/1759#product-desc-content |       3 | products                  | 1759#product-desc-content |           |           |           |           |
+| 59 | https://speedmarkt.cl/products/1759#top                  |       3 | products                  | 1759#top                  |           |           |           |           |
+| 60 | https://speedmarkt.cl/products/1741#                     |       3 | products                  | 1741#                     |           |           |           |           |
+| 61 | https://speedmarkt.cl/products/1741#product-desc-content |       3 | products                  | 1741#product-desc-content |           |           |           |           |
+| 62 | https://speedmarkt.cl/products/1741#top                  |       3 | products                  | 1741#top                  |           |           |           |           |
+| 63 | https://speedmarkt.cl/products/1721#                     |       3 | products                  | 1721#                     |           |           |           |           |
+| 64 | https://speedmarkt.cl/products/1721#product-desc-content |       3 | products                  | 1721#product-desc-content |           |           |           |           |
+| 65 | https://speedmarkt.cl/products/1721#top                  |       3 | products                  | 1721#top                  |           |           |           |           |
+| 66 | https://speedmarkt.cl/products/1712#                     |       3 | products                  | 1712#                     |           |           |           |           |
+| 67 | https://speedmarkt.cl/products/1712#product-desc-content |       3 | products                  | 1712#product-desc-content |           |           |           |           |
+| 68 | https://speedmarkt.cl/products/1712#top                  |       3 | products                  | 1712#top                  |           |           |           |           |
+| 69 | https://speedmarkt.cl/products/1742#                     |       3 | products                  | 1742#                     |           |           |           |           |
+| 70 | https://speedmarkt.cl/products/1742#product-desc-content |       3 | products                  | 1742#product-desc-content |           |           |           |           |
+| 71 | https://speedmarkt.cl/products/1742#top                  |       3 | products                  | 1742#top                  |           |           |           |           |
+| 72 | https://speedmarkt.cl/products/1740#                     |       3 | products                  | 1740#                     |           |           |           |           |
+| 73 | https://speedmarkt.cl/products/1740#product-desc-content |       3 | products                  | 1740#product-desc-content |           |           |           |           |
+| 74 | https://speedmarkt.cl/products/1740#top                  |       3 | products                  | 1740#top                  |           |           |           |           |
+| 75 | https://speedmarkt.cl/products/1750#                     |       3 | products                  | 1750#                     |           |           |           |           |
+| 76 | https://speedmarkt.cl/products/1750#product-desc-content |       3 | products                  | 1750#product-desc-content |           |           |           |           |
+| 77 | https://speedmarkt.cl/products/1750#top                  |       3 | products                  | 1750#top                  |           |           |           |           |
+| 78 | https://speedmarkt.cl/products/1751#                     |       3 | products                  | 1751#                     |           |           |           |           |
+| 79 | https://speedmarkt.cl/products/1751#product-desc-content |       3 | products                  | 1751#product-desc-content |           |           |           |           |
+| 80 | https://speedmarkt.cl/products/1751#top                  |       3 | products                  | 1751#top                  |           |           |           |           |
+| 81 | https://speedmarkt.cl/products/1708#                     |       3 | products                  | 1708#                     |           |           |           |           |
+| 82 | https://speedmarkt.cl/products/1708#product-desc-content |       3 | products                  | 1708#product-desc-content |           |           |           |           |
+| 83 | https://speedmarkt.cl/products/1708#top                  |       3 | products                  | 1708#top                  |           |           |           |           |
+| 84 | https://speedmarkt.cl/products/1782#                     |       3 | products                  | 1782#                     |           |           |           |           |
+| 85 | https://speedmarkt.cl/products/1782#product-desc-content |       3 | products                  | 1782#product-desc-content |           |           |           |           |
+| 86 | https://speedmarkt.cl/products/1782#top                  |       3 | products                  | 1782#top                  |           |           |           |           |
++----+----------------------------------------------------------+---------+---------------------------+---------------------------+-----------+-----------+-----------+-----------+

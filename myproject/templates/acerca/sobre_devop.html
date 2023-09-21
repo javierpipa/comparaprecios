@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% load cms_tags menu_tags sekizai_tags static i18n static %}    
+
+{% block extrahead %}
+    <script>
+        $( document ).ready(function() 
+        {
+            loadCarrito();
+        })
+    </script>
+{% endblock %}
+
+{% block title %}Sobre DEVOP{% endblock %}
+
+{% block breadcrumbs %}
+  {% if not is_popup %}
+  <section class="breadcrumbs">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2>Sobre DEVOP</h2>
+        <ol>
+            <li><a href="/">Home</a></li>
+            <li>Sobre DEVOP</li>
+        </ol>
+      </div>
+    </div>
+  </section><!-- Breadcrumbs Section -->
+  
+  {% endif %}
+{% endblock %}
+
+
+{% block content %}
+
+
+<section class="h-100">
+    <div class="container-lg my-4">    
+    
+        <div class="p-3 mb-4 bg-dark text-white rounded-3">
+            <h1>DEVOP: Indexación de Sitios</h1>
+            <p class="lead">
+                En el mundo actual, Internet es la forma más popular de encontrar lo que busca. En <a href="{% url 'precios:home' %}"  class="text-white">www.devop.cl</a> 
+                buscamos y generamos comparación al analizar periódicamente los sitios de Supermercados y Productores que hagan entrega de sus productos, generando una 
+                base de datos con todos sus <a href="{% url 'precios:antiguedad_registros' %}" class="text-white">productos actualizados</a> periódicamente.   
+
+            </p>
+            <p class="lead">
+                Version en desarrollo !!
+                Los datos de usuarios son borrados periódicamente.
+            </p>
+            <!-- <p class="lead">
+                DEVOP se diferencia de otros comparadores de precio al considerar:
+                <ul>
+                    <li> El monto mínimo de compra </li>
+                    <li> El costo del despacho </li>
+                    <li> Que a su comuna llega el despacho </li>
+                </ul>
+            </p> -->
+   
+            
+            {% if context.resumen.logged == False %}
+                <p><a href="{% url 'members:register_user' %}" class="btn btn-light btn-sm">Comience por registrarse </a></p>
+                <a href="{% url 'members:login' %}" class="nav-item nav-link">O haga Login</a>
+            {% else %}
+                {% if context.resumen.comuna == None %}
+                    <a href="{% url 'members:update_member' %}" class="nav-link active bg-info text-dark">Indique su direccion </a>
+                {% endif %}
+                
+            {% endif %}
+            
+        </div>
+
+       
+        
+    </div>
+    
+    <div class="container ">
+
+        <div class="row margin-bottom-10">
+            <div class="col-sm-6">
+                <div class="servive-block servive-block-dark-blue">
+                    <i class="icon-2x color-light fa fa-globe"></i>
+                    <h2 class="heading-md">Personas que buscan</h2>
+                    <p>
+                        <a href="{% url 'precios:planes_buscan' %}" class="nav-item nav-link active bg-info text-white">Planes para Personas, empresas, organizaciones que buscan con DEVOP.</a>
+                    </p>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="servive-block rounded servive-block-dark-blue">
+                    <i class="icon-2x color-light fa fa-taxi"></i>
+                    <h2 class="heading-md">Empresas que ofrecen</h2>
+                    <p>
+                        <a href="{% url 'precios:planes_ofrecen' %}" class="nav-item nav-link active bg-info text-white">Planes para Supermercados o Productores que muestran con DEVOP.</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container ">
+        <div class="text-center my-4">
+            <h2>Preguntas frecuentes</h2>
+        </div>
+        <div class="row">
+            {% block FAQ %}
+                {% placeholder "FAQ" %}
+            {% endblock FAQ %}
+            <div class="col-md-5 col-sm-6 ml-auto">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="h6 card-title">Las personas que buscan necesitan una tarjeta de crédito ?</h5>
+                        <p class="mb-0">Dependiendo del plan que elija puede necesitar, pero para el Plan Basico no se necesita.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-5 col-sm-6 mr-auto">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="h6 card-title">Las empresas que ofrecen pueden probar ?</h5>
+                        <p class="mb-0">Si. Existe un plan gratuito que no tiene costo mensual pero si costo de puesta en marcha.</p>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        <hr>
+    </div>
+   
+    
+</section>
+    
+{% endblock %}
+
+{% block footer %}
+{% include "footer.html" %}
+{% endblock %}

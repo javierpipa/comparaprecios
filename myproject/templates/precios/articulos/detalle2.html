@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+ 
+{% load cms_tags menu_tags sekizai_tags static i18n static thumbnail meta page_meta_tags%}
+{% load render_json_ld from json_ld %}
+
+{% page_meta request.current_page as page_meta %}
+
+{% block title %}
+    {{ title|title }}
+    
+{% endblock %}
+
+
+{% spaceless %}
+{% block meta %}
+{% render_json_ld sd %}
+    <meta property="og:title" content="{{ title|title }}"/>
+
+    <meta property="og:description" content="Quienes venden {{ object.marca|title }}    "/>
+    <meta property="og:type" content="product"/>
+
+    <meta property="product:brand" content="{{ object.marca|title }}">
+    {% if object.ean13 %}
+    <meta property="product:retailer_item_id" content="{{ object.ean13 }}">
+    {% endif %}
+    <meta property="product:condition" content="new">
+     
+    <meta property="product:price:amount" content="{{object.get_price}}">
+    <meta property="product:price:currency" content="CLP">
+{% endblock %}
+
+{% endspaceless %}
+
+{% block breadcrumbs %}
+    {% include "template_breadcrums.html"  %}
+{% endblock %}
+
+{% block content %}
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script>
+    $( document ).ready(function() 
+    {
+        loadCarrito();
+    })
+</script>
+<script type="text/javascript">
+    
+    google.charts.load('current', {
+       'packages': ['corechart' ],
+       'mapsApiKey': 'AIzaSyDDLOovUfJyFFjHp_G94V_-vbtnTijIK60'
+     });
+
+    
+    google.charts.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+      var data = new google.visualization.DataTable();
+
+      data.addColumn('date', 'Período');
+      {% for col in table %}
+        {% if forloop.first %}
+            {% for li in col.valores %}
+                data.addColumn('number', '{{li.name}}');
+            {% endfor %}
+        {% endif %}
+      {% endfor %}
+      data.addRows([{% for col in table %}[
+                    new Date('{{col.fecha|date:"Y"}}-{{col.fecha|date:"m"}}-{{col.fecha|date:"d"}}T00:00:00-0400'),
+                    {% for li in col.valores %}
+                        {{li.valor}}{% if not forloop.last %},{% endif %}
+                    {% endfor %}
+                ]
+                {% if not forloop.last %},{% endif %}
+            {% endfor %}
+      ]);
+
+    var options = {
+         title: 'Precios históricos',
+         subtitle: 'en miles de pesos',
+         curveType: 'function',
+         legend: { position: 'bottom' },
+
+        vAxis: { 
+            title: "Precio" ,
+            format: 'currency',
+            gridlines: { count: 7 }
+        },
+      };
+
+      
+      var materialChart = new google.visualization.LineChart(document.getElementById('chart_div'));
+      materialChart.draw(data, options);
+    
+
+    };
+    $(window).resize(function(){
+        drawChart();
+    });
+
+</script>
+
+  
+<section id="portfolio" class="d-flex">
+    <div class="container" data-aos="fade-up">
+        
+        <div class="row ">
+            <div class="col-sm-6">
+                <div class="card " style="border: none; padding-top: 15px; padding-bottom: 0pc;">
+                     {% include "precios/includes/articulo.html" with row=object %}
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="card " style="border: none; padding-top: 15px; padding-bottom: 0pc;">
+                    <div class="card-header">
+                        Precios actuales  
+                    </div>
+                </div>
+                <ol class="list-group list-group list-group-numbered" >
+                    {% for detalle in articulos_dict %}
+                        {% for vendedor in detalle.detalle %}
+                            <li class="list-group-item d-flex justify-content-start align-items-start" >
+                                {% include "precios/includes/vendedor_detalle.html" %}
+                            </li>
+                        {% endfor %}
+                    {% endfor %}
+                </ol>
+                
+                
+            
+            </div>
+        </div>
+        <div class="clearfix"></div>
+        <div class="row ">
+            <div class="col-sm-12">
+                <div class="card " style="border: none; padding-top: 15px; padding-bottom: 0pc;">
+                    <div class="card-header">
+                        Gráfica  
+                    </div>
+                    <div id="chart_div" class="chart"></div>
+                </div>
+            </div>
+        </div>
+        
+    
+    
+        
+        
+      
+</div>
+</section>
+
+{% endblock %}
+
+{% block footer %}
+{% include "footer.html" %}
+{% endblock %}

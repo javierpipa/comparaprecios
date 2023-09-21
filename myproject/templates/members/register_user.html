@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load cms_tags menu_tags sekizai_tags static i18n static %}   
+
+{% block title %}Registro nuevo usuario{% endblock %}
+{% block breadcrumbs %}
+  {% if not is_popup %}
+  <section class="breadcrumbs">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2>Registro</h2>
+        <ol>
+            <li><a href="/">Home</a></li>
+            <li>Registro</li>
+        </ol>
+      </div>
+    </div>
+  </section><!-- Breadcrumbs Section -->
+  
+  {% endif %}
+{% endblock %}
+{% block content %}
+
+
+<main id="main">
+    <section id="featured-services" class="featured-services">
+        <div class="container" data-aos="fade-up">
+
+            {% if form.errors %}
+                    
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <strong>Hubo un error...</strong> 
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endif %}
+
+
+            <h1>Registro</h1>
+
+
+            <form  method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+            
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+    </section>
+</main>
+
+{% endblock %}
+
+{% block footer %}
+{% include "footer.html" %}
+{% endblock %}

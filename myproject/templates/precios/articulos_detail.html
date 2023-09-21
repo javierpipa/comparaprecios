@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% load humanize mathfilters cms_tags menu_tags sekizai_tags static i18n page_meta_tags meta %}
+{% page_meta request.current_page as page_meta %}
+
+{% block title %}{{ context.resumen.marca.articulo__marca__nombre|title }}: {{ context.resumen.marca.articulo__nombre }} {% if context.resumen.marca.articulo__medida_cant %}{{ context.resumen.marca.articulo__medida_cant }} {{ context.resumen.marca.articulo__medida_um }}{% endif %}{% endblock %}
+
+{% block content %}
+<p>
+    <a class="btn btn-light" href="{% url 'precios:Articulos_list' %}">
+    Articulos Listing
+    </a>
+</p>
+----- Nuevo -------
+
+<section class="breadcrumbs">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2>
+            {{ object|title }}
+        </h2>
+        <h2>{{ context.resumen.marca.articulo__marca__nombre|title }}: {{ context.resumen.marca.articulo__nombre }} {% if context.resumen.marca.articulo__medida_cant %}{{ context.resumen.marca.articulo__medida_cant }} {{ context.resumen.marca.articulo__medida_um }}{% endif %}</h2>
+        <ol>
+            <li><a href="/">Home</a></li>
+            <li><a href="/precios/brands_all">Marcas</a></li>
+            <li><a href="/precios/brandProducts/{{ context.resumen.marca.articulo__marca__slug }} ">{{ context.resumen.marca.articulo__marca__nombre|title }}</a></li>
+        </ol>
+      </div>
+    </div>
+</section><!-- Breadcrumbs Section -->
+
+<section id="portfolio" class="d-flex">
+    <div class="container" data-aos="fade-up">
+        <div class="card-header">
+            <div class="float-start">
+                <a class="card-link link-dark text-muted" href=" url "precios:brandProducts" object.articulo__marca__slug   " >
+                    <small>{{ object.marca__nombre|title }}</small> 
+                </a>
+            </div>
+            {% if user.is_active and user.is_staff %}
+                <div class="float-end">
+                    <a href=" url 'precios:rescan'  object.articulo__slug  " class="dropdown-item">
+                        <span class="badge bg-dark">Re-Scan {{ object.id }}</span>
+                    </a>
+                </div>
+            {% endif %}
+            <div class="float-end">
+                {% if object.tipo %}
+                    <span class="badge bg-warning text-dark">{{ object.tipo }} </span>                         
+                {% endif %}
+            </div>
+        </div>
+        <img src="{{row.image1}}" class="imageover card-img-top" alt="{{ row.vendidoen.site }}">
+        <div class="card-body">
+            
+            <div class="float-start">
+                <h5 class="card-title">
+                    <a href='url "precios:detalle" row.articulo__slug '  class="card-link">
+                        {{ object.nombre|title }}
+                    </a>
+                </h5>
+                {% if object.ean_13 %}
+                    <h6 class="card-subtitle mb-2 text-muted"> <small>{{ object.ean_13}}</small></h6>
+                    
+                {% endif %}
+            </div>
+            <div class="float-end">
+                <h5 class="justify-content-end">
+                    <span class="badge-info ">$ {{ object.precio__min|floatformat:0|intcomma }} </span>
+                </h5>
+                
+            </div>
+            
+        </div>
+        <div class="card-body">
+            <div class="mt-1 mb-0 text-muted small">
+                {% if object.grados2 %}
+                    <span class="text-primary"> • </span>
+                    <span>{{ object.grados2 }}° </span>
+                {% endif %}
+                {% if object.envase %}
+                    <span class="text-primary"> • </span>
+                    <span>{{ object.envase|title }} </span>
+                {% endif %}
+                {% if object.medida_cant %}
+                    <span class="text-primary"> • </span>
+                    <span>{{ object.medida_cant }} {{ object.medida_um }} </span>
+                {% endif %}
+                {% if object.color %}
+                    <span class="text-primary"> • </span>
+                    <span> Color: {{ object.color }}</span>
+                {% endif %}
+                
+                
+                <span><br /></span>
+                <span title="Supermercados">{{ object.dcount }} Supermercados</span> 
+                
+            </div>
+            <div class="float-start">
+                {% if object.unidades != 1 %}
+                    <p class="fw-normal mb-0">
+                        <span class="badge bg-info">{{ object.unidades }} Unidades </span>&nbsp;
+                        <span class="badge bg-info">$  vendedores.vendidoen__precio__min|div:object.articulo__unidades|floatformat:0|intcomma   C/U</span>
+                    </p>
+                {% endif %}
+            </div>
+        
+            
+            
+        </div>
+        <div class="card-body">
+            
+            <div class="float-end">
+                {%  include "precios/includes/boton_add_product.html" with id_prod=object.id %}
+            </div>
+        </div>
+    </div>
+</section>
+----- Nuevo hasta aca ---
+<table class="table">
+    <tr><td>nombre</td><td>{{ object.nombre }}</td></tr>
+    <tr><td>nombre_original</td><td>{{ object.nombre_original }}</td></tr>
+</table>
+<a class="btn btn-primary" href="{{object.get_update_url}}">Edit</a>
+
+{% endblock %}

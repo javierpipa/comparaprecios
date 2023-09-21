@@ -1,0 +1,485 @@
+{% extends "base.html" %}
+{% load humanize mathfilters cms_tags menu_tags sekizai_tags static i18n%}
+
+
+{% block title %}Supermercado {{ context.supermercado.siteName }}{% endblock %}
+
+{% block breadcrumbs %}
+  {% if not is_popup %}
+  <section class="breadcrumbs">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2>{{ context.supermercado.siteName }}</h2>
+        {% if context.cache %}
+            <h6> Cache: {{ context.cache|title}}</h6>
+        {% endif %}
+        <ol>
+            <li><a href="/">Home</a></li>
+            <li><a href="/precios/estado"> Estado</a></li>
+            <li>{{ context.supermercado.siteName }}</li>
+        </ol>
+      </div>
+    </div>
+  </section><!-- Breadcrumbs Section -->
+  
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+
+<div id="portfolio" class="d-flex">
+    <div class="container" >
+
+    <!-- <section class="section profile">  -->
+        <div class="row">
+            <div class="col-xl-4">
+
+                <div class="card">
+                    <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
+                        <img src="{{ context.supermercado.icon_image.url }}" alt="{{ context.supermercado.siteName }}" class="img-thumbnail">
+                        
+                        <h2>{{ context.supermercado.siteName }}</h2>
+                        <h3>{{ context.supermercado.corporacion }}</h3>
+                        <!-- <div class="social-links mt-2">
+                        <a href="#" class="twitter"><i class="bi bi-twitter"></i></a>
+                        <a href="#" class="facebook"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="instagram"><i class="bi bi-instagram"></i></a>
+                        <a href="#" class="linkedin"><i class="bi bi-linkedin"></i></a>
+                        </div> -->
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="col-xl-8">
+
+            <div class="card">
+                <div class="card-body pt-3">
+                    <!-- Bordered Tabs -->
+                    <ul class="nav nav-tabs nav-tabs-bordered" role="tablist">
+
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#profile-overview" aria-selected="true" role="tab">Overview</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#costos-despacho" aria-selected="false" role="tab" tabindex="-1">Costos de Despacho</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#sitemap" aria-selected="false" role="tab" tabindex="-1">SiteMap</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#pages" aria-selected="false" role="tab" tabindex="-1">Pages</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#registros" aria-selected="false" role="tab" tabindex="-1">Registros</button>
+                    </li>
+                    
+
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-edit" aria-selected="false" role="tab" tabindex="-1">Edit Profile</button>
+                    </li>
+
+                    <!-- <li class="nav-item" role="presentation">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-settings" aria-selected="false" role="tab" tabindex="-1">Settings</button>
+                    </li> -->
+
+                    <!-- <li class="nav-item" role="presentation">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-change-password" aria-selected="false" role="tab" tabindex="-1">Change Password</button>
+                    </li> -->
+
+                    </ul>
+                    <div class="tab-content pt-2">
+
+                    <div class="tab-pane fade profile-overview active show" id="profile-overview" role="tabpanel">
+                        <h5 class="card-title">About</h5>
+                        <p class="small fst-italic">Sunt est soluta temporibus accusantium neque nam maiores cumque temporibus. Tempora libero non est unde veniam est qui dolor. Ut sunt iure rerum quae quisquam autem eveniet perspiciatis odit. Fuga sequi sed ea saepe at unde.</p>
+
+                        <h5 class="card-title">Profile Details</h5>
+
+                        <div class="row">
+                            <div class="col-lg-3 col-md-4 label ">Parte del grupo</div>
+                            <div class="col-lg-9 col-md-8">{{ context.supermercado.corporacion }}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-3 col-md-4 label ">Plan</div>
+                            <div class="col-lg-9 col-md-8">{{ context.supermercado.account }}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-3 col-md-4 label ">URL principal</div>
+                            <div class="col-lg-9 col-md-8"><a href="{{ context.supermercado.siteURL }}" target="_blank">{{ context.supermercado.siteURL }}</a></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-3 col-md-4 label ">Sitemap</div>
+                            <div class="col-lg-9 col-md-8"><a href="{{ context.supermercado.sitemap_url }}" target="_blank">{{ context.supermercado.sitemap_url }}</a></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-3 col-md-4 label ">Cobertura de despacho</div>
+                            <div class="col-lg-9 col-md-8"><a href="{{ context.supermercado.cobertura_url }}" target="_blank">{{ context.supermercado.cobertura_url }}</a></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-3 col-md-4 label ">Reclamos</div>
+                            <div class="col-lg-9 col-md-8">
+                                {%if context.supermercado.reclamos_url %}
+                                    <a href="{{ context.supermercado.reclamos_url }}" target="_blank">{{ context.supermercado.reclamos_url }}</a>
+                                {%endif%}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-3 col-md-4 label ">Pages</div>
+                            <div class="col-lg-9 col-md-8">{{ context.pages.count }} </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-3 col-md-4 label ">sitemaps</div>
+                            <div class="col-lg-9 col-md-8">{{ context.sitemaps.count }} </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-3 col-md-4 label ">costos de despacho</div>
+                            <div class="col-lg-9 col-md-8">{{ context.momentos.count }} </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-3 col-md-4 label ">URLs de</div>
+                            <div class="col-lg-9 col-md-8"><a href="{% url 'precios:siteUrlsinSite'%}?id_super={{context.supermercado.id}}"> {{ context.supermercado.siteName }}</a></div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade profile-edit pt-3" id="costos-despacho" role="tabpanel">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-sm">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th colspan="1">Area</th>
+                                        <th colspan="1">Monto minimo compra</th>
+                        
+                                        <th colspan="1" >Valor despacho</th>
+                        
+                                        <th colspan="1">Dias para despacho</th>
+                                        <th colspan="1">Comunas</th>
+                                        <th colspan="1">Dias que se despacha</th>
+                                        <th colspan="1">horario</th>
+                                                
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for row in context.momentos %}
+                                    <tr>
+                                        <td nowrap>
+                                            {{ row.areaDespacho.area }}
+                                        </td>
+                                        <td>
+                                        $ {{ row.areaDespacho.monto_minimo_compra|intcomma }}
+                                        </td>
+                                        <td>
+                                        $ {{ row.areaDespacho.valor_despacho|intcomma }}
+                                        </td>
+                                        <td>
+                                            {{ row.areaDespacho.dias_para_despacho }}
+                                        </td>
+                                        <td>
+                                            {% for comuna in row.areaDespacho.comuna.all %}
+                                                {{ comuna.name }}
+                                                {% if not forloop.last %},{% endif %}
+                                            {% endfor %}
+                                        </td>
+                                        <td>
+                                            {% for dia in row.dia.all %}
+                                                {{ dia }}<br/>
+                                            {% endfor %}
+                                        </td>
+                                        <td nowrap>
+                                            {% for horario in row.horario.all %}
+                                                {{ horario }} <br/>
+                                            {% endfor %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade profile-edit pt-3" id="sitemap" role="tabpanel">
+                        <h4>Site Maps</h4>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-sm">
+                                <thead class="bg-light">
+                                    <th colspan="1" scope="col">URL</th>
+                                    <th colspan="1">Enabled</th>
+                                </thead>
+                                <tbody>
+                                    {% for row in context.sitemaps %}
+                                    <tr>
+                                        <!-- ## Sitio ## -->
+                                        <td>{{ row.loc }}</td>
+                                        <td>{{ row.get_url }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade profile-edit pt-3" id="pages" role="tabpanel">
+                        <h4>Pages</h4>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-sm">
+                                <thead class="bg-light">
+                                    <th colspan="1" scope="col">URL</th>
+                                    <th colspan="1">last_scan</th>
+                                </thead>
+                                <tbody>
+                                    {% for row in context.pages %}
+                                    <tr>
+                                        <!-- ## Sitio ## -->
+                                        <td>{{ row.page }}</td>
+                                        <td>{{ row.last_scan }}</td>
+                                    </tr>
+                        
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade profile-edit pt-3" id="registros" role="tabpanel">
+                        <h4>URLs</h4>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-sm">
+
+                                <tbody>
+                                    {% for row in context.urls %}
+                                        <tr>
+                                            <th colspan="1" scope="col">Total URL</th>
+                                            <td>
+                                                {{ row.urlsCount }}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th colspan="1" scope="col">404 URL</th>
+                                            <td>
+                                                {{ row.urls404 }}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th colspan="1" scope="col">URL Ok</th>
+                                            <td>
+                                                {{ row.sin404 }}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th colspan="1" scope="col">Get Avg seconds</th>
+                                            <td>
+                                                {{ row.ReSeconds.average_time }}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th colspan="1" scope="col">Total Get </th>
+                                            <td>
+                                                {{ row.ReSeconds.average_time|mul:row.sin404|div:60|floatformat:2|intcomma }} Minutes <br/>
+                                                {{ row.ReSeconds.average_time|mul:row.sin404|div:60|div:60|floatformat:2|intcomma }} Hours<br/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th colspan="1" scope="col">Costo cores mensual</th>
+                                            <td>
+                                                
+                                                {{ row.ReSeconds.average_time|mul:row.sin404|div:60|div:60|div:24|mul:16|floatformat:2|intcomma }} USD<br/>
+                                            </td>
+                                        </tr>
+                                        
+                                    {% endfor %}
+                                
+                        
+                                    
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade profile-edit pt-3" id="profile-edit" role="tabpanel">
+
+                        <!-- Profile Edit Form -->
+                        <form>
+                        <div class="row mb-3">
+                            <label for="profileImage" class="col-md-4 col-lg-3 col-form-label">Profile Image</label>
+                            <div class="col-md-8 col-lg-9">
+                            <img src="assets/img/profile-img.jpg" alt="Profile">
+                            <div class="pt-2">
+                                <a href="#" class="btn btn-primary btn-sm" title="Upload new profile image"><i class="bi bi-upload"></i></a>
+                                <a href="#" class="btn btn-danger btn-sm" title="Remove my profile image"><i class="bi bi-trash"></i></a>
+                            </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Full Name</label>
+                            <div class="col-md-8 col-lg-9">
+                            <input name="fullName" type="text" class="form-control" id="fullName" value="Kevin Anderson">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label for="about" class="col-md-4 col-lg-3 col-form-label">About</label>
+                            <div class="col-md-8 col-lg-9">
+                            <textarea name="about" class="form-control" id="about" style="height: 100px">Sunt est soluta temporibus accusantium neque nam maiores cumque temporibus. Tempora libero non est unde veniam est qui dolor. Ut sunt iure rerum quae quisquam autem eveniet perspiciatis odit. Fuga sequi sed ea saepe at unde.</textarea>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label for="company" class="col-md-4 col-lg-3 col-form-label">Company</label>
+                            <div class="col-md-8 col-lg-9">
+                            <input name="company" type="text" class="form-control" id="company" value="Lueilwitz, Wisoky and Leuschke">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label for="Job" class="col-md-4 col-lg-3 col-form-label">Job</label>
+                            <div class="col-md-8 col-lg-9">
+                            <input name="job" type="text" class="form-control" id="Job" value="Web Designer">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label for="Country" class="col-md-4 col-lg-3 col-form-label">Country</label>
+                            <div class="col-md-8 col-lg-9">
+                            <input name="country" type="text" class="form-control" id="Country" value="USA">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label for="Address" class="col-md-4 col-lg-3 col-form-label">Address</label>
+                            <div class="col-md-8 col-lg-9">
+                            <input name="address" type="text" class="form-control" id="Address" value="A108 Adam Street, New York, NY 535022">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label for="Phone" class="col-md-4 col-lg-3 col-form-label">Phone</label>
+                            <div class="col-md-8 col-lg-9">
+                            <input name="phone" type="text" class="form-control" id="Phone" value="(436) 486-3538 x29071">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label for="Email" class="col-md-4 col-lg-3 col-form-label">Email</label>
+                            <div class="col-md-8 col-lg-9">
+                            <input name="email" type="email" class="form-control" id="Email" value="k.anderson@example.com">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label for="Twitter" class="col-md-4 col-lg-3 col-form-label">Twitter Profile</label>
+                            <div class="col-md-8 col-lg-9">
+                            <input name="twitter" type="text" class="form-control" id="Twitter" value="https://twitter.com/#">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label for="Facebook" class="col-md-4 col-lg-3 col-form-label">Facebook Profile</label>
+                            <div class="col-md-8 col-lg-9">
+                            <input name="facebook" type="text" class="form-control" id="Facebook" value="https://facebook.com/#">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label for="Instagram" class="col-md-4 col-lg-3 col-form-label">Instagram Profile</label>
+                            <div class="col-md-8 col-lg-9">
+                            <input name="instagram" type="text" class="form-control" id="Instagram" value="https://instagram.com/#">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label for="Linkedin" class="col-md-4 col-lg-3 col-form-label">Linkedin Profile</label>
+                            <div class="col-md-8 col-lg-9">
+                            <input name="linkedin" type="text" class="form-control" id="Linkedin" value="https://linkedin.com/#">
+                            </div>
+                        </div>
+
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                        </form><!-- End Profile Edit Form -->
+
+                    </div>
+                    <!-- <div class="tab-pane fade pt-3" id="profile-settings" role="tabpanel">
+
+                        
+                        <form>
+
+                        <div class="row mb-3">
+                            <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Email Notifications</label>
+                            <div class="col-md-8 col-lg-9">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="changesMade" checked="">
+                                <label class="form-check-label" for="changesMade">
+                                Changes made to your account
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="newProducts" checked="">
+                                <label class="form-check-label" for="newProducts">
+                                Information on new products and services
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="proOffers">
+                                <label class="form-check-label" for="proOffers">
+                                Marketing and promo offers
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="securityNotify" checked="" disabled="">
+                                <label class="form-check-label" for="securityNotify">
+                                Security alerts
+                                </label>
+                            </div>
+                            </div>
+                        </div>
+
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                        </form>
+
+                    </div> -->
+                    <!-- <div class="tab-pane fade pt-3" id="profile-change-password" role="tabpanel">
+                        
+                        <form>
+
+                        <div class="row mb-3">
+                            <label for="currentPassword" class="col-md-4 col-lg-3 col-form-label">Current Password</label>
+                            <div class="col-md-8 col-lg-9">
+                            <input name="password" type="password" class="form-control" id="currentPassword">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label for="newPassword" class="col-md-4 col-lg-3 col-form-label">New Password</label>
+                            <div class="col-md-8 col-lg-9">
+                            <input name="newpassword" type="password" class="form-control" id="newPassword">
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label for="renewPassword" class="col-md-4 col-lg-3 col-form-label">Re-enter New Password</label>
+                            <div class="col-md-8 col-lg-9">
+                            <input name="renewpassword" type="password" class="form-control" id="renewPassword">
+                            </div>
+                        </div>
+
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">Change Password</button>
+                        </div>
+                        </form>
+
+                    </div> -->
+
+                    </div><!-- End Bordered Tabs -->
+
+                </div>
+            </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block footer %}
+    {% include "footer.html" %}
+{% endblock %}

@@ -1,0 +1,10 @@
+<div class="btn-toolbar mb-3" role="toolbar" aria-label="Toolbar with button groups">
+    
+{% if user.is_active  %}
+    <button type="button" class="btn btn-danger btn-lg AddProduct" id_prod="{{id_prod}}" title="Agregalo a tu lista">
+{% else %}
+    <button class="btn btn-danger " onclick="window.location ='/accounts/google/login/'" redir="{{ request.get_full_path }}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Harás login previamente, luego agregalo a tu lista">
+{% endif %}
+        <i class="bi bi-plus-circle-fill" style="color: #fefefe;"></i>
+    </button>
+</div>

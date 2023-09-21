@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+ 
+{% load humanize mathfilters cms_tags menu_tags sekizai_tags static i18n static thumbnail meta page_meta_tags%}
+
+{% block title %}URLs en {{ context.supermercado|title}}{% endblock %}
+{% block breadcrumbs %}
+  {% if not is_popup %}
+  <section class="breadcrumbs">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2>URLs en {{ context.supermercado|title}}</h2>
+        <ol>
+            <li><a href="{% url 'precios:home' %}">Home</a></li>
+            <li><a href="{% url 'precios:estado' %}">Estado</a></li>
+            <li><a href="{% url 'precios:supermercado' context.id_super %}">{{ context.supermercado|title}}</a></li>
+            
+        </ol>
+      </div>
+    </div>
+  </section><!-- Breadcrumbs Section -->
+  
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+
+
+<main id="main">
+  <section id="featured-services" class="featured-services">
+    <div class="container" data-aos="fade-up">
+      <form id="consulta_precios" method="get" action="{% url 'precios:siteUrlsinSite'  %}">
+        {% csrf_token %}
+        
+        <div class="input-group ">
+        <input name="id_super" type="text" class="form-control" id="id_super" placeholder="id super" value="{{ context.id_super }}" required>
+        <input type="checkbox" name="salida_csv" id="id_salida_csv" >
+          <div class="input-group-append">
+            <button type="submit" class="btn btn-light">
+                <i class="bi bi-search"></i>
+            </button>
+          </div>
+        </div>
+      
+        <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasOrden" aria-labelledby="offcanvasOrdenLabel">
+          <div class="offcanvas-header">
+              <h5 class="offcanvas-title" id="offcanvasOrdenLabel">Ordenar por</h5>
+              <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+          </div>
+          <div class="offcanvas-body">
+              <div class="form-inline">
+                  <label class="order-by-wrap-options">
+                      <input type="radio" name="order" class="order-by-input" value="-precio"
+                      {% if context.orden == '-precio' %} checked {% endif %}>
+                      <span class="order-by-option-title">Mayor precio</span>
+                  </label>
+              </div>
+              <div class="form-inline">
+                  <label class="order-by-wrap-options">
+                      <input type="radio" name="order" class="order-by-input" value="precio" 
+                      {% if context.orden == 'precio' %} checked {% endif %}>
+                      <span class="order-by-option-title">Menor precio</span>
+                  </label>
+              </div>                            
+              <div class="form-inline">
+                  <label class="order-by-wrap-options">
+                      <input type="radio" name="order" class="order-by-input" value="nombre" 
+                      {% if context.orden == 'nombre' %} checked {% endif %}>
+                      <span class="order-by-option-title">Nombre: A - Z</span>
+                  </label>
+              </div>                            
+              <div class="form-inline">
+                  <label class="order-by-wrap-options">
+                      <input type="radio" name="order" class="order-by-input" value="-nombre"  
+                      {% if context.orden == '-nombre' %} checked {% endif %}>
+                      <span class="order-by-option-title">Nombre: Z - A</span>
+                  </label>
+              </div>
+              <div class="form-inline">
+                  <label class="order-by-wrap-options">
+                      <input type="radio" name="order" class="order-by-input" value="marca" 
+                      {% if context.orden == 'marca' %} checked {% endif %}>
+                      <span class="order-by-option-title">Marca Nombre: A - Z</span>
+                  </label>
+              </div>
+
+              <div class="form-inline">
+                  <label class="order-by-wrap-options">
+                      <input type="radio" name="order" class="order-by-input" value="-marca"  
+                      {% if context.orden == '-marca' %} checked {% endif %}>
+                      <span class="order-by-option-title">Marca Nombre: Z - A</span>
+                  </label>
+              </div> 
+              <div class="form-inline">
+                <label class="order-by-wrap-options">
+                    <input type="radio" name="order" class="order-by-input" value="-updated"  
+                    {% if context.orden == '-updated' %} checked {% endif %}>
+                    <span class="order-by-option-title">Mas Actualizado</span>
+                </label>
+              </div>
+              <div class="form-inline">
+                <label class="order-by-wrap-options">
+                    <input type="radio" name="order" class="order-by-input" value="updated"  
+                    {% if context.orden == 'updated' %} checked {% endif %}>
+                    <span class="order-by-option-title">Menos Actualizado</span>
+                </label>
+              </div>
+              
+          </div>
+        </form>
+    </div>
+    <div class="container alert alert-secondary py-3 my-2" role="alert">
+      <div class="row">
+          <div class="col">
+              <div class="float-start">
+                  <small>
+                      <span id="total-results" > {{ context.urls_count|intcomma}}</span> Urls
+                  </small>
+              </div>
+              <div class="float-end align-middle">
+                  <!-- <a class="btn btn-light align-middle btn-sm" data-bs-toggle="offcanvas" href="#offcanvasFiltro" role="button" aria-controls="offcanvasFiltro"><i class="bi bi-filter" title="Filtrar"></i></a> -->
+                  <a class="btn btn-light align-middle btn-sm" data-bs-toggle="offcanvas" href="#offcanvasOrden" role="button" aria-controls="offcanvasOrden"><i class="bi bi-sort-down"  title="Ordenar"></i></a>
+              </div>
+          </div>
+      </div>
+      
+  </div>
+      <div class="table-responsive-sm">
+        <table class="table align-middle mb-0 bg-white caption-top">
+          <caption>Lista de urls</caption>
+            <thead class="bg-light">
+              <tr>
+                <th>Nombre</th>
+                <th>Precio</th>
+                <th>Cant. de<br/>Precios</th>
+                <th>Error 404</th>
+                <th>Posición</th>
+                <th>Articulo</th>
+                
+              </tr>
+            </thead>
+            <tbody>
+                {% for row in articulos_dict %}
+                <tr>
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <img
+                            src="{{ row.image }}"
+                            alt="{{ row.site }}"
+                            style="width: 45px; height: 45px"
+                            class="rounded-circle"
+                            />
+                        <div class="ms-3">
+                          <p class="fw-bold mb-1">
+                            <a href="{% url 'precios:SiteURLResults_detail' row.id %}">
+                              {{ row.nombre|title }}
+                            </a>
+                          </p>
+                          <p class="text-muted mb-0">{{ row.marca|title }}</p>
+                          
+                          <p class="text-muted mb-0">{{row.descripcion|title}}</p>
+                          <p class="text-muted mb-0">{{row.tipo|title}}</p>
+                          {% if row.stock %}
+                            <p class="text-muted mb-0">Stock: {{ row.stock|title}}</p>
+                          {% endif %}
+                          <p class="text-muted mb-0">{{ row.unidades|title }}</p>
+                          Actualizado hace {{ row.updated|timesince }} atrás
+                          <p class="text-muted mb-0">id:{{ row.idproducto }}</p>
+                          {% if row.medida_cant %}
+                            {{ row.medida_cant }} {{ row.medida_um }}
+                          {% endif %}
+                          <p class="text-muted mb-0">{{ row.unidades }}</p>
+                        </div>
+                        
+                          
+                      
+                      </div>
+                    </td>
+                    <td >
+                        {{ row.precio|intcomma }}
+                    </td>
+                    <td>
+                      {{row.HistoryCount}}
+                      
+                    </td>
+                    
+                    <td>
+                      
+                      {% if row.error404 %}
+                        <span class="badge bg-danger">Error 404</span>
+                        
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if row.posicion %}
+                        {{ row.posicion}} de {{ row.num_articulos}}
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if row.artid.articulo.slug  %}
+                        <p class="text-muted mb-0"><a  href='{% url "precios:detalle" row.artid.articulo.slug %}' class="btn btn-primary">Articulo: {{ row.artid.articulo.nombre|title }}</a></p>
+                        <p class="text-muted mb-0"><a  href='{% url "precios:brands_detail" row.artid.articulo.marca.slug %}' class="btn btn-primary">ver marca {{ row.artid.articulo.marca|title }}</a></p>
+                        
+                      {% endif %}
+                      
+                    </td>
+                    
+                  </tr>
+                {% endfor %}
+            </tbody>
+        </table>           
+      </div>        
+    </div>                           
+  </section>
+</main>
+
+
+    
+    
+
+
+
+{% endblock %}
+{% block pagination %}
+{% if articulos_dict.paginator.num_pages %}
+        <hr>
+    {% endif%}
+    {% if articulos_dict %}
+        <ul class="pagination justify-content-center">
+            {% if articulos_dict.has_previous %}
+                <li class="page-item"><a class="page-link" href="?id_super={{ context.id_super }}&order={{context.orden}}&page={{ articulos_dict.previous_page_number }}">Anterior</a></li>
+                <li class="page-item"><a class="page-link" href="?id_super={{ context.id_super }}&order={{context.orden}}&page=1">1</a></li>
+            {% endif%}
+            
+            {% if articulos_dict.paginator.num_pages %}
+                <li class="page-item active"><a class="page-link" href="#">{{articulos_dict.number}} de {{articulos_dict.paginator.num_pages}}</a></li>
+            {% endif%}
+
+            {% if articulos_dict.has_next %}
+                <li class="page-item"><a class="page-link" href="?id_super={{ context.id_super }}&order={{context.orden}}&page={{ articulos_dict.next_page_number }}">{{ articulos_dict.next_page_number }}</a></li>
+                <li class="page-item"><a class="page-link" href="?id_super={{ context.id_super }}&order={{context.orden}}&page={{ articulos_dict.next_page_number }}">Próxima</a></li>
+                <li class="page-item"><a class="page-link" href="?id_super={{ context.id_super }}&order={{context.orden}}&page={{ articulos_dict.paginator.num_pages }}">Última</a></li>
+            {% endif%}
+        </ul>
+    {% endif%}
+{% endblock %}
+
+{% block footer %}
+    {% include "footer.html" %}
+{% endblock %}

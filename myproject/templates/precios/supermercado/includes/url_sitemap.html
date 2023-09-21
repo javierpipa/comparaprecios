@@ -1,0 +1,53 @@
+<div class="container">
+    <div class="row">
+        <div class="col">
+            
+            <div class="card-body">
+                <h5 class="card-title">URLs in this sitename: <span>| {{ context.sitemap_url}}</span></h5>
+                <div class="bd-example ">
+                    <div class="overflow-auto bg-light" style="max-height: 100px;">
+                        {% for key in context.heading %}
+                        <div class="form-check">
+                            <input class="prod" type="radio" value="{{ key.loc }}" > {{ key.loc }}
+                        </div>
+                        {% endfor %}
+                        
+                    </div>
+                    <button type="button" id="tres" class="btn btn-primary">Check url</button>
+                </div>
+            </div>
+        </div>
+
+</div>
+<script>
+       
+    $("#tres").click(function () {
+        const url = ajax_url;
+
+        var checkedValue = '';
+
+        var checkboxes = document.getElementsByClassName('prod')
+        for (var i = 0; i < checkboxes.length; i++) {
+            if (checkboxes[i].type == "radio") {
+                var isChecked = checkboxes[i].checked;
+                if (checkboxes[i].checked){
+                    checkedValue = checkedValue + checkboxes[i].value ;
+                }
+            }
+        }
+        
+        console.log('checkedValue: ', checkedValue);
+        $.ajax({                      
+            url: url,                    
+            data: {
+                'UrltoGet': checkedValue
+            },
+            success: function (data) {   
+                $("#url_one_product").html(data);  
+                console.log(data)
+            }
+        });
+  
+    });
+    
+  </script>

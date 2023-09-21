@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+ 
+{% load humanize mathfilters %}
+
+
+{% block title %}Lista{% endblock %}
+{% block content %}
+<script>
+        $( document ).ready(function() 
+        {
+            loadCarritoCompleto();
+        })
+</script>
+
+<style>
+  .gradient-custom {
+  /* fallback for old browsers */
+  background: #6a11cb;
+
+  /* Chrome 10-25, Safari 5.1-6 */
+  background: -webkit-linear-gradient(to right, rgba(106, 17, 203, 1), rgba(37, 117, 252, 1));
+
+  /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  background: linear-gradient(to right, rgba(106, 17, 203, 1), rgba(37, 117, 252, 1))
+}
+</style>
+<section class="h-100 gradient-custom">
+    <div class="container py-5">
+      <div class="row d-flex justify-content-center my-4">
+        <div class="col-md-4">
+          <div class="card mb-4 ">
+            <div class="card-body">
+                <div class="row justify-content-around card-body">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input cambio_settings" type="checkbox" id="costo_despacho" {% if request.session.costo_despacho == 'true' %} checked {% endif %} >
+                    <label class="form-check-label" for="costo_despacho">Con despacho ?</label>
+                  </div>
+
+                </div>
+                <div class="row justify-content-around card-body">
+                  <div class="col-6">
+                    <button class="btn btn-primary btn-success" type="button" data-bs-toggle="modal" data-bs-target="#myModal"><i class="bi-eye"></i> Guardar lista</button>
+                  </div>
+                  <div class="col-6">
+                    <button class="btn btn-primary btn-warning" type="button" id="clean_list"><i class="bi-trash"></i> Limpiar lista</button>
+                  </div>
+                </div>
+                
+            </div>
+          </div>
+
+          <div class="card mb-4">
+            <div class="card-header py-3">
+              <h5 class="mb-0" id="numItems"></h5>
+            </div>
+            <div class="card-body" id="card-pedidos">
+              <!-- Single item -->
+            </div>
+          </div>
+          
+          
+        </div>
+        <div class="col-md-6">
+            
+          <div class="card mb-6">
+            <div class="card-header py-3">
+              <h5 class="mb-0">Resúmen</h5>
+            </div>
+            <div class="accordion" id="accordionSuper">
+            </div>           
+          </div>
+
+          <div class="card mb-4 mb-lg-0">
+            <div class="card-body">
+              <p><strong>Notas</strong></p>
+              <div class="alert alert-info alert-dismissible">
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <strong>De los <span id="supermercadoscount"></span> supermercados que despachan en la cobertura elegida</strong>, hay:
+                <p class="text-info">
+                    <span id="supermercadosnominimo"></span> 
+                </p>
+                <p class="text-info">
+                    <span id="supermercadossinprod"></span> 
+                </p>
+            </div>
+
+             
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<div class="container-fluid ">
+     <!-- include "members/includes/user.html"  -->
+     
+    <div class="superinfo">
+
+        
+    </div>
+    
+
+    <div id="myModal" class="modal fade" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Almacenar esta lista</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form  method="post" id="savelist">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Nombre</label>
+                                    <input id="nombre_lista" name="nombre_lista" type="text" class="form-control" value="">
+                                </div>
+                            </div>
+                            
+                        </div>
+                        
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-outline-primary" id="save_list">Grabar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

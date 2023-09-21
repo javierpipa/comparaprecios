@@ -1,0 +1,44 @@
+Lectura urls del sitio
+Si no hay campoensitio marca, 
+    buscar la marca en tabla marcas:
+        Si hay marca dentro del nombre
+            agregarla como posible marca, indicando si es marca o no
+
+        si una posible marcas:
+            eliminar del nombre esta posible marca
+            anotar en url la marca como sting y grabar la URL
+
+
+
+
+select marca, count(1) as cuantos from precios_siteurlresults group by marca;
+
+select nombre from precios_siteurlresults where marca = '' order by site, nombre;
+select site_id, nombre from precios_siteurlresults where marca = '' order by site_id, nombre;
+
+
+############ Sitios sin marca 
+select site_id, count(1) from precios_siteurlresults where marca = '' and error404 = 0 and nombre <> '' and precio <> 0 group by site_id order by site_id, nombre;
++---------+----------+
+| site_id | count(1) |
++---------+----------+
+|       8 |      502 |
+|       9 |     1130 |
+|      10 |     3920 |
+|      11 |     5086 |
+|      21 |        4 |
+|      37 |        2 |
+|      38 |        7 |
++---------+----------+
+7 rows in set (0,096 sec)
+
+
+
+select site_id, nombre from precios_siteurlresults where marca = '' and site_id = 8 and error404 = 0 and nombre <> ''  order by site_id, nombre;
+
+
+
+site 11 
+    reemplaza guiones por espacio
+    res = get_palabras_con_numychar(nombre)
+    nombre = reemplaza_palabras(nombre)

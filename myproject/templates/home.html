@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load cms_tags menu_tags sekizai_tags static i18n static %}    
+{% block extrahead %}
+<script>
+    $( document ).ready(function() 
+    {
+        loadCarrito();
+        
+    })
+</script>
+{% endblock %}
+   
+{% block content %}
+
+  {% placeholder "Content" %}
+
+{% endblock %}
+
+{% block footer %}
+  {% include "footer.html" %}
+{% endblock %}
+

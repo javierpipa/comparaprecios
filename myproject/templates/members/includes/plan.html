@@ -1,0 +1,51 @@
+{% load humanize mathfilters %}
+<div class="p-2 mb-2 bg-light border rounded-2">
+    <div class="card border{{user.member.plan.area_class}}">
+        <div class="card-header border-bottom flex-column align-items-start p-3">
+        Plan
+        <h4 class="text{{user.member.plan.area_class}} font-weight-light mb-2">{{ user.member.plan.nombre }}</h4>
+        <p class="font-size-sm mb-0">{{ user.member.plan.leyenda }}</p>
+        </div>
+        <div class="card-header border-bottom justify-content-center py-4">
+        <h1 class="pricing-price">
+            <small class="align-self-start">$</small>{{ user.member.plan.valor_mes|floatformat:0|intcomma }} / Mes
+            
+            {% if user.member.plan.leyenda_valor %}
+                <small class="align-self-end">{{ user.member.plan.leyenda_valor }}</small>
+            {% endif %}
+        </h1>
+        <h4 class="pricing-price">
+            <small class="align-self-start">$</small>{{ user.member.plan.valor_agno|floatformat:0|intcomma }} / Anual
+            
+            {% if user.member.plan.leyenda_valor %}
+                <small class="align-self-end">{{ user.member.plan.leyenda_valor }}</small>
+            {% endif %}
+        </h4>
+        </div>
+        <div class="card-body">
+        <ul class="list-unstyled font-size-sm mb-0">
+            {% for row in contenidoPlan %}
+            <li>
+                {% if row.todos or row.cantidad >= 1 %}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check text-success mr-2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                {%else%}
+                    <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x text-danger mr-2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        
+                {% endif %}
+                <strong>
+                    {% if row.todos %}Todos {%else%} {{row.cantidad}} {% endif %}
+                </strong>
+                <span class="text-secondary ml-1">{{row.objeto}}</span>
+            </li>
+            
+            
+            {% endfor %}
+        </ul>
+        </div>
+       
+    </div>
+</div>
+    
+    
+    
+    

@@ -1,0 +1,421 @@
+https://clickwine.cl/
+  {
+    "@context": "http://schema.org",
+    "@type": "Product",
+    "offers": [{
+          "@type": "Offer",
+          "name": "Default Title",
+          "availability":"https://schema.org/InStock",
+          "price": 21000.0,
+          "priceCurrency": "CLP",
+          "priceValidUntil": "2023-08-20","sku": "69160161737718","url": "/products/estuche-madera-valle-luna-copa-y-vaso?variant=44513289076988"
+        }
+],
+      "gtin14": "69160161737718",
+      "productId": "69160161737718",
+    "brand": {
+      "name": "Clickwine"
+    },
+    "name": "Estuche Madera Valle Luna + Copa y  Vaso.",
+    "description": "Ideal para regalar.",
+    "category": "Pisco",
+    "url": "/products/estuche-madera-valle-luna-copa-y-vaso",
+    "sku": "69160161737718",
+    "image": {
+      "@type": "ImageObject",
+      "url": "https://clickwine.cl/cdn/shop/files/IMG-20230809-WA0000_1024x.jpg?v=1691604668",
+      "image": "https://clickwine.cl/cdn/shop/files/IMG-20230809-WA0000_1024x.jpg?v=1691604668",
+      "name": "Estuche Madera Valle Luna + Copa y  Vaso.",
+      "width": "1024",
+      "height": "1024"
+    }
+  }
+  
+
+  {
+    "@context":"http://schema.org/",
+    "@type":"Product",
+    "name":"Hamburguesa garbanzos Vurger 100 g",
+    "image":"https://jumbo.vteximg.com.br/arquivos/ids/592068/Hamburguesa-garbanzos-Vurger-100-g.jpg?v=638024046211000000",
+    "description":"Hamburguesa garbanzos Vurger 100 g | Código de producto: 101842",
+    "sku":"101842",
+    "brand":{
+      "@type":"Brand",
+      "name":"La Crianza"
+    },
+    "offers":{
+      "@type":"Offer",
+      "price":"1090",
+      "priceCurrency":"CLP",
+      "url":"https://cl-jumboweb-render-prod.ecomm.cencosud.com/hamb-garbanzos-vurger-la-crianza-100g-1866742/p",
+      "itemCondition":"https://schema.org/NewCondition",
+      "availability":"https://schema.org/InStock",
+      "seller":{"@type":"Organization","name":"Jumbo.cl"}}
+    }
+
+    {
+      "@context":"https://schema.org/",
+      "@type":"Product",
+      "@id":"https://andina.micoca-cola.cl/espumante-amaranta-brut-12-x-250-ml/p",
+      "name":"Espumante Amaranta Brut 12 x 250 ml.",
+      "brand":{
+        "@type":"Brand",
+        "name":"Amaranta"},
+      "image":"https://micocacola.vtexassets.com/arquivos/ids/194610/259766778647_1.png?v=638243412650830000",
+      "description":"",
+      "mpn":"2106",
+      "sku":"2454",
+      "category":"Espumantes",
+      "offers":{
+        "@type":"AggregateOffer",
+        "lowPrice":15690,
+        "highPrice":15690,
+        "priceCurrency":"CLP",
+        "offers":[
+          {
+            "@type":"Offer",
+            "price":15690,
+            "priceCurrency":"CLP",
+            "availability":"http://schema.org/InStock",
+            "sku":"2454",
+            "itemCondition":"http://schema.org/NewCondition",
+            "priceValidUntil":"2024-08-10T22:10:16Z",
+            "seller":{
+              "@type":"Organization",
+              "name":"MiCocaCola"
+            }
+          }
+        ],
+        "offerCount":1
+        }
+      }
+
+
+
+{
+  "@context": "http://schema.org/",
+    "@type": "Product",
+    "name": "WHISKY WHITE HORSE 40º 750 ML. ",
+    "url": "https://www.centralvinosylicores.cl/white-horse-40o-750-ml",
+    "itemCondition": "http://schema.org/NewCondition",
+    
+    "image": "https://cdnx.jumpseller.com/dc-central-distribuidora-de-licores/image/11460745/95.jpg?1655616806",
+    
+    "description": "Whisky White Horse se basa en una única malta muy reconocida, Lagavulin, de la destilería del mismo nombre, en donde para secar la malta se usa la turba que absorbe la espuma del mar. Los 40 whiskeys que usan son los mejores de las zonas de Highlands, Lowlands y la pequeña isla de Islay.Whisky White Horse se lo conoce desde 1890 y se decía de su creador, Sir Peter Mackie, que era “un tercio genio, un tercio megalomaníaco, y otro tercio excéntrico” y así, siempre persiguiendo el mejor resultado en la vida. A su muerte, en 1924, las ventas de su obra se duplicaron, siendo el primer whisky en utilizar tapón de corcho y tapa de rosca.MARIDAJE:Whisky White Horse se recomienda tomar sólo o acompañado con cualquier tipo de refresco como cola o limón.NOTA DE CATA:Vista: En vista se presenta con un color oro claro.Nariz: Equilibrio perfecto y complejo con toques de roble, ahumado y tofe.Boca: Sabor ahumado y a turba equilibrado con el dulzor de los whiskies de grano.Graduación Alcohólica de Whisky White Horse: 40 gradosOrigen: Reino Unido",
+    
+    
+      "category": "Whisky",
+    
+    "offers": {
+      
+        "@type": "Offer",
+        "price": "8100.0",
+        "itemCondition": "http://schema.org/NewCondition",
+        
+        "availability": "http://schema.org/InStock",
+        
+      
+      "priceCurrency": "CLP",
+      "seller": {
+        "@type": "Organization",
+        "name": "CENTRAL VINOS Y LICORES"
+      },
+      "url": "https://www.centralvinosylicores.cl/white-horse-40o-750-ml"
+    }
+  
+}
+
+{
+  "@context":"https://schema.org/",
+  "@graph":[
+    {
+      "@context":"https://schema.org/",
+      "@type":"BreadcrumbList",
+      "itemListElement":[
+        {
+          "@type":"ListItem",
+          "position":1,
+          "item":{
+            "name":"Inicio",
+            "@id":"https://legout.cl"
+          }
+        },
+        {
+          "@type":"ListItem",
+          "position":2,
+          "item":{
+            "name":"LICORES",
+            "@id":"https://legout.cl/categoria-producto/licores-regalos/"
+          }
+        },
+        {
+          "@type":"ListItem",
+          "position":3,
+          "item":{
+            "name":"Absenta Naturelle 500 cc. Graduaciu00f3n Alcohu00f3lica: 60u00ba",
+            "@id":
+            "https://legout.cl/producto/absenta-naturelle-500-cc-graduacion-alcoholica-60o/"
+            }
+          }
+      ]
+    },
+    {
+      "@context":"https://schema.org/",
+      "@type":"Product",
+      "@id":"https://legout.cl/producto/absenta-naturelle-500-cc-graduacion-alcoholica-60o/#product",
+      "name":"Absenta Naturelle 500 cc. Graduaciu00f3n Alcohu00f3lica: 60u00ba",
+      "url":"https://legout.cl/producto/absenta-naturelle-500-cc-graduacion-alcoholica-60o/",
+      "description":"Es producido mediante una tecnologu00eda especial. Como su propio nombre lo indica, es un producto natural, sin el uso de colorantes artificiales. En el fondo de cada botella se hayan semillas limpias de cilantro, que realzan el caru00e1cter natural del producto. Antes de ser insertadas al licor, las semillas de cilantro son maceradas el producto final por tres meses, para no cambiar el sabor que caracteriza al Absinthe Naturelle.",
+      "image":"https://legout.cl/wp-content/uploads/2022/01/Absenta-naturelle.png",
+      "sku":5191,
+      "offers":[
+        {
+          "@type":"Offer",
+          "price":"20000",
+          "priceValidUntil":"2024-12-31",
+          "priceSpecification":{
+            "price":"20000",
+            "priceCurrency":"CLP",
+            "valueAddedTaxIncluded":"false"
+          },
+          "priceCurrency":"CLP",
+          "availability":"http://schema.org/InStock",
+          "url":"https://legout.cl/producto/absenta-naturelle-500-cc-graduacion-alcoholica-60o/",
+          "seller":{
+            "@type":"Organization",
+            "name":"Legout",
+            "url":"https://legout.cl"
+          }
+        }
+      ]
+    }
+  ]
+}
+
+
+{
+  "@context":"https://schema.org/",
+  "@type":"Product",
+  "@id":"https://andina.micoca-cola.cl/del-valle-multi-frutilla-1-5-lt/p",
+  "name":"Del Valle Multi-Frutilla 1,5 lt.",
+  "brand":{
+    "@type":"Brand",
+    "name":"Del Valle"
+  },
+  "image":"https://micocacola.vtexassets.com/arquivos/ids/194514/7802820191028_1.png?v=638234846252530000",
+  "description":"",
+  "mpn":"2101",
+  "sku":"2449",
+  "category":"Con Azúcar",
+  "offers":{
+    "@type":"AggregateOffer",
+    "lowPrice":1340,
+    "highPrice":1340,
+    "priceCurrency":"CLP",
+    "offers":[
+      {
+        "@type":"Offer",
+        "price":1340,
+        "priceCurrency":
+        "CLP",
+        "availability":"http://schema.org/InStock",
+        "sku":"2449",
+        "itemCondition":"http://schema.org/NewCondition",
+        "priceValidUntil":"2024-08-11T13:53:45Z",
+        "seller":{
+          "@type":"Organization",
+          "name":"MiCocaCola"
+        }
+      }
+    ],
+    "offerCount":1
+  }
+}
+
+
+La Barra
+
+{
+  "@context":"https://schema.org/",
+  "@type":"Product",
+  "name":"BEBIDA PAP",
+  "image":"https://odoo.sf.cloudccu.cl/web/image?model=product.product&id=2014&field=image_1024",
+  "description":"Con su rico y refrescante sabor papaya, Pap nos invita a compartir en familia e imaginar como niños, para que este sea otro mundo.",
+  "brand":{
+    "@type":"Brand",
+    "name":"Pap"
+  },
+  "sku":"ET9296",
+  "offers":{
+    "@type":"Offer",
+    "url":"https://labarra.cl/producto/007491-cerveza-kunstmann-lager-2810",
+    "priceCurrency":"CLP",
+    "price":10250,
+    "availability":" https://schema.org/InStock",
+    "itemCondition":"https://schema.org/NewCondition"
+  }
+}
+
+{
+  "@context":"https://schema.org/",
+  "@type":"Product",
+  "name":"CERVEZA COORS ORIGINAL",
+  "image":"https://odoo.sf.cloudccu.cl/web/image?model=product.product&id=2509&field=image_1024",
+  "description":"Por más de 145 años, cinco generaciones de cerveceros de la familia Coors han llevado adelante un compromiso con hacer las cosas a su manera. Con esta obstinada determinación, crearon THE ORIGINAL AMERICAN STYLE LAGER. Una cerveza de gran sabor, que mantiene su receta desde 1873.",
+  "brand":{
+    "@type":"Brand",
+    "name":"Coors"
+  },
+  "sku":"450691",
+  "offers":{
+    "@type":"Offer",
+    "url":"https://labarra.cl/producto/007491-cerveza-kunstmann-lager-2810",
+    "priceCurrency":"CLP",
+    "price":15990,
+    "availability":" https://schema.org/InStock",
+    "itemCondition":"https://schema.org/NewCondition"
+  }
+}
+
+
+{
+  "@context": "http://schema.org/"
+  ,
+    "@type": "Product",
+    "name": "WHISKY BALLANTINES FINEST 750 ML.",
+    "url": "https://www.centralvinosylicores.cl/ballantines-750-ml",
+    "itemCondition": "http://schema.org/NewCondition",
+    
+    "image": "https://cdnx.jumpseller.com/dc-central-distribuidora-de-licores/image/15996043/Sin_t_tulo41.png?1646776690",
+    
+    "description": "Descripción ampliada Ballantine&#39;s WhiskyBallantine&#39;s es el segundo whisky escocés del mundo.La herencia de Ballantine&#39;s se remonta a 1827, cuando su fundador George Ballantines abrió su primera tienda en Edimburgo.Ballatine&#39;s es un whisky destilado en Escocia, y tiene la gama más completa de whiskies escoceses mezclados y envejecidos de calidad.Ballantine’s Finest es un whisky escocés de mezcla, refinado y elegante, y todos los ingredientes son añejados durante varios años en barricas de gran calidad. El color dorado claro y el sabor inconfundible del whisky blended escocés Ballantine&#39;s Finest, provienen de la mezcla de whiskies de malta y cereales cuidadosamente seleccionados.Ballantine&#39;s Finest es un whisky con un aroma característico de brezo y un toque de especia. Tiene un sabor especial con notas de chocolate, manzana roja y vainilla, y su final sofisticado deja una sensación equilibrada y una textura floral.Tipo: BlendedGrado Alcoholico: 40%Barricas: Roble Blanco Americano NuevoFabricado por: George Ballantine and Son LTDProcedencia: Dumbarton - Escocia",
+    "category": "Whisky",
+    "offers": {
+      
+        "@type": "AggregateOffer",
+        "price": "9900.0",
+        
+        "availability": "http://schema.org/InStock",
+        
+        "lowPrice": "9900.0",
+        "highPrice": "102000.0",
+        "offerCount": "3",
+      
+      "priceCurrency": "CLP",
+      "seller": {
+        "@type": "Organization",
+        "name": "CENTRAL VINOS Y LICORES"
+      },
+      "url": "https://www.centralvinosylicores.cl/ballantines-750-ml"
+    }
+  
+}
+
+{
+  "@context":"https://schema.org/",
+  "@type":"Product",
+  "name":"AGUA SABORIZADA MAS PIÑA",
+  "image":"https://odoo.sf.cloudccu.cl/web/image?model=product.product&id=1933&field=image_1024",
+  "description":"Agua sabor PIÑA con adición de Fibra para tu cuerpo",
+  "brand":{
+    "@type":"Brand",
+    "name":"Mas"
+  },
+  "sku":"ET8709033",
+  "offers":{
+    "@type":"Offer",
+    "url":"https://labarra.cl/producto/007491-cerveza-kunstmann-lager-2810",
+    "priceCurrency":"CLP",
+    "price":6170,
+    "availability":" https://schema.org/InStock",
+    "itemCondition":"https://schema.org/NewCondition"
+    }
+  }
+
+
+  {
+    "@context": "http://schema.org/",
+    "@type": "Product",
+    "@id": "https://www.liqui.cl/products/uno-original",
+    "productID": "322093",
+    "name": "Uno Original",
+    "url": "https://www.liqui.cl/products/uno-original",
+    "image": "https://r.btcdn.co/3846/medium/762984-JUJUNNN100.jpg",
+    "brand": {
+     "@type" : "Brand",
+     "name" : "Sin Marca"
+    },
+    "sku": "JUJUNNN100",
+    "offers": {
+      "@type": "AggregateOffer",
+      "priceCurrency": "CLP",
+      "highPrice": "4190",
+      "lowPrice": "3690",
+      "offerCount": 1,
+      "offers": [{
+        "@type": "Offer",
+        "priceCurrency": "CLP",
+        "price": "4190",
+        "itemCondition": "http://schema.org/NewCondition",
+        "availability": "http://schema.org/InStock",
+        "seller": {
+          "@type": "Organization",
+          "name": "Liqui"
+         }
+      }]
+    },
+    "description": "UNO DE LOS JUEGOS MAS POPULARES - El juego clásico de cartas de hacer coincidir números y colores."
+  }
+  
+
+  {"@context":"https:\/\/schema.org\/","@graph":[{"@context":"https:\/\/schema.org\/","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"item":{"name":"Inicio","@id":"https:\/\/onmarket.cl"}},{"@type":"ListItem","position":2,"item":{"name":"Beb\u00e9","@id":"https:\/\/onmarket.cl\/categoria-producto\/bebe\/"}},{"@type":"ListItem","position":3,"item":{"name":"Toallas H\u00famedas","@id":"https:\/\/onmarket.cl\/categoria-producto\/bebe\/toallas-humedas\/"}},{"@type":"ListItem","position":4,"item":{"name":"EmuBaby Toallas Hum 2x","@id":"https:\/\/onmarket.cl\/producto\/emubaby-toallas-hum-2x\/"}}]},{"@context":"https:\/\/schema.org\/","@type":"Product","@id":"https:\/\/onmarket.cl\/producto\/emubaby-toallas-hum-2x\/#product","name":"EmuBaby Toallas Hum 2x","url":"https:\/\/onmarket.cl\/producto\/emubaby-toallas-hum-2x\/","description":"Toallas H\u00famedas EmuBaby Pack 2x (160 unid)","image":"https:\/\/onmarket.cl\/wp-content\/uploads\/2022\/02\/Emubaby-Toallas-Humedas-Pack.jpg","sku":"7804603541419","offers":[{"@type":"Offer","price":"3290.00","priceValidUntil":"2024-12-31","priceSpecification":{"price":"3290.00","priceCurrency":"CLP","valueAddedTaxIncluded":"false"},"priceCurrency":"CLP","availability":"http:\/\/schema.org\/BackOrder","url":"https:\/\/onmarket.cl\/producto\/emubaby-toallas-hum-2x\/","seller":{"@type":"Organization","name":"OnMarket","url":"https:\/\/onmarket.cl"}}]}]}
+
+
+
+
+  {
+    "@context":"https://schema.org",
+    "@type":"ItemList",
+    "itemListElement":[
+      {"@type":"ListItem",        "position":"1",        "name":"Café Nescafé Tradición 125 g",        "url":"https://www.jumbo.cl/cafe-nescafe-tradicion-tarro-125-gr-1931230/p"      },
+      {"@type":"ListItem","position":"2","name":"Café Nescafé Fina Selección Espresso 100 g","url":"https://www.jumbo.cl/cafe-nescafe-espresso-100-g/p"},
+      {"@type":"ListItem","position":"3","name":"Café Nescafé Tradición tarro 170g","url":"https://www.jumbo.cl/cafe-instantaneo-nescafe-tradicion-170-g/p"},
+      {"@type":"ListItem","position":"4","name":"Café cápsulas Classico 10 un.","url":"https://www.jumbo.cl/cafe-capsulas-alu-cuisine-co-classic-10-un-1914061/p"},
+      {"@type":"ListItem","position":"5","name":"Café cápsulas Forte 10 un.","url":"https://www.jumbo.cl/cafe-capsulas-alu-cuisine-co-forte-10-un-1914059/p"},
+      {"@type":"ListItem","position":"6","name":"Café Premier Forte molido 250 g","url":"https://www.jumbo.cl/cafe-gold-premier-grano-forte-250-g/p"},
+      {"@type":"ListItem","position":"7","name":"Café descafeinado 170 g","url":"https://www.jumbo.cl/cafe-gold-descafeinado-170-g/p"},
+      {"@type":"ListItem","position":"8","name":"Café colombiano tostado y molido intenso 250 g","url":"https://www.jumbo.cl/cafe-colombiano-tostado-y-molido-intenso-250-g-cuisine-and-co-1634483/p"},
+      {"@type":"ListItem","position":"9","name":"Café colombiano tostado y molido balanceado 250 g","url":"https://www.jumbo.cl/cafe-colombiano-tostado-y-molido-balanceado-250-g-cuisine-and-co-1634482/p"},
+      {"@type":"ListItem","position":"10","name":"Café Nescafé Vainilla Latte 8 sobres 148 g","url":"https://www.jumbo.cl/cafe-vainilla-nescafe-caja-8-sobres-mixes/p"},
+      {"@type":"ListItem","position":"11","name":"Café Nescafé Fina Selección 100 g","url":"https://www.jumbo.cl/cafe-instantaneo-nescafe-100-g-fina-seleccion/p"},
+      {"@type":"ListItem","position":"12","name":"Café Dolce Gusto Espresso Intenso 16 Cápsulas","url":"https://www.jumbo.cl/capsulas-de-cafe-nescafe-dolce-gusto-caja-16-capsulas-espresso-intenso/p"},
+      {"@type":"ListItem","position":"13","name":"Café instantáneo frasco liofilizado 170 g","url":"https://www.jumbo.cl/cafe-instantaneo-cruzeiro-frasco-170-g-liofilizado/p"},
+      {"@type":"ListItem","position":"14","name":"Café Starbucks Espresso Roast 57 g","url":"https://www.jumbo.cl/caps-starbucks-nespresso-espre-roast-57g-1957070/p"},
+      {"@type":"ListItem","position":"15","name":"Café Starbucks Single-Origin Colombia 57 g","url":"https://www.jumbo.cl/caps-starbucks-nespresso-colombia-57g-1957069/p"},
+      {"@type":"ListItem","position":"16","name":"Café Wake Up & Live 100 g","url":"https://www.jumbo.cl/cafe-marley-wake-up-and-live-100gr-1949734/p"},
+      {"@type":"ListItem","position":"17","name":"Café cápsulas Avellana 10 un.","url":"https://www.jumbo.cl/cafe-capsulas-alu-cuisine-co-avellana-10-un-1914063/p"},
+      {"@type":"ListItem","position":"18","name":"Café liofilizado 190 g","url":"https://www.jumbo.cl/cafe-liofilizado-190-g-cuisine-and-co-1874310/p"},{
+        "@type":"ListItem","position":"19","name":"Café instantáneo 150 g","url":"https://www.jumbo.cl/cafe-instantaneo-150-g-cuisine-and-co-1870006/p"},
+        {"@type":"ListItem","position":"20","name":"Café Positive Vibration 100 g","url":"https://www.jumbo.cl/cafe-marley-positive-vibration-100gr-1885897/p"},
+        {"@type":"ListItem","position":"21","name":"Café Gold Premier Liofilizado Arábica frasco 170 g","url":"https://www.jumbo.cl/cafe-premier-liofilizado-frasco-170-g/p"},
+        {"@type":"ListItem","position":"22","name":"Café Dolce Gusto Cappuccino 16 Cápsulas","url":"https://www.jumbo.cl/cafe-dolce-gusto-nescafe-cappuccino-186-g/p"},
+        {"@type":"ListItem","position":"23","name":"Café Dolce Gusto Cafe Au Lait 16 Cápsulas","url":"https://www.jumbo.cl/capsula-de-cafe-dolce-gusto-au-lait-160-g/p"},
+        {"@type":"ListItem","position":"24","name":"Café molido Espresso Napoletano 250 g","url":"https://www.jumbo.cl/cafe-kimbo-espresso-napolitano-250-g/p"},
+        {"@type":"ListItem","position":"25","name":"Café molido 250 g","url":"https://www.jumbo.cl/cafe-molido-copacabana-250-g/p"},
+        {"@type":"ListItem","position":"26","name":"Café bolsa 250 g molido","url":"https://www.jumbo.cl/cafe-segafredo-bolsa-250-g-molido/p"},
+        {"@type":"ListItem","position":"27","name":"Café espresso molido bolsa 250 g","url":"https://www.jumbo.cl/cafe-espresso-molido-segafredo-bolsa-250-g/p"},
+        {"@type":"ListItem","position":"28","name":"Crema para café Coffee Mate Original 435g","url":"https://www.jumbo.cl/crema-para-cafe-nescafe-435-g-coffee-mate-original/p"},
+        {"@type":"ListItem","position":"29","name":"Café Fina Selección Colombia frasco 100 g","url":"https://www.jumbo.cl/cafe-instantaneo-nescafe-frasco-100-g-cap-colombie-arabico-granulado/p"},
+        {"@type":"ListItem","position":"30","name":"Café Nescafé Fina Selección 50 g","url":"https://www.jumbo.cl/cafe-instantaneo-nescafe-50-g-fina-seleccion/p"},
+        {"@type":"ListItem","position":"31","name":"Café Nescafé Doble Choca Moka 8 sobres 184 g","url":"https://www.jumbo.cl/cafe-choca-mocha-nescafe-23-g-cu-caja-8-sobres-mixes/p"},
+        {"@type":"ListItem","position":"32","name":"Café Nescafé Cappuccino 10 sobres 140 g","url":"https://www.jumbo.cl/cafe-capuccino-nescafe-14-g-cu-10-sobres-mixes/p"},
+        {"@type":"ListItem","position":"33","name":"Café orgánico molido One Love 227 g","url":"https://www.jumbo.cl/cafe-marley-coffee-227-g-marley-organic-one-love/p"},
+        {"@type":"ListItem","position":"34","name":"Café molido super moka 3 bolsa 250 g","url":"https://www.jumbo.cl/cafe-molido-haiti-bolsa-250-g-super-moka-3/p"},
+        {"@type":"ListItem","position":"35","name":"Café Premier clásico frasco 170 g","url":"https://www.jumbo.cl/cafe-gold-premierfrasco170g/p"},
+        {"@type":"ListItem","position":"36","name":"Bebida a Base de Cebada Ecco Instantáneo 170 g","url":"https://www.jumbo.cl/cebada-tostada-ecco-lata-170-g-cereal/p"},
+        {"@type":"ListItem","position":"37","name":"Chocolate NESCAFÉ® Dolce Gusto® Chococino 16 Cápsulas","url":"https://www.jumbo.cl/capsulas-de-cafe-nescafe-dolce-gusto-caja-270-g-16-capsulas-chococino/p"},
+        {"@type":"ListItem","position":"38","name":"Café Dolce Gusto Cappuccino Skinny 16 Cápsulas","url":"https://www.jumbo.cl/capsulas-de-cafe-nescafe-dolce-gusto-caja-16-capsulas-cappuccino-skinny/p"},
+        {"@type":"ListItem","position":"39","name":"Café Dolce Gusto Lungo 16 Cápsulas","url":"https://www.jumbo.cl/capsulas-de-cafe-nescafe-dolce-gusto-caja-112-g-16-capsulas-cafe-lungo/p"},
+        {"@type":"ListItem","position":"40","name":"Café Dolce Gusto Americano 16 cápsulas","url":"https://www.jumbo.cl/capsulas-de-cafe-nescafe-dolce-gusto-160-g-americano/p"}
+      ]
+    }

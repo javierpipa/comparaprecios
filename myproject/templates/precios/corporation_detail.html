@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+    
+<p>
+    <a class="btn btn-light" href="{% url 'precios:Corporation_list' %}">
+    Corporation Listing
+    </a>
+</p>
+    
+<table class="table">
+    <tr><td>notas</td><td>{{ object.notas }}</td></tr>
+    <tr><td>last_updated</td><td>{{ object.last_updated }}</td></tr>
+    <tr><td>created</td><td>{{ object.created }}</td></tr>
+    <tr><td>nombre</td><td>{{ object.nombre }}</td></tr>
+</table>
+
+
+{% endblock %}

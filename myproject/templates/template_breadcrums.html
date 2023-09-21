@@ -1,0 +1,22 @@
+{% if not is_popup %}
+<section class="breadcrumbs">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2>{{title|title}}</h2>
+        {% if cache %}
+            <h6> Cache: {{ cache|title}}</h6>
+        {% endif %}
+        <ol>
+            <li><a href="/">Home</a></li>
+            {% for linea in beardcrums %}
+                {% if linea.url %}
+                    <li><a href="{{linea.url}}">{{linea.Nombre|title}}</a></li>
+                {% else %}
+                    <li>{{linea.Nombre|title}}</li>
+                {% endif %}
+            {% endfor %}
+        </ol>
+      </div>
+    </div>
+  </section><!-- Breadcrumbs Section -->
+  {% endif %}

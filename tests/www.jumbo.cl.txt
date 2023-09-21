@@ -1,0 +1,112 @@
+Error al obtener las URLs de https://www.jumbo.cl/mis-compras#jumbo-homepage: Message: stale element reference: stale element not found
+  (Session info: headless chrome=114.0.5735.198)
+Stacktrace:
+#0 0x55de635d8233 <unknown>
+#1 0x55de633078e6 <unknown>
+#2 0x55de633146e1 <unknown>
+#3 0x55de6330c363 <unknown>
+#4 0x55de6330ae46 <unknown>
+#5 0x55de6330d5ee <unknown>
+#6 0x55de6330d6bc <unknown>
+#7 0x55de63344439 <unknown>
+#8 0x55de633444c5 <unknown>
+#9 0x55de6333c3b4 <unknown>
+#10 0x55de63362c82 <unknown>
+#11 0x55de63339773 <unknown>
+#12 0x55de63362e4e <unknown>
+#13 0x55de6337afce <unknown>
+#14 0x55de63362a53 <unknown>
+#15 0x55de63337f4d <unknown>
+#16 0x55de63338fbe <unknown>
+#17 0x55de63598114 <unknown>
+#18 0x55de6359bf67 <unknown>
+#19 0x55de635a66b0 <unknown>
+#20 0x55de6359cbb3 <unknown>
+#21 0x55de6356a95a <unknown>
+#22 0x55de635c14f8 <unknown>
+#23 0x55de635c1687 <unknown>
+#24 0x55de635d0f83 <unknown>
+#25 0x7f0349608b43 <unknown>
+ nivel=3
+Error al buscar_enlaces https://www.jumbo.cl/: Message: stale element reference: stale element not found
+  (Session info: headless chrome=114.0.5735.198)
+Stacktrace:
+#0 0x55de635d8233 <unknown>
+#1 0x55de633078e6 <unknown>
+#2 0x55de6330c1ac <unknown>
+#3 0x55de6330e0f0 <unknown>
+#4 0x55de6337bbf2 <unknown>
+#5 0x55de63362c82 <unknown>
+#6 0x55de6337afce <unknown>
+#7 0x55de63362a53 <unknown>
+#8 0x55de63337f4d <unknown>
+#9 0x55de63338fbe <unknown>
+#10 0x55de63598114 <unknown>
+#11 0x55de6359bf67 <unknown>
+#12 0x55de635a66b0 <unknown>
+#13 0x55de6359cbb3 <unknown>
+#14 0x55de6356a95a <unknown>
+#15 0x55de635c14f8 <unknown>
+#16 0x55de635c1687 <unknown>
+#17 0x55de635d0f83 <unknown>
+#18 0x7f0349608b43 <unknown>
+ nivel=1
++----+------------------------------------------------------------------------------+---------+----------------------------------------+------------------------+-----------+-----------+-----------+-----------+
+|    | url                                                                          |   nivel | grupo_1                                | grupo_2                | grupo_3   | grupo_4   | grupo_5   | grupo_6   |
+|----+------------------------------------------------------------------------------+---------+----------------------------------------+------------------------+-----------+-----------+-----------+-----------|
+|  0 | https://www.jumbo.cl/#jumbo-homepage                                         |       1 | #jumbo-homepage                        |                        |           |           |           |           |
+|  1 | https://www.jumbo.cl/mis-compras                                             |       1 | mis-compras                            |                        |           |           |           |           |
+|  2 | https://www.jumbo.cl/                                                        |       1 |                                        |                        |           |           |           |           |
+|  3 | https://www.jumbo.cl/ketchup-heinz-567-g-2/p                                 |       1 | ketchup-heinz-567-g-2                  | p                      |           |           |           |           |
+|  4 | https://www.jumbo.cl/heinz                                                   |       1 | heinz                                  |                        |           |           |           |           |
+|  5 | https://www.jumbo.cl/ketchup-heinz-397-g-2/p                                 |       1 | ketchup-heinz-397-g-2                  | p                      |           |           |           |           |
+|  6 | https://www.jumbo.cl/mayonesa-kraft-frasco-397-g/p                           |       1 | mayonesa-kraft-frasco-397-g            | p                      |           |           |           |           |
+|  7 | https://www.jumbo.cl/kraft                                                   |       1 | kraft                                  |                        |           |           |           |           |
+|  8 | https://www.jumbo.cl/mayonesa-kraft-light-en-frasco-449-g/p                  |       1 | mayonesa-kraft-light-en-frasco-449-g   | p                      |           |           |           |           |
+|  9 | https://www.jumbo.cl/mayonesa-kraft-pote-794-g/p                             |       1 | mayonesa-kraft-pote-794-g              | p                      |           |           |           |           |
+| 10 | https://www.jumbo.cl/mayonesa-kraft-light-en-pote-898-g/p                    |       1 | mayonesa-kraft-light-en-pote-898-g     | p                      |           |           |           |           |
+| 11 | https://www.jumbo.cl/mayonesa-kraft-squeeze-582-g/p                          |       1 | mayonesa-kraft-squeeze-582-g           | p                      |           |           |           |           |
+| 12 | https://www.jumbo.cl/mayonesa-kraft-650-ml-light/p                           |       1 | mayonesa-kraft-650-ml-light            | p                      |           |           |           |           |
+| 13 | https://www.jumbo.cl/mayonesa-kraft-squeeze-317-g/p                          |       1 | mayonesa-kraft-squeeze-317-g           | p                      |           |           |           |           |
+| 14 | https://www.jumbo.cl/ketchup-heinz-doypack-397-g/p                           |       1 | ketchup-heinz-doypack-397-g            | p                      |           |           |           |           |
+| 15 | https://www.jumbo.cl/ketchup-heinz-doypack-620-g/p                           |       1 | ketchup-heinz-doypack-620-g            | p                      |           |           |           |           |
+| 16 | https://www.jumbo.cl/mayonesa-kraft-1276-ml/p                                |       1 | mayonesa-kraft-1276-ml                 | p                      |           |           |           |           |
+| 17 | https://www.jumbo.cl/mostaza-yellow-mustard-heinz-396-g/p                    |       1 | mostaza-yellow-mustard-heinz-396-g     | p                      |           |           |           |           |
+| 18 | https://www.jumbo.cl/mostaza-heinz-226-g/p                                   |       1 | mostaza-heinz-226-g                    | p                      |           |           |           |           |
+| 19 | https://www.jumbo.cl/ketchup-heinz-doypack-900-g/p                           |       1 | ketchup-heinz-doypack-900-g            | p                      |           |           |           |           |
+| 20 | https://www.jumbo.cl/mayonesa-kraft-doypack-350-gr-1855359/p                 |       1 | mayonesa-kraft-doypack-350-gr-1855359  | p                      |           |           |           |           |
+| 21 | https://www.jumbo.cl/mayonesa-kraft-doypack-850-gr-1856282/p                 |       1 | mayonesa-kraft-doypack-850-gr-1856282  | p                      |           |           |           |           |
+| 22 | https://www.jumbo.cl/mayonesa-deli-700-g/p                                   |       1 | mayonesa-deli-700-g                    | p                      |           |           |           |           |
+| 23 | https://www.jumbo.cl/mostaza-heinz-doypack-200-gr-1858320/p                  |       1 | mostaza-heinz-doypack-200-gr-1858320   | p                      |           |           |           |           |
+| 24 | https://www.jumbo.cl/mostaza-heinz-doypack-350-gr-1859904/p                  |       1 | mostaza-heinz-doypack-350-gr-1859904   | p                      |           |           |           |           |
+| 25 | https://www.jumbo.cl/pisco-mal-paso-750-cc-35-especial/p                     |       1 | pisco-mal-paso-750-cc-35-especial      | p                      |           |           |           |           |
+| 26 | https://www.jumbo.cl/mal-paso                                                |       1 | mal-paso                               |                        |           |           |           |           |
+| 27 | https://www.jumbo.cl/pisco-mal-paso-750-cc-40-reservado/p                    |       1 | pisco-mal-paso-750-cc-40-reservado     | p                      |           |           |           |           |
+| 28 | https://www.jumbo.cl/pisco-malpaso-deux-750cc-43-1960592/p                   |       1 | pisco-malpaso-deux-750cc-43-1960592    | p                      |           |           |           |           |
+| 29 | https://www.jumbo.cl/pisco-mal-paso-pedro-jimenez-40-750-cc/p                |       1 | pisco-mal-paso-pedro-jimenez-40-750-cc | p                      |           |           |           |           |
+| 30 | https://www.jumbo.cl/locales                                                 |       1 | locales                                |                        |           |           |           |           |
+| 31 | https://www.jumbo.cl/compromisos-jumbo                                       |       1 | compromisos-jumbo                      |                        |           |           |           |           |
+| 32 | https://www.jumbo.cl/jumbo                                                   |       1 | jumbo                                  |                        |           |           |           |           |
+| 33 | https://www.jumbo.cl/institucional/concursos                                 |       1 | institucional                          | concursos              |           |           |           |           |
+| 34 | https://www.jumbo.cl/plan-por-el-futuro                                      |       1 | plan-por-el-futuro                     |                        |           |           |           |           |
+| 35 | https://www.jumbo.cl/prime                                                   |       1 | prime                                  |                        |           |           |           |           |
+| 36 | https://www.jumbo.cl/informaciones-legales/terminos-y-condiciones            |       1 | informaciones-legales                  | terminos-y-condiciones |           |           |           |           |
+| 37 | https://www.jumbo.cl/informaciones-legales/seguridad-y-privacidad            |       1 | informaciones-legales                  | seguridad-y-privacidad |           |           |           |           |
+| 38 | https://www.jumbo.cl/pisco-mal-paso-750-cc-40-reservado/p#jumbo-homepage     |       2 | pisco-mal-paso-750-cc-40-reservado     | p#jumbo-homepage       |           |           |           |           |
+| 39 | https://www.jumbo.cl/ketchup-heinz-doypack-900-g/p#jumbo-homepage            |       2 | ketchup-heinz-doypack-900-g            | p#jumbo-homepage       |           |           |           |           |
+| 40 | https://www.jumbo.cl/mayonesa-kraft-light-en-frasco-449-g/p#jumbo-homepage   |       2 | mayonesa-kraft-light-en-frasco-449-g   | p#jumbo-homepage       |           |           |           |           |
+| 41 | https://www.jumbo.cl/ketchup-heinz-567-g-2/p#jumbo-homepage                  |       2 | ketchup-heinz-567-g-2                  | p#jumbo-homepage       |           |           |           |           |
+| 42 | https://www.jumbo.cl/mis-compras#jumbo-homepage                              |       2 | mis-compras#jumbo-homepage             |                        |           |           |           |           |
+| 43 | https://www.jumbo.cl/pisco-mal-paso-750-cc-35-especial/p#jumbo-homepage      |       2 | pisco-mal-paso-750-cc-35-especial      | p#jumbo-homepage       |           |           |           |           |
+| 44 | https://www.jumbo.cl/pisco-mal-paso-pedro-jimenez-40-750-cc/p#jumbo-homepage |       2 | pisco-mal-paso-pedro-jimenez-40-750-cc | p#jumbo-homepage       |           |           |           |           |
+| 45 | https://www.jumbo.cl/mayonesa-kraft-650-ml-light/p#jumbo-homepage            |       2 | mayonesa-kraft-650-ml-light            | p#jumbo-homepage       |           |           |           |           |
+| 46 | https://www.jumbo.cl/compromisos-jumbo#jumbo-homepage                        |       2 | compromisos-jumbo#jumbo-homepage       |                        |           |           |           |           |
+| 47 | https://www.jumbo.cl/mayonesa-kraft-squeeze-582-g/p#jumbo-homepage           |       2 | mayonesa-kraft-squeeze-582-g           | p#jumbo-homepage       |           |           |           |           |
+| 48 | https://www.jumbo.cl/mayonesa-kraft-squeeze-317-g/p#jumbo-homepage           |       2 | mayonesa-kraft-squeeze-317-g           | p#jumbo-homepage       |           |           |           |           |
+| 49 | https://www.jumbo.cl/ketchup-heinz-doypack-397-g/p#jumbo-homepage            |       2 | ketchup-heinz-doypack-397-g            | p#jumbo-homepage       |           |           |           |           |
+| 50 | https://www.jumbo.cl/mayonesa-kraft-light-en-pote-898-g/p#jumbo-homepage     |       2 | mayonesa-kraft-light-en-pote-898-g     | p#jumbo-homepage       |           |           |           |           |
+| 51 | https://www.jumbo.cl/ketchup-heinz-397-g-2/p#jumbo-homepage                  |       2 | ketchup-heinz-397-g-2                  | p#jumbo-homepage       |           |           |           |           |
+| 52 | https://www.jumbo.cl/pisco-malpaso-deux-750cc-43-1960592/p#jumbo-homepage    |       2 | pisco-malpaso-deux-750cc-43-1960592    | p#jumbo-homepage       |           |           |           |           |
+| 53 | https://www.jumbo.cl/ketchup-heinz-doypack-620-g/p#jumbo-homepage            |       2 | ketchup-heinz-doypack-620-g            | p#jumbo-homepage       |           |           |           |           |
+| 54 | https://www.jumbo.cl/plan-por-el-futuro#jumbo-homepage                       |       2 | plan-por-el-futuro#jumbo-homepage      |                        |           |           |           |           |
++----+------------------------------------------------------------------------------+---------+----------------------------------------+------------------------+-----------+-----------+-----------+-----------+

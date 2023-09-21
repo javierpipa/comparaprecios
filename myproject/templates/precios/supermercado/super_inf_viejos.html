@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% load humanize mathfilters cms_tags menu_tags sekizai_tags static i18n %}
+
+{% block title %}Antiguedad de registros{% endblock %}
+{% block breadcrumbs %}
+  {% if not is_popup %}
+  <section class="breadcrumbs">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2>Antiguedad de los registros</h2>
+        {% if context.cache %}
+            <h6> Cache: {{ context.cache|title}}</h6>
+        {% endif %}
+        <ol>
+            <li><a href="/">Home</a></li>
+            <li><a href="/precios/estado"> Estado</a></li>
+            <li>Antiguedad de los registros</li>
+        </ol>
+      </div>
+    </div>
+  </section><!-- Breadcrumbs Section -->
+  
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+
+<section id="portfolio" class=" d-flex">
+    <div class="container" data-aos="fade-up">
+
+
+
+        <!-- <div class=""> -->
+
+            <table class="table-responsive table table-bordered table-sm">
+                <thead class="bg-light">
+                    <tr>
+                        <th colspan="3" scope="col" class="text-center">Sitio</th>
+                        
+                        <th colspan="11" scope="col" class="d-none d-sm-table-cell text-center">Antiguedad de los registros
+                            ( Configurado con {{ max_dias }} días )
+                        </th>
+                    </tr>
+                    <tr>
+                        <!-- ## Sitio ## -->
+                        <th class="d-none d-sm-table-cell">Id</th>
+                        <th>Nombre</th>
+                        
+                        <th colspan="1" class="d-none d-sm-table-cell">URL Ok</th>
+                        
+
+                        <!-- Configuración  -->
+                        {% with '1 2 3 4 5 6 7 8 9 10 15' as list %}
+                            {% for dia in list.split %}
+                                {% if dia|add:"0" > max_dias %}
+                                    <th colspan="1" class="d-none d-sm-table-cell text-danger">
+                                {% else %}
+                                    <th colspan="1" class="d-none d-sm-table-cell ">
+                                {% endif %}
+                                {{dia}} días
+                                </th>
+                            {% endfor %}
+                        {% endwith %}
+                            
+                    </tr>
+                    
+                
+                </thead>
+                <tbody>
+                    {% for row in context %}
+                    <tr>
+                        <!-- ## Sitio ## -->
+                        <td class="d-none d-sm-table-cell">
+                            {{ row.id }}
+                        </td>
+                        <th class="bg-light" scope="row">
+                            <a href="{%url 'precios:supermercado' row.id %}">
+                                {{ row.name }}
+                            </a>
+                            <!-- - {{ row.crawler}} -->
+                        </th>
+                        <td class="d-none d-sm-table-cell text-right">
+                            {{ row.URLS|intcomma }}
+                        </td>
+
+                        <td class="d-none d-sm-table-cell text-right">
+                            {{ row.dia1|intcomma }}
+                        </td>
+                        <td class="d-none d-sm-table-cell text-right">
+                            {{ row.dia2|intcomma }}
+                        </td>
+                        <td class="d-none d-sm-table-cell text-right">
+                            {{ row.dia3|intcomma }}
+                        </td>
+                        <td class="d-none d-sm-table-cell text-right">
+                            {{ row.dia4|intcomma }}
+                        </td>
+                        <td class="d-none d-sm-table-cell text-right">
+                            {{ row.dia5|intcomma }}
+                        </td>
+                        <td class="d-none d-sm-table-cell text-right">
+                            {{ row.dia6|intcomma }}
+                        </td>
+                        <td class="d-none d-sm-table-cell text-right">
+                            {{ row.dia7|intcomma }}
+                        </td>
+                        <td class="d-none d-sm-table-cell text-right">
+                            {{ row.dia8|intcomma }}
+                        </td>
+                        <td class="d-none d-sm-table-cell text-right">
+                            {{ row.dia9|intcomma }}
+                        </td>
+                        <td class="d-none d-sm-table-cell text-right">
+                            {{ row.dia10|intcomma }}
+                        </td>
+                        <td class="d-none d-sm-table-cell text-right">
+                            {{ row.dia15|intcomma }}
+                        </td>
+                        
+                    </tr>
+
+                    {% endfor %}
+                </tbody>
+                <tfooter>
+                    <tr>
+                        <th class="d-none d-sm-table-cell"></th>
+                        <th>Sitios: {{ context|length }}</th>
+                        {% for row in resumen %}
+                            <th class="d-none d-sm-table-cell text-right">{{row.suma_url|floatformat:0|intcomma}}</th>
+                            <th class="d-none d-sm-table-cell text-right">{{row.tdia1|floatformat:0|intcomma}}</th>
+                            <th class="d-none d-sm-table-cell text-right">{{row.tdia2|floatformat:0|intcomma}}</th>
+                            <th class="d-none d-sm-table-cell text-right">{{row.tdia3|floatformat:0|intcomma}}</th>
+                            <th class="d-none d-sm-table-cell text-right">{{row.tdia4|floatformat:0|intcomma}}</th>
+                            <th class="d-none d-sm-table-cell text-right">{{row.tdia5|floatformat:0|intcomma}}</th>
+                            <th class="d-none d-sm-table-cell text-right">{{row.tdia6|floatformat:0|intcomma}}</th>
+                            <th class="d-none d-sm-table-cell text-right">{{row.tdia7|floatformat:0|intcomma}}</th>
+                            <th class="d-none d-sm-table-cell text-right">{{row.tdia8|floatformat:0|intcomma}}</th>
+                            <th class="d-none d-sm-table-cell text-right">{{row.tdia9|floatformat:0|intcomma}}</th>
+                            <th class="d-none d-sm-table-cell text-right">{{row.tdia10|floatformat:0|intcomma}}</th>
+                            <th class="d-none d-sm-table-cell text-right">{{row.tdia15|floatformat:0|intcomma}}</th>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <th class="d-none d-sm-table-cell"></th>
+                        <th></th>
+                        {% for row in resumen %}
+                            <th class="d-none d-sm-table-cell text-right">{{row.suma_url|floatformat:0|intcomma}}</th>
+                            <th class="d-none d-sm-table-cell text-right">{{row.tdia1|div:row.suma_url|mul:100|floatformat:2|intcomma}} %</th>
+                            <th class="d-none d-sm-table-cell text-right">{{row.tdia2|div:row.suma_url|mul:100|floatformat:2|intcomma}} %</th>
+                            <th class="d-none d-sm-table-cell text-right">{{row.tdia3|div:row.suma_url|mul:100|floatformat:2|intcomma}} %</th>
+                            <th class="d-none d-sm-table-cell text-right">{{row.tdia4|div:row.suma_url|mul:100|floatformat:2|intcomma}} %</th>
+                            <th class="d-none d-sm-table-cell text-right">{{row.tdia5|div:row.suma_url|mul:100|floatformat:2|intcomma}} %</th>
+                            <th class="d-none d-sm-table-cell text-right">{{row.tdia6|div:row.suma_url|mul:100|floatformat:2|intcomma}} %</th>
+                            <th class="d-none d-sm-table-cell text-right">{{row.tdia7|div:row.suma_url|mul:100|floatformat:2|intcomma}} %</th>
+                            <th class="d-none d-sm-table-cell text-right">{{row.tdia8|div:row.suma_url|mul:100|floatformat:2|intcomma}} %</th>
+                            <th class="d-none d-sm-table-cell text-right">{{row.tdia9|div:row.suma_url|mul:100|floatformat:2|intcomma}} %</th>
+                            <th class="d-none d-sm-table-cell text-right">{{row.tdia10|div:row.suma_url|mul:100|floatformat:2|intcomma}} %</th>
+                            <th class="d-none d-sm-table-cell text-right">{{row.tdia15|div:row.suma_url|mul:100|floatformat:2|intcomma}} %</th>
+                        
+                        {% endfor %}
+                    
+                    </tr>
+                </tfooter>
+                
+            </table>
+        <!-- </div> -->
+    </div>
+</section>
+{% endblock %}
+
+{% block footer %}
+    {% include "footer.html" %}
+{% endblock %}

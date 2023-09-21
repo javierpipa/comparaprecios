@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% load cms_tags menu_tags sekizai_tags static i18n static socialaccount %}   
+ <!-- load humanize mathfilters socialaccount -->
+
+
+{% block title %}Login{% endblock %}
+{% block breadcrumbs %}
+  {% if not is_popup %}
+  <section class="breadcrumbs">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2>Login</h2>
+        <ol>
+            <li><a href="/">Home</a></li>
+            <li>Login</li>
+        </ol>
+      </div>
+    </div>
+  </section><!-- Breadcrumbs Section -->
+  
+  {% endif %}
+{% endblock %}
+
+
+{% block content %}
+
+
+  
+<main id="main">
+    <section id="featured-services" class="featured-services">
+        <div class="container" data-aos="fade-up">
+            <div>
+                <ul class="nav nav-pills  nav-justified" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="tab-label-1044" data-bs-toggle="tab" data-bs-target="#tab-1044" aria-controls="tab-1044" aria-selected="true" type="button" role="tab">
+                            Con Google
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="tab-label-1046" data-bs-toggle="tab" data-bs-target="#tab-1046" aria-controls="tab-1046" aria-selected="false" type="button" role="tab" tabindex="-1">
+                            Usuario y clave
+                        </button>
+                    </li>
+                </ul>
+                <div class="tab-content">
+                    <div class="active show tab-pane border" id="tab-1044" aria-labelledby="tab-label-1044" role="tabpanel">
+                        <a href="{% provider_login_url 'google' ?next=/%}">Login con Google</a>
+                    </div>
+                    <div class="tab-pane border" id="tab-1046" aria-labelledby="tab-label-1046" role="tabpanel">
+                        <form  method="post">
+                            {% csrf_token %}
+                            
+                            <div class="mb-3">
+                                <label for="username" class="form-label">User Name</label>
+                                <input type="text" class="form-control" name="username" aria-describedby="userHelp">
+                                <div id="userHelp" class="form-text"></div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" class="form-control" name="password">
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                            
+                        
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+</main>
+
+{% endblock %}
+
+{% block footer %}
+{% include "footer.html" %}
+{% endblock %}
+
+
+{% if user.is_authenticated %}
+        <p>Signed as {{ user.email }}</p>
+        <a href="logout_user">logout</a>
+    {% else %}
+    {% endif %}
+
+    <h2>Google  login</h2>
+    <a href=" provider_login_url 'google' ?next=/">Login with Google</a>
+
+
+    <h1>Login</h1>
+
+    <strong>Menu:</strong>
+    <ul>
+        {% if user.is_authenticated %}
+        <li><a href=" url 'account_email' ">Change E-mail</a></li>
+        <li><a href=" url 'account_change_password' ">Change Password</a></li>
+        <li><a href=" url 'socialaccount_connections' ">Social Accounts</a></li>
+        <li><a href=" url 'account_logout' ">Sign Out</a></li>
+        {% else %}
+        <li><a href=" url 'account_login' ">Sign In</a></li>
+        <li><a href=" url 'account_signup' ">Sign Up</a></li>
+        {% endif %}
+    </ul>
+</div>

@@ -1,0 +1,49 @@
+{% extends CMS_TEMPLATE %}
+{% load cms_tags menu_tags sekizai_tags static i18n static %}   
+
+{% block meta %}
+    {% comment %}
+    This is needed if you can't add ``{% include "meta/meta.html" %}`` in the django CMS template attached to the blog
+    page or if you use djangocms-page-meta.
+
+    Please check the documentation at https://djangocms-blog.readthedocs.io/en/latest/features/meta.html for more
+    details about the correct template configuration for social media tags rendering.
+    {% endcomment %}
+    {% if meta %}
+        {% include "meta/meta.html" %}
+    {% else %}
+        {{ block.super }}
+    {% endif %}
+{% endblock meta %}
+
+
+{% block breadcrumbs %}
+  {% if not is_popup %}
+  <section class="breadcrumbs">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2>{% page_attribute "page_title" %}</h2>
+        <ol>
+            <li><a href="/">Home</a></li>
+            <li>{% page_attribute "page_title" %}</li>
+        </ol>
+      </div>
+    </div>
+  </section><!-- Breadcrumbs Section -->
+  
+  {% endif %}
+{% endblock %}
+
+
+{% block content %}
+<main id="main">
+
+    <!-- ======= Main content Section ======= -->
+    <section id="featured-services" class="featured-services">
+      <div class="container" data-aos="fade-up">
+
+        {% block content_blog %}{% endblock %}
+    </div>
+    </section>
+</main>
+{% endblock content %}

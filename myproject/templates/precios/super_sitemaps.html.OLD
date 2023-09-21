@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load humanize mathfilters%}
+
+
+
+
+
+{% block content %}
+
+<div class="container-fluid">
+    
+    <table class="table table-bordered table-sm">
+        <thead class="bg-light">
+            <th colspan="1" scope="col">URL</th>
+
+            <th colspan="1">Enabled</th>
+            
+        </thead>
+        <tbody>
+            {% for row in context.sitemaps %}
+            <tr>
+                <!-- ## Sitio ## -->
+                <td>
+                    {{ row.loc }}
+                </td>
+               
+                <td>
+                    {{ row.get_url }}
+                </td>
+
+            </tr>
+
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+{% endblock %}

@@ -1,0 +1,27 @@
+[Unit]
+Description=Celery Worker 1 Service
+After=network.target
+
+[Service]
+Type=simple
+User=javier
+Group=javier
+
+EnvironmentFile=/etc/default/celeryd
+WorkingDirectory=/home/javier/myproject/scrap-cms
+
+ExecStart=/home/javier/myproject/bin/celery --app myproject worker -Q core_calc -n worker1 -c 1 \
+   --pidfile=/var/run/celery/worker1.pid --time-limit=700 \
+  --logfile=/var/log/celery/worker1.log --loglevel=INFO
+
+ExecStop=/home/javier/myproject/bin/celery --app myproject worker stopwait worker1 \
+  --pidfile=/var/run/celery/worker1.pid
+
+ExecReload=/home/javier/myproject/bin/celery -app myproject  worker restart -Q core_calc worker1 -c 1 \
+  --pidfile=/var/run/celery/worker1.pid --time-limit=700 \
+  --logfile=/var/log/celery/worker1.log --loglevel=INFO
+
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

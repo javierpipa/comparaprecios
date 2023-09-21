@@ -1,0 +1,954 @@
+{% extends "base.html" %}
+
+{% load humanize mathfilters cms_tags menu_tags sekizai_tags static i18n %}
+
+{% block title %}Cotización{% endblock %}
+{% block breadcrumbs %}
+  {% if not is_popup %}
+  <section class="breadcrumbs">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2>Cotización</h2>
+        {% if context.cache %}
+            <h6> Cache: {{ context.cache|title}}</h6>
+        {% endif %}
+        <ol>
+            <li><a href="/">Home</a></li>
+            <li>Cotización</li>
+            
+        </ol>
+      </div>
+    </div>
+  </section><!-- Breadcrumbs Section -->
+  
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+<style>
+    .spinner-container {
+        display: none;
+        justify-content: center;
+        align-items: center;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 9999;
+    }
+
+    .spinner {
+        width: 3rem;
+        height: 3rem;
+    }
+
+    .spinner-border {
+        width: 3rem;
+        height: 3rem;
+        border-width: 0.2rem;
+    }
+
+    .spinner-message {
+        margin-top: 1rem;
+        color: white;
+        font-weight: bold;
+    }
+
+    /* Estilos para la presentación de propiedades */
+    .propiedad {
+        margin: 10px 0;
+        padding: 5px;
+        border: 1px solid #ccc;
+        background-color: #f9f9f9;
+    }
+
+    .propiedad .nombre {
+        font-weight: bold;
+        color: #333;
+    }
+
+    .propiedad .valor {
+        color: #555;
+    }
+
+</style>
+<div id="portfolio" class="d-flex">
+    <div class="container" >
+        <!-- Elemento donde se agregará el spinner -->
+        <div id="spinner-container" class="spinner-container"></div>
+        
+        <!-- Modal -->
+        <div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Checking Site</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body">
+              <!-- <h5 class="card-title">Horizontal Form</h5> -->
+                {% if form.errors %}
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        <strong>Hubo un error...</strong> 
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endif %}
+                <!-- gy-2 gx-3 align-items-center -->
+                <form id="cotizaForm" class="needs-validation row g-3" novalidate>
+                    {% csrf_token %}
+                    <script>
+                        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                    </script>
+                    <div class="col-md-12">
+                        <div class="form-floating mb-3">
+                            <select class="form-select" id="plan" aria-label="Plan" onchange="PlanCambiado()">
+                                <option selected="" value="0">Seleccione plan...</option>
+                                {% for plan in context.planes%}
+                                    <option value="{{plan.id}}">{{ plan.nombre }} $ {{ plan.valor_agno|intcomma}} anual </option>
+                                {% endfor %}
+                                </select>
+                            <label for="plan">Plan</label>
+                            <div class="invalid-feedback">
+                                Por favor, seleccione un plan.
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                        Detalles del Plan
+                    </button>
+                    <div class="collapse" id="collapseExample">
+                        <div class="card card-body">
+                            Some placeholder content for the collapse component. This panel is hidden by default but revealed when the user activates the relevant trigger.
+                            <div id="detalles_plan" class="form-floating row g-3">
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-10">
+                        <div class="form-floating">
+                            <input type="url" class="form-control" id="id_siteURL" value='https://labarra.cl/' placeholder="https://ejemplo.com" required>
+                            <label for="id_siteURL">URL Dominio</label>
+                        </div>
+                        <div class="invalid-feedback">
+                            Por favor, ingresa una URL válida.
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" id="uno" class="btn btn-primary">Checkear el sitio</button>
+                    </div>
+                    <hr/>
+                    <div id="detalles_sitio" class="form-floating row g-3">
+                        <!-- Aquí se agregarán y eliminarán los <input> -->
+                    </div>
+
+                    
+                    <hr/>
+                    
+                </form>
+
+                
+                <div class="card-body invisible" id="navs">
+                    <ul class="nav nav-tabs d-flex" id="myTabjustified" role="tablist">
+                      <li class="nav-item flex-fill" role="presentation">
+                        <button 
+                            id="home-tab" 
+                            class="nav-link w-100 active" 
+                            data-bs-toggle="tab" 
+                            data-bs-target="#home-justified" 
+                            type="button" 
+                            role="tab" 
+                            aria-controls="home" 
+                            aria-selected="true">
+                            Robots
+                        </button>
+                      </li>
+
+                    </ul>
+                    <div class="tab-content pt-2" id="myTabjustifiedContent">
+                        <div 
+                            class="tab-pane fade show active" 
+                            id="home-justified" 
+                            role="tabpanel" 
+                            aria-labelledby="home-tab">
+
+                            <div class="overflow-auto bg-light" style="max-height: 120px;">
+                                <div id="robotsContainer"></div>
+                            </div>
+                        </div>
+
+
+                    </div><!-- End Default Tabs -->
+      
+                  </div>
+                
+                  <div  id="formulario-botones-father">
+                    <p id="formulario-botones"></p>
+                  </div>
+                
+                
+                <!-- <p id=""></p> -->
+            </div>
+        </div>
+        
+    </div>
+
+</div>
+<script>
+    // Deshabilitar la validación predeterminada de Bootstrap
+    (function () {
+        'use strict';
+        var forms = document.querySelectorAll('.needs-validation');
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+    })();
+</script>
+<script>
+    var ajax_robots                     = "{% url 'precios:ajax_robots'%}";
+    // var ajax_sitemap                    = "{% url 'precios:ajax_sitemap'%}";
+    var ajax_url_ld_json                = "{% url 'precios:ajax_url_ld_json'%}";
+    var ajax_plan                       = "{% url 'precios:ajax_plan'%}";
+    var ajax_sitemap_url                = "{% url 'precios:ajax_sitemap_url'%}";
+    var ajax_craw                       = "{% url 'precios:ajax_craw'%}";
+    
+    var navigation_id                   = "myTabjustified";
+    var button_class_default            = "nav-link w-100";
+    var divElement_className_default    = "tab-pane fade";
+    var formulario                      = document.getElementById("cotizaForm");
+    var detallesPlan                    = document.getElementById("detalles_plan");
+    var li_sitemap                      = "url_sitemap";
+    var li_url_products                 = "url_products";
+    var li_ld_json_content              = "ld-json-content";
+    var li_otro_content                 = "otro-content";
+    var li_craw                         = "craw-content";
+    var clase_input                     = "col-md-4";
+
+    const placeholderDirecciones = "Comunas de despacho o ubicacion de un país.";
+    const placeholderUsuarios    = "Usuarios.";
+
+    function validarSeleccion() {
+        var selectElement = document.getElementById("plan");
+        var selectedValue = selectElement.value;
+
+        if (selectedValue === "0") {
+            return false;
+        } else {
+            return true;
+        }
+    }
+    function PlanCambiado() {
+        encenderSpinner();
+        var selectElement = document.getElementById("plan");
+        var selectedValue = selectElement.value;
+        
+        // Se vacian imputs
+        $("#detalles_plan").empty();
+
+        $.ajax({                      
+            url: ajax_plan,                    
+            data: {
+                'plan_id': selectedValue
+            },
+            success: function (data) {   
+                // console.log('data.contenidoplan: ', data.contenidoplan);
+                const detalles_plan = document.getElementById('detalles_plan');
+
+                fill_plan(data.contenidoplan, "detalles_plan");
+                console.log('data.dia: ', data.dia);
+
+                // Direcciones
+                const Num_comunas = document.querySelector(`input[placeholder="${placeholderDirecciones}"]`);
+                const Num_usuarios = document.querySelector(`input[placeholder="${placeholderUsuarios}"]`);
+
+                // // Creo acordeon
+                // const accordion = document.createElement('div');
+                // accordion.className = 'accordion accordion-flush';
+                // accordion.id = 'idAcordeonPlan';
+
+                // const accordionItems = [
+                //     { title: 'Direcciones', content: 'Placeholder content for this accordion, which is intended to demonstrate the .accordion-flush class. This is the first item\'s accordion body.' },
+                //     // { title: 'Accordion Item #3', content: 'Placeholder content for this accordion, which is intended to demonstrate the .accordion-flush class. This is the third item\'s accordion body. Nothing more exciting happening here in terms of content, but just filling up the space to make it look, at least at first glance, a bit more representative of how this would look in a real-world application.' }
+                // ];
+                
+                // const myAccordion = createAccordion('idAcordeonPlan', accordionItems);
+                // detalles_plan.appendChild(myAccordion);
+
+
+                if (Num_comunas){
+                    const valor = Num_comunas.value;
+                    for (let i = 0; i < valor; i++) {
+                        addCustomElementToId('detalles_plan', 'h4', 'custom-heading', 'Direccion ' + (i +1) + ':'); 
+                        add_input('detalles_plan','direccion-'+i, ''            ,'Dirección', false, 'input');
+                        add_input('detalles_plan','comuna-'+i   , data.comuna   ,'Comuna'   , false, 'select', false);
+
+                        // Agrega HR
+                        addCustomElementToId('detalles_plan', 'hr', 'custom-hr'); 
+                    }
+                }
+
+                // Usuarios
+                if (Num_usuarios){
+                    const valor = Num_usuarios.value;
+                    for (let i = 0; i < valor; i++) {
+                        addCustomElementToId('detalles_plan', 'h4', 'custom-heading', 'Usuario ' + (i +1) + ':'); 
+                        add_input('detalles_plan','nombre-'+i, ''       ,'Nombre', false, 'input');
+                        add_input('detalles_plan','email-'+i   ,''      ,'Email' , false, 'email', false);
+
+                        // Agrega HR
+                        addCustomElementToId('detalles_plan', 'hr', 'custom-hr'); 
+                    }
+                }
+
+                
+                
+            },
+            complete: function() {
+                apagarSpinner();
+            }
+        });
+        
+
+    }
+
+    function eliminar_li_a_nav(id_nav_secundario){
+        var div_father_id           = id_nav_secundario + "-father";
+        var liElement_id            = id_nav_secundario + "-li";
+        var divElement_id           = id_nav_secundario + "-justified";
+        $("#" + div_father_id).empty();
+        $("#" + div_father_id).remove();
+
+        $("#" + divElement_id).empty();
+        $("#" + divElement_id).remove();
+
+        $("#" + liElement_id).empty();
+        $("#" + liElement_id).remove();
+        
+
+    }
+
+    function agregar_li_a_nav(titulo_button, button_selected, id_nav_secundario, texto){
+        var id_content              = navigation_id + 'Content';
+        var liElement_id            = id_nav_secundario + "-li";
+        var buttonElement_id        = id_nav_secundario + "-tab" ;
+        var button_aria_controls    = id_nav_secundario;
+        var button_aria_selected    = "false";
+        var buttonElement_className = button_class_default;
+        
+        var divElement_id           = id_nav_secundario + "-justified";
+        var divElement_className    = divElement_className_default;
+        var data_bs_target          = "#" + id_nav_secundario + "-justified";
+        var div_aria_labelledby     = id_nav_secundario + "-tab";
+        var div_father_id           = id_nav_secundario + "-father";
+
+        // Elimino antes de crear
+        $("#" + div_father_id).empty();
+        $("#" + div_father_id).remove();
+
+        $("#" + divElement_id).empty();
+        $("#" + divElement_id).remove();
+
+        $("#" + liElement_id).empty();
+        $("#" + liElement_id).remove();
+
+
+        if (button_selected){
+            button_aria_selected    = "true";
+            buttonElement_className = button_class_default + " active";
+            divElement_className    = divElement_className_default + " show active";
+        }
+
+        // Crear el elemento <li> con el botón
+        var liElement = document.createElement("li");
+        liElement.className = "nav-item flex-fill";
+        liElement.setAttribute("role", "presentation");
+        liElement.id = liElement_id;
+
+        var buttonElement = document.createElement("button");
+        buttonElement.className     = buttonElement_className;
+        buttonElement.id            = buttonElement_id;
+        buttonElement.setAttribute("data-bs-toggle", "tab");
+        buttonElement.setAttribute("data-bs-target", data_bs_target);
+        buttonElement.setAttribute("type", "button");
+        buttonElement.setAttribute("role", "tab");
+        buttonElement.setAttribute("aria-controls", button_aria_controls);
+        buttonElement.setAttribute("aria-selected", button_aria_selected);
+        buttonElement.setAttribute("tabindex", "-1");
+        buttonElement.textContent = titulo_button;
+
+        liElement.appendChild(buttonElement);
+
+        // Obtener una referencia al <ul> con la clase "nav-tabs" y el ID entrgado
+        var ulElement = document.getElementById(navigation_id);
+
+        // Agregar el elemento <li> con el botón al <ul>
+        ulElement.appendChild(liElement);
+        
+        // EL CONTENIDO 
+        // Crear el elemento <div> principal
+        var divElement          = document.createElement("div");
+        divElement.className    = divElement_className;
+        divElement.id           = divElement_id;
+        divElement.setAttribute("role", "tabpanel");
+        divElement.setAttribute("aria-labelledby", div_aria_labelledby);
+        divElement.innerText    = texto;
+
+        // Crear div father
+        var divfather = document.createElement("div");
+        divfather.id = div_father_id;
+
+        // Crear div del contenido
+        var divSecundario = document.createElement("div");
+        divSecundario.id = id_nav_secundario;
+        divSecundario.className = "overflow-auto bg-light";
+        divSecundario.setAttribute("style", "max-height: 220px;");
+
+        // Agrego el div del contenido al div father
+        divfather.appendChild(divSecundario);
+
+        // Agrego el div father al div principal
+        divElement.appendChild(divfather);
+        
+        var areaElement = document.getElementById(id_content);
+        areaElement.appendChild(divElement);
+    }
+
+    function deleteArea(contenedor){
+        // Eliminar todos los nodos hijos de un elemento 
+        // alert(contenedor);
+
+        while (contenedor.firstChild) {
+            contenedor.removeChild(contenedor.firstChild);
+        }
+    }
+
+    function fill_area(contenedor,  ladata, tipo, clase) {
+        // Obtener una referencia al elemento en el que deseas generar la tabla
+        var tablaContainer = document.getElementById(contenedor);
+
+        deleteArea(tablaContainer);
+
+        
+        if (tipo == 'ld-json') {
+            // Obtener un array de pares [clave, valor] del objeto ld_json
+            var pares = Object.entries(ladata);
+            pares.forEach(function(par) {
+                var nombrePropiedad = par[0];
+                var valorPropiedad = par[1];
+                
+                var elemento = document.createElement('div');
+
+                elemento.className = 'propiedad'; // Agregar una clase CSS
+                elemento.innerHTML = `<span class="nombre">${nombrePropiedad}:</span> <span class="valor">${valorPropiedad}</span>`;
+                
+                tablaContainer.appendChild(elemento);
+            });
+        }
+
+        if (tipo == 'tabla') {
+            // Crear una tabla
+            var tabla = document.createElement("table");
+            tabla.className = "table";
+
+            // Crear la fila de encabezado
+            var encabezado = tabla.createTHead();
+            var encabezadoFila = encabezado.insertRow();
+            for (var key in ladata[0]) {
+                var th = document.createElement("th");
+                th.innerHTML = key;
+                encabezadoFila.appendChild(th);
+            }
+
+            // Crear las filas de datos
+            var cuerpo = tabla.createTBody();
+            for (var i = 0; i < ladata.length; i++) {
+                var fila = cuerpo.insertRow();
+                for (var key in ladata[i]) {
+                    var celda = fila.insertCell();
+                    celda.innerHTML = ladata[i][key];
+                }
+            }
+            // Agregar la tabla al contenedor deseado
+            tablaContainer.appendChild(tabla);
+        } 
+        if (tipo == 'checkbox') {
+            // Crear una tabla
+            var tabla = document.createElement("table");
+            tabla.className = "table";
+            // Crear la fila de encabezado
+            var encabezado = tabla.createTHead();
+            var encabezadoFila = encabezado.insertRow();
+            
+            var thCheckbox = document.createElement("th");
+            thCheckbox.innerHTML = "Select";
+            encabezadoFila.appendChild(thCheckbox);
+
+            var thNombre = document.createElement("th");
+            thNombre.innerHTML = "Name";
+            encabezadoFila.appendChild(thNombre);
+
+            // Crear las filas de datos con checkboxes
+            var cuerpo = tabla.createTBody();
+            for (var i = 0; i < ladata.length; i++) {
+                var fila = cuerpo.insertRow();
+                
+                // Celda para el checkbox
+                var celdaCheckbox = fila.insertCell();
+                var checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.classList = clase;
+                checkbox.value = ladata[i].loc;
+                celdaCheckbox.appendChild(checkbox);
+
+                // Celda para el nombre
+                var celdaNombre = fila.insertCell();
+                celdaNombre.innerHTML = ladata[i].loc;
+            }
+            // Agregar la tabla al contenedor deseado
+            tablaContainer.appendChild(tabla);
+        }
+        
+
+    }
+    function agregarBotonConFuncion(areaId, botonTexto, id_boton, clase_boton, funcionAInvocar) {
+        // Obtener una referencia al área identificada por su ID
+        var area = document.getElementById(areaId);
+        
+        // Crear un botón
+        var boton = document.createElement("button");
+        boton.textContent = botonTexto;
+        boton.id = id_boton; // Establecer el ID del botón
+        boton.classList = clase_boton
+
+        // Agregar un evento al botón
+        boton.addEventListener("click", funcionAInvocar);
+
+        // Agregar el botón al área
+        area.appendChild(boton);
+    }
+
+    function FuncionRegistraSitio(){
+        alert('registrando sitio');
+    }
+
+    
+    function Add_botones_area(area) {
+
+        var BotonesContainer    = document.getElementById(area + "-father");
+        
+        // Add some buttons
+        var botones_area        = document.createElement("div");
+        var id_botones          = area + '_botones_area';
+        botones_area.id         = id_botones;
+        botones_area.className  = "text-center";
+        $("#botones_area").empty();
+        BotonesContainer.appendChild(botones_area);
+        
+        return id_botones;
+
+    }
+    function FuncionDos_success(data) {
+        agregar_li_a_nav("URLs en los siteMap Seleccionados", false, li_url_products,'Revisar el contenido de las URLS');
+        fill_area(li_url_products, data.heading, 'checkbox', 'prod' );
+        // id_botones = Add_botones_area(li_url_products);
+        // agregarBotonConFuncion(id_botones, "Obtener contenido de la URL", "ttres", "btn btn-primary", FuncionTres);
+
+        // Fill some form fields
+        add_input('detalles_sitio','num_urls', '', 'Cantidad productos seleccionados');
+        document.getElementById("num_urls").value = data.registros;
+    }
+    function mycraw(){
+        const siteURL           = $("#id_siteURL").val();  
+        encenderSpinner();
+        $.ajax({                       
+            url: ajax_craw,   
+            // type: 'GET',  // Cambia el método HTTP si es necesario                
+            data: {
+                'siteURL'               : siteURL,
+                'csrfmiddlewaretoken'   : csrf_token,
+            },
+            timeout: 40000,  
+            success: function (data) {  
+                console.log('mycraw: ', data);
+                // -----------------
+                texto_en_nav = 'Craw';
+                agregar_li_a_nav("Craw", false, li_craw, texto_en_nav);
+                fill_area(li_craw, data.craw_content, 'checkbox', 'craw' );
+
+            },
+            error: function(xhr, textStatus, errorThrown) {
+                // Manejar el error aquí
+                apagarSpinner();
+                alert('mycraw 22222 it broke');
+            },
+            error: function() {
+                apagarSpinner();
+                alert('mycraw it broke');
+            },
+            complete: function() {
+                apagarSpinner();
+            }
+        });
+
+    }
+
+    function createAccordion(id, items) {
+        const accordion = document.createElement('div');
+        accordion.className = 'accordion accordion-flush';
+        accordion.id = id;
+        
+        items.forEach((item, index) => {
+            const accordionItem = document.createElement('div');
+            accordionItem.className = 'accordion-item';
+            
+            const accordionHeader = document.createElement('h2');
+            accordionHeader.className = 'accordion-header';
+            accordionHeader.id = `${id}-heading-${index}`;
+            
+            const accordionButton = document.createElement('button');
+            accordionButton.className = 'accordion-button collapsed';
+            accordionButton.type = 'button';
+            accordionButton.setAttribute('data-bs-toggle', 'collapse');
+            accordionButton.setAttribute('data-bs-target', `#${id}-collapse-${index}`);
+            accordionButton.setAttribute('aria-expanded', 'false');
+            accordionButton.setAttribute('aria-controls', `${id}-collapse-${index}`);
+            accordionButton.textContent = item.title;
+            
+            const accordionCollapse = document.createElement('div');
+            accordionCollapse.id = `${id}-collapse-${index}`;
+            accordionCollapse.className = 'accordion-collapse collapse';
+            accordionCollapse.setAttribute('aria-labelledby', `${id}-heading-${index}`);
+            accordionCollapse.setAttribute('data-bs-parent', `#${id}`);
+            
+            const accordionBody = document.createElement('div');
+            accordionBody.className = 'accordion-body';
+            accordionBody.textContent = item.content;
+            
+            accordionCollapse.appendChild(accordionBody);
+            accordionHeader.appendChild(accordionButton);
+            accordionItem.appendChild(accordionHeader);
+            accordionItem.appendChild(accordionCollapse);
+            accordion.appendChild(accordionItem);
+        });
+        
+        return accordion;
+        }
+
+        
+
+    function addCustomElementToId(id, tagName, className, content = null) {
+
+        const parentElement = document.getElementById(id);
+        if (!parentElement) {
+            console.error(`Element with ID '${id}' not found.`);
+            return;
+        }
+
+        const element = document.createElement(tagName);
+        if (className) {
+            element.classList.add(className);
+        }
+        if (content !== null) {
+            element.textContent = content;
+        }
+        parentElement.appendChild(element);
+    }
+
+    function add_input(zone, id, valor, label, disabled=false, input_type='input', multiple=false) {
+        delete_input(zone, id);
+
+        var detallesPlan = $("#" + zone);
+       
+        var divCol = $("<div>", { class: clase_input });
+        var divFormFloating = $("<div>", { class: "form-floating" });
+        var label = $("<label>", { for: id, text: label });
+
+        if (input_type == 'email') {
+            var input = $('<input>', {
+                type: "email",
+                class: "form-control text-end",
+                id: id,
+                value: valor,
+                disabled: disabled,
+                placeholder: label
+            });
+            divFormFloating.append(input, label);    
+        }
+
+        if (input_type == 'input') {
+            var input = $('<input>', {
+                type: "text",
+                class: "form-control text-end",
+                id: id,
+                value: valor,
+                disabled: disabled,
+                placeholder: label
+            });
+            divFormFloating.append(input, label);    
+        }
+        if (input_type == 'select'){
+            var input = document.createElement('select');
+            input.name = id;
+            input.multiple = multiple;
+            input.classList = 'form-select form-control';
+            input.id = id;
+            input.setAttribute("aria-label", label);
+
+            var selectDias = $(detallesPlan).find(id);
+            selectDias.empty(); // Vaciar las opciones existentes
+
+            for (const opcion of valor) {
+                console.log('opcion id: ', opcion.id, 'nombre ', opcion.nombre);
+                var option  = document.createElement('option');
+                option.id   = opcion.id;
+                option.text = opcion.nombre;
+
+                input.append(option);
+            }
+            // divFormFloating.append(input);
+            divFormFloating.append(input, label);  
+        }
+        
+        divCol.append(divFormFloating);
+        detallesPlan.append(divCol);
+        
+    }
+    function delete_input(zone, id) {
+        $("#" + zone + " #" + id).closest("."+clase_input).remove();
+    }
+
+    function fill_plan(data, divid) {
+        var detallesPlan = $("#" + divid);
+
+        $.each(data, function (i, item) {
+            var cantidad = item.todos ? 'Todos' : item.cantidad;
+
+            var divCol = $("<div>", { class: clase_input });
+            var divFormFloating = $("<div>", { class: "form-floating" });
+            var input = $("<input>", {
+                type: "text",
+                class: "form-control text-end",
+                id: "plan_" + item.id,
+                value: cantidad,
+                disabled: true,
+                placeholder: item.objeto
+            });
+            var label = $("<label>", { for: "plan_urls", text: item.objeto });
+
+            divFormFloating.append(input, label);
+            divCol.append(divFormFloating);
+            detallesPlan.append(divCol);
+        });
+    }
+    function get_site_mapUrl() {
+        encenderSpinner();
+        const siteURL           = $("#id_siteURL").val();  
+        
+        $.ajax({                       
+            url: ajax_sitemap_url,                   
+            data: {
+                'siteURL'               : siteURL,
+                'csrfmiddlewaretoken'   : csrf_token,
+            },success: function (data) {  
+                
+                if (data.sitemap_url_exist){
+                    // -----------------
+                    texto_en_nav = 'Seleccione los sitemaps de articulos que desea agregar';
+                    agregar_li_a_nav("SiteMap", false, li_sitemap, texto_en_nav);
+                    fill_area(li_sitemap, data.sitemap_data, 'checkbox', 'sites' );
+                    
+                    
+                    add_input('detalles_sitio','sitemap_url', data.sitemap_url, 'URL archivo Sitemap');
+
+                    // id_botones = Add_botones_area(li_sitemap);
+                    // agregarBotonConFuncion(id_botones, "Obtener URLs del SiteMap", "dos", "btn btn-primary", FuncionDos);
+                } else {
+                    
+                    FuncionDos_success(data); 
+                }
+
+            },
+            error: function() {
+                apagarSpinner();
+                alert('get_site_mapUrl it broke');
+            },
+            complete: function() {
+                apagarSpinner();
+            }
+        });
+  
+    };
+        
+    
+
+    $("#uno").click(function () {
+        if (!validarSeleccion()){
+            alert("Seleccione un plan válido antes de continuar.");
+            return;
+        };
+        var selectElement = document.getElementById("plan");
+        var plan_id = selectElement.value;
+
+        // Se vacian imputs
+        $("#detalles_sitio").empty();
+
+        encenderSpinner();
+        eliminar_li_a_nav(li_sitemap);
+        eliminar_li_a_nav(li_url_products);
+
+        const siteURL = $("#id_siteURL").val();  
+        $.ajax({                       
+            url: ajax_robots,                   
+            data: {
+                'siteURL'               : siteURL,
+                'csrfmiddlewaretoken'   : csrf_token,
+            },
+            success: function (data) {  
+                $("#url_robots").html(data); 
+                $("#url_products").html(''); 
+
+                var existe_robots = data.existe_robots;
+                
+                eliminar_li_a_nav(li_otro_content);
+                eliminar_li_a_nav(li_ld_json_content);
+                
+                // Agrega campos del sitio
+                add_input('detalles_sitio','robots_url', '', 'URL archivo Robots');
+                add_input('detalles_sitio','site_exist', data.site_exist, 'Sitio registrado');
+                
+                // Activa Navs
+                document.getElementById('navs').className = "visible";
+
+                // Fill some form fields
+                document.getElementById("robots_url").value = data.robots_url;
+
+                if (data.agentes!=''){
+                    add_input('detalles_sitio','agentes', '', 'Agentes');
+                    document.getElementById("agentes").value = data.agentes;        
+                }
+                
+                // Create some Div with some data 
+                fill_area('robotsContainer', data.robots_data, 'tabla', '' );
+                apagarSpinner();
+                get_site_mapUrl();
+
+                // // Otros campos necesaroios de llenar
+                // add_input('detalles_sitio','site_enabled', '', 'site_enabled');
+                // add_input('detalles_sitio','use_his_image', '', 'use_his_image');
+                // add_input('detalles_sitio','site_search', '', 'site_search');
+                // add_input('detalles_sitio','menu_icon_image', '', 'menu_icon_image');
+                // add_input('detalles_sitio','es_ean', '', 'es_ean');
+                // add_input('detalles_sitio','reclamos_url', '', 'reclamos_url');
+                // add_input('detalles_sitio','cobertura_url', '', 'cobertura_url');
+                // add_input('detalles_sitio','product_url', '', 'product_url');
+                // add_input('detalles_sitio','direcciones', '', 'direcciones');
+                // mycraw();
+            },
+            error: function() {
+                apagarSpinner();
+                alert('it broke');
+            },
+            complete: function() {
+                apagarSpinner();
+                
+            }
+        });
+  
+    });
+    
+    // Spinner
+    var spinnerContainer = document.getElementById("spinner-container");
+
+    function encenderSpinner() {
+        if (!spinnerContainer.querySelector(".spinner")) {
+            var spinner = document.createElement("div");
+            spinner.className = "spinner";
+
+            var spinnerBorder = document.createElement("div");
+            spinnerBorder.className = "spinner-border text-primary";
+            spinnerBorder.setAttribute("role", "status");
+
+            var mensaje = document.createElement("div");
+            mensaje.className = "spinner-message";
+            // mensaje.textContent = "Cargando...";
+
+            spinnerBorder.appendChild(mensaje);
+            spinner.appendChild(spinnerBorder);
+
+            spinnerContainer.appendChild(spinner);
+            
+            spinnerContainer.style.display = "flex"; // Mostrar el contenedor del spinner
+        }
+    }
+
+    function apagarSpinner() {
+        var spinner = spinnerContainer.querySelector(".spinner");
+        if (spinner) {
+            spinnerContainer.removeChild(spinner);
+            spinnerContainer.style.display = "none"; // Ocultar el contenedor del spinner
+        }
+    }
+    // Fin spinner
+
+    // Obtener una referencia al botón que abre el modal
+    // var openButton = document.getElementById("uno");
+
+    // Obtener una referencia al modal y a la barra de progreso dentro del modal
+    var modal = document.getElementById("myModal");
+    var progressBar = modal.querySelector(".progress-bar");
+
+    // Función para mostrar el modal y actualizar la barra de progreso
+    function mostrarModalConProgreso() {
+        // Mostrar el modal
+        var myModal = new bootstrap.Modal(modal);
+        myModal.show();
+
+        // Actualizar gradualmente el ancho de la barra de progreso
+        var width = 0;
+        var interval = setInterval(function () {
+            if (width >= 100) {
+                clearInterval(interval);
+                myModal.hide(); // Cerrar el modal al finalizar el progreso
+            } else {
+                width += 10;
+                progressBar.style.width = width + "%";
+                progressBar.setAttribute("aria-valuenow", width);
+            }
+        }, 500);
+    }
+
+    // Asignar la función al evento click del botón
+    // openButton.addEventListener("click", mostrarModalConProgreso);
+    // encenderSpinner
+    // Otra función para abrir el modal sin hacer clic en el botón
+    function abrirModal() {
+        var myModal = new bootstrap.Modal(modal);
+        myModal.show();
+    }
+
+  </script>
+{% endblock %}
+
+{% block footer %}
+    {% include "footer.html" %}
+{% endblock %}

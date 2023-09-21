@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load  mathfilters %}
+
+{% block title %}Personas que buscan{% endblock %}
+
+
+
+{% block breadcrumbs %}
+  {% if not is_popup %}
+  <section class="breadcrumbs">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2>Personas que buscan</h2>
+        <ol>
+            <li><a href="/">Home</a></li>
+            <li><a href="/precios/acercadevop">Sobre DEVOP</a></li>
+            <li>Personas que buscan</li>
+        </ol>
+      </div>
+    </div>
+  </section><!-- Breadcrumbs Section -->
+  
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+<section id="portfolio-details" class="portfolio-details">
+    <div class="container">
+        
+            <div class="col-md-10 col-xl-10 mx-auto">
+                <h1 class="text-center">Tenemos planes para todos los que buscan</h1>
+                <p class="lead text-center mb-4"></p>
+        
+                <div class="row justify-content-center mt-3 mb-2">
+                    <div class="col-auto">
+                        <nav class="nav btn-group">
+                            <a href="#pormes" class="btn btn-outline-primary active" data-toggle="tab">Pago mensual</a>
+                            <a href="#anual" class="btn btn-outline-primary" data-toggle="tab">Pago anual</a>
+                        </nav>
+                    </div>
+                </div>
+        
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="pormes">
+                        <div class="row py-4">
+                            {% for plan in planes %}
+                            <div class="col-sm-4 mb-3 mb-md-0">
+                                
+                                    <div class="card border{{plan.plan.area_class}}">
+                                        <div class="card-header border-bottom flex-column align-items-start p-3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-box text-secondary h3 stroke-width-1 mb-2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                                        <h4 class="text{{plan.plan.area_class}} font-weight-light mb-2">{{ plan.plan.nombre }}</h4>
+                                        <p class="font-size-sm mb-0">{{ plan.plan.leyenda }}</p>
+                                        </div>
+                                        <div class="card-header border-bottom justify-content-center py-4">
+                                        <h1 class="pricing-price">
+                                            <small class="align-self-start">$</small>
+                                            {{ plan.plan.valor_mes|floatformat:0|intcomma }}
+                                            
+                                            {% if plan.plan.leyenda_valor %}
+                                                <small class="align-self-end">{{ plan.plan.leyenda_valor }}</small>
+                                            {% endif %}
+                                        </h1>
+                                        </div>
+                                        <div class="card-body">
+                                        <ul class="list-unstyled font-size-sm mb-0">
+                                            {% for row in plan.incorpora %}
+                                            <li>
+                                                {% if row.todos or row.cantidad >= 1 %}
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check text-success mr-2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                                {%else%}
+                                                    <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x text-danger mr-2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                                        
+                                                {% endif %}
+                                                <strong>
+                                                    {% if row.todos %}Todos {%else%} {{row.cantidad}} {% endif %}
+                                                </strong>
+                                                <span class="text-secondary ml-1">{{row.objeto}}</span>
+                                            </li>
+                                            {% endfor %}
+                                            
+                                        </ul>
+                                        
+                                        </div>
+                                        <div class="card-footer justify-content-center p-3">
+                                            {% if not user.is_active  %}
+                                                <button class="btn btn-outline{{plan.plan.area_class}}">
+                                                    <a href="{{plan.plan.boton_registrarse_url}}" class="nav-item nav-link">{{plan.plan.boton_registrarse_texto}}</a>
+                                                </button>
+                                            {% else %}
+                                                <button class="btn btn-outline{{plan.plan.area_class}}">
+                                                    Ya esta registrado        
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="anual">
+                        <div class="row py-4">
+                            {% for plan in planes %}
+                            <div class="col-sm-4 mb-3 mb-md-0">
+                                
+                                    <div class="card border{{plan.plan.area_class}}">
+                                        <div class="card-header border-bottom flex-column align-items-start p-3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-box text-secondary h3 stroke-width-1 mb-2">
+                                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                                            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                                        </svg>
+                                        <h4 class="text{{plan.plan.area_class}} font-weight-light mb-2">{{ plan.plan.nombre }}</h4>
+                                        <p class="font-size-sm mb-0">{{ plan.plan.leyenda }}</p>
+                                        </div>
+                                        <div class="card-header border-bottom justify-content-center py-4">
+                                        <h1 class="pricing-price">
+                                            <small class="align-self-start">$</small>
+                                            {{ plan.plan.valor_agno|floatformat:0|intcomma }}
+                                            
+                                            {% if plan.plan.leyenda_valor %}
+                                                <small class="align-self-end">{{ plan.plan.leyenda_valor }}</small>
+                                            {% endif %}
+                                        </h1>
+                                        
+                                            {% if plan.plan.descto_anual %}
+                                                <div class="price-label">{{ plan.plan.descto_anual }}% dcto.</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="card-body">
+                                        <ul class="list-unstyled font-size-sm mb-0">
+                                            {% for row in plan.incorpora %}
+                                            <li>
+                                                {% if row.todos or row.cantidad >= 1 %}
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check text-success mr-2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                                {%else%}
+                                                    <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x text-danger mr-2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                                        
+                                                {% endif %}
+                                                <strong>
+                                                    {% if row.todos %}Todos {%else%} {{row.cantidad}} {% endif %}
+                                                </strong>
+                                                <span class="text-secondary ml-1">{{row.objeto}}</span>
+                                            </li>
+                                            
+                                            
+                                            {% endfor %}
+                                            
+                                        </ul>
+                                        
+                                        </div>
+                                        <div class="card-footer justify-content-center p-3">
+                                            {% if not user.is_active  %}
+                                                <button class="btn btn-outline{{plan.plan.area_class}}">
+                                                    
+                                                    <a href="{{plan.plan.boton_registrarse_url}}" class="nav-item nav-link">{{plan.plan.boton_registrarse_texto}}</a>
+                                                </button>
+                                            {% else %}
+                                                <button class="btn btn-outline{{plan.plan.area_class}}">
+                                                    Ya esta registrado        
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+        
+                <hr>
+        
+                
+            </div>
+        </div>
+        
+        
+</section>
+
+{% endblock %}
+
+{% block footer %}
+{% include "footer.html" %}
+{% endblock %}

@@ -1,0 +1,21 @@
+User-agent: *
+Disallow: /members/ajax_get_costo_despacho
+Disallow: /members/ajax_set_cobertura
+Disallow: /members/ajax_set_costo_despacho
+Disallow: /members/ajax_get_cobertura
+Disallow: /members/ajax_paises
+Disallow: /precios/decrementproduct
+Disallow: /precios/emptycart
+Disallow: /precios/save_cart
+Disallow: /precios/get_cart
+Disallow: /precios/get_cart_simple
+Disallow: /precios/removeproduct
+Disallow: /precios/increase_product
+Disallow: /precios/addproduct
+Disallow: /precios/siteurlsinsite
+
+User-agent: Bingbot
+Disallow: /
+
+
+Sitemap: https://www.devop.cl/precios/sitemap.xml

@@ -1,0 +1,43 @@
+{% load humanize mathfilters %}
+<div class="p-2 mb-2 bg-light border rounded-2">
+
+    {% regroup stats by objeto as objeto_list %}
+    <table class="table table-bordered table-sm">
+        {% for tipo in objeto_list %}
+        
+            <thead class="bg-light">
+                <tr>
+                    <th colspan="1">{{ tipo.grouper }}</th>
+                    <th colspan="1">
+                        {% for row in contenidoPlan %}
+                            {% if row.objeto == tipo.grouper %}
+                                Maximo= {{row.cantidad|floatformat:0|intcomma}}
+                            {% endif %}
+                        {% endfor %}
+                    </th>
+                </tr>
+                <tr>
+                    <th colspan="1">Periodo</th>
+                    <th colspan="1">Cantidad</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for city in tipo.list %}
+                    <tr>
+                        <td>
+                            {{ city.period }}
+                        </td>
+                        <td>
+                            {{ city.cuantity }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            
+                    
+            </tbody>
+        {% endfor %}
+    </table>
+
+    
+
+</div>
