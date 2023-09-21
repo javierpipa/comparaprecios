@@ -4,6 +4,8 @@ from pathlib import Path
 from django.conf import settings as django_settings
 from django.utils.translation import gettext_lazy as _
 from django.contrib.messages import constants as messages
+from decouple import Config
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,7 +30,12 @@ INTERNAL_IPS = [
 ]
 
 SITE_ID = 1
+
 # Application definition
+config = Config(os.path.join(BASE_DIR, '.env'))
+GOOGLE_API_KEY = config('GOOGLE_API_KEY', default='valor_predeterminado')
+print(GOOGLE_API_KEY)
+print(os.path.join(BASE_DIR, '.env'))
 
 INSTALLED_APPS = [
     'djangocms_admin_style',
@@ -134,7 +141,7 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 LOGIN_REDIRECT_URL = '/members/update_member/'
 LOGOUT_REDIRECT_URL = '/'
-# 698409699406-f20u5f7hdmngho11ioj036qk39el8kq6.apps.googleusercontent.com
+
 
 ###############
 
@@ -161,7 +168,7 @@ DJANGOCMS_FORMS_RECAPTCHA_SECRET_KEY = '6Ld8ZYklAAAAAAKjaMvlRzRUACxlL7vDaCTTntly
 
 
 MAPS_PROVIDERS = [
-    ('googlemaps', 'AIzaSyDDLOovUfJyFFjHp_G94V_-vbtnTijIK60'),
+    ('googlemaps', GOOGLE_API_KEY),
 ]
 
 
