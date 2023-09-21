@@ -115,7 +115,7 @@ INSTALLED_APPS = [
 # JSON_LD_INDENT                  = None
 # JSON_LD_GENERATE_URL            = True
 
-DJANGOCMS_GOOGLEMAP_API_KEY = 'AIzaSyDDLOovUfJyFFjHp_G94V_-vbtnTijIK60'
+
 ############    Google OAUTH
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
