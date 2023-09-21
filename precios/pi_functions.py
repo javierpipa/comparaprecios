@@ -166,6 +166,8 @@ def getMomentos(request):
     if request.session.get('comuna_id'):
         momentos = momentos.filter(areaDespacho__comuna=request.session['comuna_id'])
 
+    momentos = momentos.filter(areaDespacho__site__enable=True)
+
     momentos = momentos.values_list('areaDespacho__site',flat=True)
     momentos = momentos.distinct()
     supermercadoscount =  momentos.count()

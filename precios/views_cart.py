@@ -359,6 +359,7 @@ def createCart(request, cart):
     lossuperlist = momentos.values_list('areaDespacho__site__pk',flat=True).distinct()
     supermercadoscount = len(lossuperlist)
     supersinproductos = 0
+    print(lossuperlist)
 
     #### Lista de productos en la lista #####
     itemsInCart = 0 

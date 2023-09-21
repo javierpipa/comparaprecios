@@ -58,7 +58,7 @@
                                   
                                  
                                   <!-- URLs  -->
-                                  <th class="d-none d-sm-table-cell">URL Tot.</th>
+                                  <th class="d-none d-sm-table-cell">Despachos</th>
                                   <th class="d-none d-sm-table-cell">URL 404</th>
                                   <th>Ok</th>
   
@@ -70,7 +70,7 @@
                                   <th class="d-none d-sm-table-cell">Imagen</th>
                                   <th class="d-none d-sm-table-cell">Precios</th>
                                   <th class="d-none d-sm-table-cell">Antiguos</th>
-                                  <th class="d-none d-sm-table-cell">Articulos Creados</th>
+                                  <th class="d-none d-sm-table-cell">Articulos<br/> Creados</th>
                                   
                                           
                               </tr>
@@ -92,7 +92,8 @@
                                   
                                   <!-- URLs  -->
                                   <td class="d-sm-table-cell text-right">
-                                      {{ row.URLS|intcomma }}
+                                       <!-- row.URLS|intcomma  -->
+                                      {{ row.areasDespacho }}
                                   </td>
                                   <td class="d-none d-sm-table-cell text-right">
                                       {{ row.urls404|intcomma }}

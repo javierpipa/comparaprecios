@@ -265,6 +265,7 @@ def estado(request):
         urls404     = SiteURLResults.objects.filter(site=sitio.id, error404=True).count()
         sin404      = urlsCount - urls404
         
+        
         areas           = AreasDespacho.objects.filter(site=sitio.id)
         comunas         = len(areas.values_list('comuna',flat=True))
         

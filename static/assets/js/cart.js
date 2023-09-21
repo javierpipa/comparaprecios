@@ -265,7 +265,6 @@
                     var  dias, horas, despacho, add_resumen = '';
                     var  costo_despacho = 0;
 
-                    // if (suoer.costo_despacho=='true'){
                     if (flag_costo_despacho=='true'){
                         
 
@@ -340,10 +339,14 @@
                         supernoalcanza = supernoalcanza + 1;
                     }
                 })
-                if (supernoalcanza !=0){
-                    var eltexto = supernoalcanza + ' supermercados que no se alcanza el mínimo para hacer despacho.' ;
-                    $("#supermercadosnominimo").text(eltexto);
+                var eltexto = '';
+                if (flag_costo_despacho=='true'){
+                    if (supernoalcanza !=0){
+                        eltexto = supernoalcanza + ' supermercados que no se alcanza el mínimo para hacer despacho.' ;
+                    }
                 }
+                $("#supermercadosnominimo").text(eltexto);
+                // alert(eltexto);
 
             };
             function borratablas() {
