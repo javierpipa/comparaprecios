@@ -346,9 +346,8 @@
                     }
                 }
                 $("#supermercadosnominimo").text(eltexto);
-                // alert(eltexto);
-
             };
+
             function borratablas() {
                 $("#card-pedidos").find("div:gt(0)").remove();
                 $("#card-pedidos").find("hr").remove();
@@ -356,6 +355,7 @@
                 $("#accordionSuper").find("div").remove();
                 $("#resummen_super2").find("li").remove();
             };
+
             function superinfo(superdetail) {
                 $("#supermercadoscount").text(superdetail.supermercadoscount);
                 var eltexto = superdetail.supersinproductos + ' que no tienen ningun Producto.';
@@ -363,7 +363,6 @@
             };
 
             function carritoinfo(superdetail) {
-                
                 $("#products-quantity").text(superdetail.itemsInCart);
             };
 
@@ -426,8 +425,8 @@
                         text: texto,
                         showHideTransition: 'slide',
                         icon: 'error',
-                        loader: true,        // Change it to false to disable loader
-                        loaderBg: '#9EC600'  // To change the background
+                        loader: true,        
+                        loaderBg: '#9EC600'  
                     });
                 } else if (tipo=='info'){
                     $.toast({
@@ -435,7 +434,7 @@
                         text: texto,
                         showHideTransition: 'slide',
                         icon: 'info',
-                        loader: true,        // Change it to false to disable loader
+                        loader: true,        
                         
                     });
                 }
