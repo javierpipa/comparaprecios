@@ -58,9 +58,6 @@ def cobertura(request):
         min_lat, max_lat, min_lng, max_lng = -56, -17, -75, -66  # Coordenadas por defecto para Chile
 
     
-
-    
-
     paises = Countries.objects.all()
     if country_id:
         paises = paises.filter(id=country_id)
