@@ -4,7 +4,7 @@ from pathlib import Path
 from django.conf import settings as django_settings
 from django.utils.translation import gettext_lazy as _
 from django.contrib.messages import constants as messages
-from decouple import Config
+from decouple import config
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -31,11 +31,9 @@ INTERNAL_IPS = [
 
 SITE_ID = 1
 
-# Application definition
-config = Config(os.path.join(BASE_DIR, '.env'))
 GOOGLE_API_KEY = config('GOOGLE_API_KEY', default='valor_predeterminado')
-print(GOOGLE_API_KEY)
-print(os.path.join(BASE_DIR, '.env'))
+
+
 
 INSTALLED_APPS = [
     'djangocms_admin_style',

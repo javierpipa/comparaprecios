@@ -9,9 +9,8 @@
 
 
 {% block content %}
-AIzaSyDDLOovUfJyFFjHp_G94V_-vbtnTijIK60
 
-<script src="https://maps.googleapis.com/maps/api/js?key=&region=CL"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{context.resumen.api_key}}&region=CL"></script>
 <script type="text/javascript">
     var markersWithSupermarkets = [];
     var markersWithoutSupermarkets = [];

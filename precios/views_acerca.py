@@ -24,10 +24,11 @@ from django.views.decorators.cache import (
     cache_page, 
     never_cache, 
 )
-
+from django.conf import settings
 # @cache_page(60 * 5)   ## 5 minutos
 @never_cache
 def cobertura(request):
+    api_key = settings.GOOGLE_API_KEY
     islogged =  request.user.is_authenticated
     country_id, region_id, comuna_id = get_sessions(request)
     comunas = Cities.objects.all()
@@ -109,7 +110,7 @@ def cobertura(request):
         'max_lng': max_lng,
     }
     context['datos'] = datos
-    context['resumen'] = {  'logged': islogged }
+    context['resumen'] = {  'logged': islogged, 'api_key': api_key }
     return render(request, 'acerca/cobertura.html', { 'context': context, 'data': data })
 
 
