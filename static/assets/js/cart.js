@@ -128,7 +128,7 @@
                 // Head
                 linea1              = '<tr>' +
                     '<th>Articulo</th>' +
-                    '<th class="text-right">Precio</th><th class="text-right">Total</th></tr>';
+                    '<th class="text-end">Precio</th><th class="text-end">Total</th></tr>';
 
                 $.each(data.tableProd2, function (i, item3) {
                     grados              = '';
@@ -145,8 +145,8 @@
 
 
                     articulo        = '<td>' + item3.item_quantity + ' ' + toTitleCase(item3.marca) + ':' + item3.nombre  + ' ' + grados + ' '  + item3.color + ' ' + item3.dimension + '</td>';
-                    precio          = '<td class="text-right">' + item3.item_price + '</td>'
-                    totallinea      = '<td class="text-right">' + formatter.format(item3.item_subtotal) + '</td>';
+                    precio          = '<td class="text-end">' + item3.item_price + '</td>'
+                    totallinea      = '<td class="text-end">' + formatter.format(item3.item_subtotal) + '</td>';
                     fintr           = '</tr>';
                     linea2  = iniciotr  +
                         articulo +
@@ -170,11 +170,16 @@
 
                 // Quienes tienen todos los productos
                 $.each(data, function (e, suoer) {
+                    // console.log('detalle.grantotalunidades=',detalle.grantotalunidades, ' vs ', suoer.supertotalunidades );
+
                     if (flag_costo_despacho=='true'){
                         if (detalle.grantotalunidades == suoer.supertotalunidades){
-                            if ( valormasbajo > Number(Number(suoer.totcompra)  +  Number(suoer.costo_despacho )) &&  (Number(suoer.totcompra) > Number(suoer.monto_minimo_compra))) {
-                                valormasbajo = Number(Number(suoer.totcompra)  +  Number(suoer.costo_despacho )) ;
+                            total_super = Number(suoer.totcompra)  +  Number(suoer.valor_despacho );
+                            // console.log('Entra a costo de despacho true, total_super=', suoer.totcompra, suoer.valor_despacho);
+                            if ( valormasbajo > total_super &&  (Number(suoer.totcompra) > Number(suoer.monto_minimo_compra))) {
+                                valormasbajo = total_super;
                                 que_sitio_id = suoer.id;
+                                // console.log('Ok',que_sitio_id )
                             }
                         }
                     } else {
@@ -186,6 +191,8 @@
                         }
                     }
                 })
+                
+                // console.log(que_sitio_id);
                 var trHTML         = '';
                 $.each(data, function (i, suoer) {
                     var nota = "";
@@ -194,10 +201,11 @@
                     var expanded = "false";
                     var expanded_class = "";
                     var button_checkout_class = "disabled";
+                    var productos_que_faltan = detalle.grantotalunidades - suoer.supertotalunidades;
+                    // console.log('productos_que_faltan', productos_que_faltan);
                     if (flag_costo_despacho=='true'){
                         if (Number(suoer.totcompra) > Number(suoer.monto_minimo_compra)) {
                             if (que_sitio_id == suoer.id ){
-                                // || suoer.requerido
                                 clase = "bg-success text-white";
                                 nota = "El mejor";
                                 nota_titulo = "";
@@ -212,15 +220,15 @@
                                     button_checkout_class = "";
                                     
                                 } else {
-                                    nota = "No tiene todos los productos.";
+                                    nota = "No tiene todos los productos. Faltan " + productos_que_faltan;
                                     clase = "bg-info text-dark";
-                                    nota_titulo = "Faltan productos";
+                                    nota_titulo = "Faltan " + productos_que_faltan +" productos";
                                     button_checkout_class = "disabled";
                                 }
                             }
                         } else {
-                            nota = "no alcanza compra mínima";
-                            nota_titulo = "Compra mínima";
+                            nota = "No alcanza compra mínima de " + formatter.format(suoer.monto_minimo_compra);
+                            nota_titulo = "Compra mínima de " + formatter.format(suoer.monto_minimo_compra);
                             clase = "bg-info text-dark";
                             supernoalcanza = supernoalcanza + 1;
                         }
@@ -241,9 +249,9 @@
                                 button_checkout_class = "";
                                 
                             } else {
-                                nota = "No tiene todos los productos.";
+                                nota = "No tiene todos los productos. Faltan " + productos_que_faltan;
                                 clase = "bg-info text-dark";
-                                nota_titulo = "Faltan productos";
+                                nota_titulo = "Faltan " + productos_que_faltan +" productos";
                                 button_checkout_class = "disabled";
                             }
                         }
@@ -261,7 +269,7 @@
                                     '</table>    </div>';
 
 
-                    console.log(suoer.areaDespacho_dias);
+                    // console.log(suoer.supermercados.areaDespacho_dias);
                     var  dias, horas, despacho, add_resumen = '';
                     var  costo_despacho = 0;
 
@@ -283,7 +291,7 @@
                             '</li>' ;
                         costo_despacho = suoer.supermercados.areaDespacho_valor_despacho;
                         total_supe = suoer.supermercados.areaDespacho_valor_despacho + suoer.totcompra;
-                        notas_despacho = '<i class="bi bi bi-exclamation-diamond" title="Minimo de compra"></i> ' +  formatter.format(suoer.supermercados.areaDespacho_monto_minimo_compra) +  ' ' +
+                        notas_despacho = '<i class="bi bi bi-exclamation-diamond" title="Mínimo de compra"></i> ' +  formatter.format(suoer.supermercados.areaDespacho_monto_minimo_compra) +  ' ' +
                                         '<i class="bi bi-truck" title="Costo despacho"></i> ' + formatter.format(suoer.supermercados.areaDespacho_valor_despacho) + ' ' ;
                     } else {
                         total_supe =  suoer.totcompra;
@@ -296,7 +304,7 @@
                                 '<ul class="list-group list-group-flush"><li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 pb-0">Productos<span id="totalProductos">'  + formatter.format(suoer.totcompra) + '</span></li>' +
                                 add_resumen +
                                 '<li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0 mb-3">' +
-                                    '<div><strong>Total Superercado</strong></div>' +
+                                    '<div><strong>Total Supermercado</strong></div>' +
                                     '<span><strong>'  + formatter.format(costo_despacho + suoer.totcompra) + '</strong></span></li></ul>'  +
                                 // '<button type="button" class="btn btn-primary btn-lg btn-block ' + button_checkout_class +  '">Go to checkout</button>' + 
                                 '</div>';
@@ -322,9 +330,6 @@
                                             '</div>' +
                                         '</div>'  +
                                     '</div>';
-
-                    
-
 
                     $("#accordionSuper").append(linea_03);
 

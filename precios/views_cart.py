@@ -359,7 +359,7 @@ def createCart(request, cart):
     lossuperlist = momentos.values_list('areaDespacho__site__pk',flat=True).distinct()
     supermercadoscount = len(lossuperlist)
     supersinproductos = 0
-    print(lossuperlist)
+    
 
     #### Lista de productos en la lista #####
     itemsInCart = 0 
@@ -462,12 +462,10 @@ def createCart(request, cart):
                     'pre_seleccionado': pre_seleccionado,
                     'seleccionado': seleccionado,
                     'totcompra': totcompra,
-                    # 'monto_minimo_compra':monto_minimo_compra,
                     'monto_minimo_compra':despacho['areaDespacho_monto_minimo_compra'],
                     'tableProd2': tableProd2,
-                    # 'supermercados': tablemomentos,
                     'supermercados': despacho,
-                    'costo_despacho': tablemomentos[0]['areaDespacho_valor_despacho'],
+                    'valor_despacho': tablemomentos[0]['areaDespacho_valor_despacho'],
                     'total_super':  totcompra + tablemomentos[0]['areaDespacho_valor_despacho'],
                     'requerido': requerido,
                     'supertotalunidades': supertotalunidades,
@@ -478,11 +476,8 @@ def createCart(request, cart):
             supersinproductos = supersinproductos + 1
       
     ### Orden
-
     totsuper = sorted(totsuper, key=itemgetter('seleccionado','pre_seleccionado','total_super'))
-
-    ## Si
-
+    
     superdetail = {
         'supermercadoscount': supermercadoscount,
         'supersinproductos': supersinproductos,

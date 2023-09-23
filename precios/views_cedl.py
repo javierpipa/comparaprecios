@@ -57,11 +57,18 @@ class SiteURLResultsListView(generic.ListView):
 class ProductDetailView(JsonLdDetailView):
     template_name = 'precios/articulos/detalle2.html'
     model           = Articulos
-    queryset        = Articulos.objects.select_related('marca').all()
+    # queryset        = Articulos.objects.select_related('marca').all()
 
+    
     # def get_queryset(self):
-    #     return  get_object_or_404(Articulos, slug=self.kwargs["slug"])
-    #     # return Articulos.objects.filter(id=self.articulo)
+    #     momentos, supermercadoscount = getMomentos(self.request)
+    #     los_momentos = list(momentos)
+        
+    #     # obj =  get_object_or_404(Articulos, slug=self.kwargs["slug"])
+    #     obj = Articulos.objects.select_related('marca').filter(slug=self.kwargs["slug"])
+
+    #     return obj
+    # #     # return 
 
     # override context data
     def get_context_data(self, *args, **kwargs):
@@ -69,6 +76,7 @@ class ProductDetailView(JsonLdDetailView):
         ExternalUrlPostUrl           = Settings.objects.get(key='ExternalUrlPostUrl').value
         momentos, supermercadoscount = getMomentos(self.request)
         print(momentos)
+        
 
         messages.warning(self.request,  str(getMessage()))
         
@@ -96,6 +104,7 @@ class ProductDetailView(JsonLdDetailView):
             if (len(detalle)) > 0 :
                 articulos_count +=1
                 ofertas = detalle.count()
+                print(f'ofertas = {ofertas}')
                 articulos_dict.append({'articulo': particulo,'detalle': detalle})
 
         context['articulos_dict'] = articulos_dict 

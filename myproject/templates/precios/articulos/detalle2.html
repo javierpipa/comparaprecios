@@ -100,21 +100,21 @@
 </script>
 
   
-<section id="portfolio" class="d-flex">
-    <div class="container" data-aos="fade-up">
-        
-        <div class="row ">
-            <div class="col-sm-6">
-                <div class="card " style="border: none; padding-top: 15px; padding-bottom: 0pc;">
-                     {% include "precios/includes/articulo.html" with row=object %}
-                </div>
+
+<div class="container" data-aos="fade-up">
+    
+    <div class="row ">
+        <div class="col-sm-6">
+            <div class="card h-100" style="min-height: 25rem; ">
+                    {% include "precios/includes/articulo.html" with row=object %}
             </div>
-            <div class="col-sm-6">
-                <div class="card " style="border: none; padding-top: 15px; padding-bottom: 0pc;">
-                    <div class="card-header">
-                        Precios actuales  
-                    </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="card  h-100" style="padding-bottom: 0pc;">
+                <div class="card-header">
+                    Precios actuales  
                 </div>
+            
                 <ol class="list-group list-group list-group-numbered" >
                     {% for detalle in articulos_dict %}
                         {% for vendedor in detalle.detalle %}
@@ -124,30 +124,24 @@
                         {% endfor %}
                     {% endfor %}
                 </ol>
-                
-                
+            </div>
             
-            </div>
         </div>
-        <div class="clearfix"></div>
-        <div class="row ">
-            <div class="col-sm-12">
-                <div class="card " style="border: none; padding-top: 15px; padding-bottom: 0pc;">
-                    <div class="card-header">
-                        Gráfica  
-                    </div>
-                    <div id="chart_div" class="chart"></div>
+    </div>
+    <div class="clearfix"></div>
+    <div class="row ">
+        <div class="col-sm-12">
+            <div class="card " style="border: none; padding-top: 15px; padding-bottom: 0pc;">
+                <div class="card-header">
+                    Gráfica  
                 </div>
+                <div id="chart_div" class="chart"></div>
             </div>
         </div>
-        
-    
-    
-        
-        
+    </div>
       
 </div>
-</section>
+
 
 {% endblock %}
 

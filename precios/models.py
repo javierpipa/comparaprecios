@@ -789,7 +789,7 @@ class Articulos(ModelMeta, models.Model):
 
     @property
     def resultsCount(self) -> int:
-        return Vendedores.objects.filter( articulo=self).count()
+        return Vendedores.objects.filter(articulo=self).exclude(vendidoen__precio__exact=0).count()
     
 
     def get_absolute_url(self):
@@ -804,11 +804,15 @@ class Articulos(ModelMeta, models.Model):
         mp = list(Vendedores.objects.filter(articulo=self).values_list('vendidoen__site__id', flat=True).all())
         return mp
     
-    @property
+    # @property
+    # @staticmethod
     def cuanntosvenden(self, vendedores:List[int]=None) -> int:
         mp = Vendedores.objects.filter(articulo=self)
         if vendedores:
             mp = mp.filter(vendidoen__site__in=vendedores)
+            print('con filtro')
+        else:
+            print('SIN filtro')
         mp = mp.count()
         return mp
     
