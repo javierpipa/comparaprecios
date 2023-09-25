@@ -49,7 +49,9 @@ from precios.pi_stats import (
 from precios.pi_functions import (
     getMomentos,
     getMessage,
-    registrar_consulta
+    registrar_consulta,
+    generate_articulos_dict,
+    generate_filters,
 )
 
 from precios.pi_get import (
@@ -577,8 +579,6 @@ def rescan(request, slug):
 
 
     
-
-
 # @never_cache
 def precios(request):
     MinSuperCompara             = int(Settings.objects.get(key='MinSuperCompara').value)
@@ -609,7 +609,7 @@ def precios(request):
             renvase         = request.POST.getlist('envase')
             rcolor          = request.POST.getlist('color')
             rmedida_cant    = request.POST.getlist('medida_cant')
-            orden           = request.POST.get('order', 'vendidoen__precio__min')
+            orden           = request.POST.get('order', 'nombre')
             page_number     = request.POST.get('page_number',1)
         # page_number = 1
     else:
@@ -622,17 +622,17 @@ def precios(request):
             rgrados         = request.GET.getlist('grados')
             renvase         = request.GET.getlist('envase')
             rcolor          = request.GET.getlist('color')
-            orden           = request.GET.get("order", 'vendidoen__precio__min')
+            orden           = request.GET.get("order", 'nombre')
         else:
-            orden           =  'vendidoen__precio__min'
+            orden           =  'nombre'
             nombre          = ''
 
     if type(orden) == 'list':
         if len(orden) == 0:
-            orden   = 'vendidoen__precio__min'
+            orden   = 'nombre'
 
     nombre = nombre.rstrip().lower()
-    
+
     registrar_consulta(request, clase_consultada="cslta_", elemento_id=1, texto_busqueda=nombre)
 
    
@@ -693,48 +693,9 @@ def precios(request):
         ofertas_count  = 0
         articulos = articulos.annotate(num_vendedores=Count('vendedores__vendidoen', filter=Q(vendedores__vendidoen__site__in=momentos, vendedores__vendidoen__precio__gt=0), distinct=True))
         
-        articulos_dict  = []
-        articulos_count = 0
-        for particulo in articulos:
-            if particulo.num_vendedores >= MinSuperCompara:
-                detalle = Vendedores.objects\
-                    .filter(articulo=particulo.id)\
-                    .filter(vendidoen__site__in=momentos)\
-                    .exclude(vendidoen__precio__exact=0)\
-                    .order_by('vendidoen__precio')
-
-                if detalle :
-                    articulos_count +=1
-                    ofertas_count =  ofertas_count + particulo.num_vendedores
-                    articulos_dict.append({'articulo': particulo,'detalle': detalle})
-
-
-        # ####### Generacionn de filtros ------------
-        # data_filtro = articulos
-        filtro = {}
-        # siteName   = articulos.values('vendidoen__site__siteName','vendidoen__site__pk').annotate(Count('id', distinct=True))
-        # filtro['siteName']      = siteName
-
-        marcas      = articulos.values('marca__nombre','marca_id').annotate(Count('id', distinct=True)).order_by()
-        filtro['marcas']        = marcas
-
-        grados      = articulos.values('grados2').order_by('grados2').annotate(Count('id', distinct=True))
-        filtro['grados']        = grados
+        articulos_dict, articulos_count, ofertas_count = generate_articulos_dict(articulos, momentos, MinSuperCompara, orden)
+        filtro = generate_filters(articulos)
         
-        envase      = articulos.values('envase').annotate(Count('id', distinct=True)).order_by()
-        filtro['envase']        = envase
-
-        color       = articulos.values('color').annotate(Count('id', distinct=True)).order_by()
-        filtro['color']        = color
-
-        medida_cant = articulos.values('medida_cant').annotate(Count('id', distinct=True)).order_by()
-        filtro['medida_cant']      = medida_cant
-
-        medida_um = articulos.values('medida_um').annotate(Count('id', distinct=True))
-        filtro['medida_um']      = medida_um
-        # ####### Generacionn de filtros ------------
-            
-            
         context['resumen'] = {
             'articulos_count':articulos_count, 
             'ofertas_count': ofertas_count, 
@@ -788,7 +749,6 @@ def precios(request):
         form = NameForm()
 
         
-    # return render(request, 'precios/precios-3.html', {'form': form, 'filtro': filtro, 'context': context, 'articulos': articulos,  'articulos_dict': articulos_dict})
     return render(request, 'precios/precios-3.html', {'form': form, 'filtro': filtro, 'context': context, 'articulos': articulos,  'articulos_dict': page_obj})
 
 

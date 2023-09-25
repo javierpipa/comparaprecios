@@ -150,6 +150,77 @@ def loadProductBeautifulSoup(sopa, como, que_busca, que_obtiene, metaopcion):
 
     return {"es_error": es_error, "valor":retorna}
 
+def generate_filters(articulos):
+    filtro = {}
+
+    # Marcas
+    marcas = articulos.values('marca__nombre','marca_id').annotate(Count('id', distinct=True)).order_by()
+    filtro['marcas'] = marcas
+
+    # Grados
+    grados = articulos.values('grados2').order_by('grados2').annotate(Count('id', distinct=True))
+    filtro['grados'] = grados
+
+    # Envase
+    envase = articulos.values('envase').exclude(envase=None).annotate(Count('id', distinct=True)).order_by()
+    filtro['envase'] = envase
+
+    # Color
+    color = articulos.values('color').annotate(Count('id', distinct=True)).order_by()
+    filtro['color'] = color
+
+    # Medida cantidad
+    medida_cant = articulos.values('medida_cant').annotate(Count('id', distinct=True)).order_by()
+    filtro['medida_cant'] = medida_cant
+
+    # Medida (cantidad y unidad de medida)
+    medida = articulos.values('medida_cant', 'medida_um').annotate(Count('id', distinct=True)).order_by()
+    filtro['medida'] = medida
+
+    # Unidad de medida
+    medida_um = articulos.values('medida_um').annotate(Count('id', distinct=True)).order_by()
+    filtro['medida_um'] = medida_um
+
+    return filtro
+
+def generate_articulos_dict(articulos, momentos, MinSuperCompara, orden):
+    articulos_dict = []
+    articulos_count = 0
+    ofertas_count = 0  # Asegúrate de inicializar esta variable si la usas posteriormente
+
+    for particulo in articulos:
+        if particulo.num_vendedores >= MinSuperCompara:
+            detalle = Vendedores.objects \
+                .filter(articulo=particulo.id) \
+                .filter(vendidoen__site__in=momentos) \
+                .exclude(vendidoen__precio__exact=0) \
+                .order_by('vendidoen__precio')
+
+            if detalle:
+                articulos_count += 1
+                ofertas_count += particulo.num_vendedores
+                mejor_precio = detalle.first().vendidoen.precio if detalle.first() else None
+                unidades = particulo.unidades if particulo.unidades else 1
+
+                precio_por_unidad = mejor_precio / unidades if mejor_precio and unidades else None
+
+                articulos_dict.append({
+                    'articulo': particulo,
+                    'detalle': detalle,
+                    'ofertas': particulo.num_vendedores,
+                    'mejor_precio': mejor_precio,
+                    'precio_por_unidad': precio_por_unidad,
+                    'marca': particulo.marca.nombre,
+                    'nombre': particulo.nombre
+                })
+
+    # Ordenar la lista de diccionarios
+    if orden.startswith('-'):
+        articulos_dict = sorted(articulos_dict, key=lambda x: x.get(orden[1:]), reverse=True)
+    else:
+        articulos_dict = sorted(articulos_dict, key=lambda x: x.get(orden))
+
+    return articulos_dict, articulos_count, ofertas_count
     
 def getMomentos(request):
     momentos = MomentosDespacho.objects.all()

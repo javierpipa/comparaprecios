@@ -1,0 +1,59 @@
+<style>
+    .active {
+        font-weight: bold;
+        color: blue;
+    }
+</style>
+<div class="form-inline">
+    <a href="?order=precio_por_unidad{% for key, value in request.GET.items %}{% ifnotequal key "order" %}&{{ key }}={{ value }}{% endifnotequal %}{% endfor %}"
+       class="{% if context.resumen.orden == 'precio_por_unidad' %}active{% endif %}">
+        Menor Precio por Unidad
+    </a>
+</div>
+<div class="form-inline">
+    <a href="?order=-precio_por_unidad{% for key, value in request.GET.items %}{% ifnotequal key "order" %}&{{ key }}={{ value }}{% endifnotequal %}{% endfor %}"
+       class="{% if context.resumen.orden == '-precio_por_unidad' %}active{% endif %}">
+        Mayor Precio por Unidad
+    </a>
+</div>
+
+
+<div class="form-inline">
+    <a href="?order=-mejor_precio{% for key, value in request.GET.items %}{% ifnotequal key "order" %}&{{ key }}={{ value }}{% endifnotequal %}{% endfor %}"
+       class="{% if context.resumen.orden == '-mejor_precio' %}active{% endif %}">
+       Mayor precio
+    </a>
+</div>
+<div class="form-inline">
+    <a href="?order=mejor_precio{% for key, value in request.GET.items %}{% ifnotequal key "order" %}&{{ key }}={{ value }}{% endifnotequal %}{% endfor %}"
+       class="{% if context.resumen.orden == 'mejor_precio' %}active{% endif %}">
+       Menor precio
+    </a>
+</div>
+
+<div class="form-inline">
+    <a href="?order=nombre{% for key, value in request.GET.items %}{% ifnotequal key "order" %}&{{ key }}={{ value }}{% endifnotequal %}{% endfor %}"
+       class="{% if context.resumen.orden == 'nombre' %}active{% endif %}">
+       Nombre: A - Z
+    </a>
+</div>
+<div class="form-inline">
+    <a href="?order=-nombre{% for key, value in request.GET.items %}{% ifnotequal key "order" %}&{{ key }}={{ value }}{% endifnotequal %}{% endfor %}"
+       class="{% if context.resumen.orden == '-nombre' %}active{% endif %}">
+       Nombre: Z - A
+    </a>
+</div>
+
+<div class="form-inline">
+    <a href="?order=marca{% for key, value in request.GET.items %}{% ifnotequal key "order" %}&{{ key }}={{ value }}{% endifnotequal %}{% endfor %}"
+       class="{% if context.resumen.orden == 'marca' %}active{% endif %}">
+       Marca Nombre: A - Z
+    </a>
+</div>
+<div class="form-inline">
+    <a href="?order=-marca{% for key, value in request.GET.items %}{% ifnotequal key "order" %}&{{ key }}={{ value }}{% endifnotequal %}{% endfor %}"
+       class="{% if context.resumen.orden == '-marca' %}active{% endif %}">
+       Marca Nombre: Z - A
+    </a>
+</div>
+

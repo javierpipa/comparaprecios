@@ -33,8 +33,6 @@ SITE_ID = 1
 
 GOOGLE_API_KEY = config('GOOGLE_API_KEY', default='valor_predeterminado')
 
-
-
 INSTALLED_APPS = [
     'djangocms_admin_style',
     'django.contrib.admin',

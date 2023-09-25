@@ -1,0 +1,19 @@
+<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasOrden" aria-labelledby="offcanvasOrdenLabel">
+    <div class="offcanvas-header">
+        <h2 class="offcanvas-title" id="offcanvasOrdenLabel">Ordenar por</h2>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        {% include "precios/filtro_orden.html" %}
+    </div>
+</div>
+<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasFiltro" aria-labelledby="offcanvasFiltroLabel">
+    <div class="offcanvas-header">
+        <h2 class="offcanvas-title" id="offcanvasFiltroLabel">Filtrar por</h2>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></i>
+        </button>
+    </div>
+    <div class="offcanvas-body">
+        {% include "precios/filtros.html" %}
+    </div>
+</div>

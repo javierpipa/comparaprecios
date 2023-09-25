@@ -24,13 +24,40 @@
 
 <div class="container" data-aos="fade-up">
     <div class="col-sm-12">
-        <button id="toggle-column-button" class="btn btn-light align-middle btn-sm">Cambiar Vista</button>
+        <!-- <button id="toggle-column-button" class="btn btn-light align-middle btn-sm">Cambiar Vista</button> -->
+        <form id="consulta_precios" method="get" action="{% url 'precios:brands_detail' resumen.brand %}">
+            {% csrf_token %}
+            <script>
+                const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            </script>
+            
+            {% include "precios/filtros_y_orden.html" %}
+        </form>
+        <div class="container alert alert-secondary py-3 my-2" role="alert">
+            <div class="row">
+                <div class="col float-start">
+                    <a class="btn btn-light align-middle btn-sm" data-bs-toggle="offcanvas" href="#offcanvasOrden" role="button" aria-controls="offcanvasOrden"><i class="bi bi-sort-down"  title="Ordenar"></i>Ordenar</a>
+                </div>
+                <div class="col">
+                    <div class="float-center align-middle">
+                        <small>
+                            <span id="total-results" > {{ resumen.articulos_count }} resultados y {{ resumen.ofertas_count }} ofertas.</span>
+                        </small>
+                    </div>
+                </div>
+                <div class="col float-end">
+                    <div class="float-end align-middle">
+                        <a class="btn btn-light align-middle btn-sm" data-bs-toggle="offcanvas" href="#offcanvasFiltro" role="button" aria-controls="offcanvasFiltro"><i class="bi bi-filter" title="Filtrar"></i>Filtrar</a>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="row">
             {% for row in articulos_dict %}
                 <div class="col-xxl-2 col-xl-3 col-lg-4 col-md-4 col-sm-6 col-6">
                     <div class="card h-100" style="min-height: 25rem; ">
-                            {% include "precios/includes/articulo.html" with row=row.articulo %}
+                            {% include "precios/includes/articulo.html" with row=row.articulo ofertas=row.ofertas%}
                     </div>
                 </div>
             {% empty %}

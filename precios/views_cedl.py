@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect
 from django_json_ld.views import JsonLdDetailView
 from django.db.models import Avg, Max, Min, Sum, Subquery, OuterRef, Count, Q
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from precios.models import (
     Corporation,
@@ -28,7 +29,9 @@ from precios.forms import (
 from precios.pi_functions import (
     getMomentos,
     getMessage,
-    registrar_consulta
+    registrar_consulta,
+    generate_articulos_dict,
+    generate_filters,
 )
 from precios.pi_stats import (
     get_product_price_history,
@@ -60,23 +63,10 @@ class ProductDetailView(JsonLdDetailView):
     # queryset        = Articulos.objects.select_related('marca').all()
 
     
-    # def get_queryset(self):
-    #     momentos, supermercadoscount = getMomentos(self.request)
-    #     los_momentos = list(momentos)
-        
-    #     # obj =  get_object_or_404(Articulos, slug=self.kwargs["slug"])
-    #     obj = Articulos.objects.select_related('marca').filter(slug=self.kwargs["slug"])
-
-    #     return obj
-    # #     # return 
-
-    # override context data
     def get_context_data(self, *args, **kwargs):
         context  = {}
         ExternalUrlPostUrl           = Settings.objects.get(key='ExternalUrlPostUrl').value
         momentos, supermercadoscount = getMomentos(self.request)
-        print(momentos)
-        
 
         messages.warning(self.request,  str(getMessage()))
         
@@ -104,8 +94,7 @@ class ProductDetailView(JsonLdDetailView):
             if (len(detalle)) > 0 :
                 articulos_count +=1
                 ofertas = detalle.count()
-                print(f'ofertas = {ofertas}')
-                articulos_dict.append({'articulo': particulo,'detalle': detalle})
+                articulos_dict.append({'articulo': particulo,'detalle': detalle, 'ofertas': ofertas})
 
         context['articulos_dict'] = articulos_dict 
     
@@ -209,6 +198,30 @@ class MarcasListView(generic.ListView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        marcas = Marcas.objects.filter(es_marca=True)
+
+        params = self.request.GET.copy()
+        if 'page' in params:
+            del params['page']
+            
+        context['clean_params'] = params.urlencode()
+        
+        paginator = Paginator(marcas, self.paginate_by)
+        page_number = self.request.GET.get('page')
+        
+        try:
+            page_obj = paginator.page(page_number)
+        except PageNotAnInteger:
+            page_obj = paginator.page(1)
+        except EmptyPage:
+            page_obj = None
+
+        context['resumen'] = {
+            'class': 'precios:brands',
+        }
+        context["paginator"] =  paginator
+        context["page_obj"] =  page_obj
+
         context["title"] =  "Marcas"
         context["cache"] =  "0 Min."
         context["beardcrums"] =  [
@@ -217,20 +230,21 @@ class MarcasListView(generic.ListView):
         return context
    
 
+
 class MarcasDetailView(generic.DetailView):
     model                   = Marcas
     form_class              = MarcasForm
     paginate_by             = int(Settings.objects.get(key='marcaPaginatorItemsPerPage').value)
-    
+
     
     def get_queryset(self):
         return Marcas.objects.filter(es_marca=True)
        
     def get_context_data(self, **kwargs):
-        momentos, supermercadoscount  = getMomentos(self.request)
-        ExternalUrlPostUrl      = Settings.objects.get(key='ExternalUrlPostUrl').value
+        momentos, supermercadoscount    = getMomentos(self.request)
+        ExternalUrlPostUrl              = Settings.objects.get(key='ExternalUrlPostUrl').value
         messages.warning(self.request,  str(getMessage()))
-        context = super().get_context_data(**kwargs)
+        context                         = super().get_context_data(**kwargs)
 
         brand = self.kwargs['slug']
         marca = get_object_or_404(Marcas.objects.all(), slug=brand)
@@ -241,31 +255,66 @@ class MarcasDetailView(generic.DetailView):
         else:
             registrar_consulta(self.request, 'Marcas', marca.pk)
         
-        context['resumen'] = {
-            'articulos_count':'articulos_count', 
-            'ofertas_count': 'ofertas_count',  
-            'supermercadoscount': supermercadoscount,
-            'ExternalUrlPostUrl': ExternalUrlPostUrl ,
-            'meta': 'meta',
-        }
-        articulos = Articulos.objects.select_related('marca').filter(marca=marca)
-        articulos_dict  = []
-        articulos_count = 0
-        for particulo in articulos:
-            detalle = Vendedores.objects\
-            .filter(articulo=particulo.id).\
-                filter(vendidoen__site__in=momentos).\
-                exclude(vendidoen__precio__exact=0).\
-                order_by('vendidoen__precio')\
-                .distinct()
-            if (len(detalle)) > 0 :
-                articulos_count +=1
-                ofertas = detalle.count()
-                articulos_dict.append({'articulo': particulo,'detalle': detalle})
-
-        context['articulos_dict'] = articulos_dict 
-
+        orden = self.request.GET.get('order', 'nombre')  # 'nombre' es el valor por defecto
+        # Recuperar los parámetros del filtro de la solicitud GET
+        marca_filter    = self.request.GET.get('marca', None)
+        grados_filter   = self.request.GET.get('grados', None)
+        envase_filter   = self.request.GET.get('envase', None)
+        medida_cant_filter = self.request.GET.get('medida_cant', None)
+        color_filter    = self.request.GET.get('color', None)
         
+        params = self.request.GET.copy()
+        if 'page' in params:
+            del params['page']
+            
+        context['clean_params'] = params.urlencode()
+
+        articulos = Articulos.objects.select_related('marca').filter(marca=marca)
+        articulos = articulos.annotate(num_vendedores=Count('vendedores__vendidoen', filter=Q(vendedores__vendidoen__site__in=momentos, vendedores__vendidoen__precio__gt=0), distinct=True))
+        if marca_filter:
+            articulos = articulos.filter(marca_id=marca_filter)
+        if grados_filter:
+            articulos = articulos.filter(grados2=grados_filter)
+        if envase_filter:
+            articulos = articulos.filter(envase=envase_filter)
+        if medida_cant_filter:
+            articulos = articulos.filter(medida_cant__in=medida_cant_filter)
+        if color_filter:
+            articulos = articulos.filter(color__in=color_filter)
+
+
+        articulos_dict, articulos_count, ofertas_count = generate_articulos_dict(articulos, momentos, 0, orden)
+
+        filtro = generate_filters(articulos)
+
+        # Utiliza Paginator si es necesario
+        paginator = Paginator(articulos_dict, self.paginate_by)
+        page_number = self.request.GET.get('page')
+        
+        try:
+            page_obj = paginator.page(page_number)
+        except PageNotAnInteger:
+            page_obj = paginator.page(1)
+        except EmptyPage:
+            page_obj = None
+
+        context['resumen'] = {
+            'articulos_count':articulos_count, 
+            'ofertas_count': ofertas_count, 
+            'supermercadoscount': supermercadoscount, 
+            'brand': brand,
+            'class': 'precios:brands_detail',
+            'meta': '',
+            'mensaje': '',
+            'ExternalUrlPostUrl': ExternalUrlPostUrl
+        }
+        context["filtro"] =  filtro
+        context["paginator"] =  paginator
+        context["page_obj"] =  page_obj
+        
+        # context['articulos_dict'] = articulos_dict 
+        context['articulos_dict'] = page_obj
+        context['orden'] = orden 
         context["title"] =  marca.nombre
         context["cache"] =  "0 Min."
         context["beardcrums"] =  [

@@ -810,9 +810,6 @@ class Articulos(ModelMeta, models.Model):
         mp = Vendedores.objects.filter(articulo=self)
         if vendedores:
             mp = mp.filter(vendidoen__site__in=vendedores)
-            print('con filtro')
-        else:
-            print('SIN filtro')
         mp = mp.count()
         return mp
     

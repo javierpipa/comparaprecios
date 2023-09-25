@@ -106,7 +106,8 @@
     <div class="row ">
         <div class="col-sm-6">
             <div class="card h-100" style="min-height: 25rem; ">
-                    {% include "precios/includes/articulo.html" with row=object %}
+                    {% include "precios/includes/articulo.html" with row=object ofertas=articulos_dict.0.ofertas%}
+                    
             </div>
         </div>
         <div class="col-sm-6">

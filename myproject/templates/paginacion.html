@@ -1,18 +1,39 @@
+
 {% if paginator.num_pages %}
     <hr>
-    <ul class="pagination justify-content-center">
-        {% if page_obj.has_previous %}
-            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
-            <li class="page-item"><a class="page-link" href="?page=1">1</a></li>
-        {% endif%}
-        
-        {% if paginator.num_pages %}
-            <li class="page-item active"><a class="page-link" href="#">{{ page_obj.number }} de {{ paginator.num_pages }}</a></li>
-        {% endif%}
+    {% with request.GET.copy as params %}
+        {% if resumen.brand %}
+            {% with brand=resumen.brand %}
+                {% url resumen.class brand as la_url %}
+            {% endwith %}
+        {% else %}
+            {% url resumen.class as la_url %}
+        {% endif %}
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ la_url }}?{% if clean_params %}{{ clean_params }}&{% endif %}page={{ page_obj.previous_page_number }}">Anterior</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="{{ la_url }}?{% if clean_params %}{{ clean_params }}&{% endif %}page=1">1</a>
+                </li>
+            {% endif %}
+            
+            {% if paginator.num_pages %}
+                <li class="page-item active"><a class="page-link" href="#">{{ page_obj.number }} de {{ paginator.num_pages }}</a></li>
+            {% endif %}
 
-        {% if page_obj.has_next %}
-            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Próxima</a></li>
-            <li class="page-item"><a class="page-link" href="?page={{ paginator.num_pages }}">Última</a></li>
-        {% endif%}
-    </ul>
-{% endif%}
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ la_url }}?{% if clean_params %}{{ clean_params }}&{% endif %}page={{ page_obj.next_page_number }}">Próxima</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="{{ la_url }}?{% if clean_params %}{{ clean_params }}&{% endif %}page={{ paginator.num_pages }}">Última</a>
+                </li>
+            {% endif %}
+        </ul>
+    {% endwith %}
+{% endif %}
+
+
+
