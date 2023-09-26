@@ -1,4 +1,4 @@
-<form id="consulta_precios" method="get" action="{% url 'precios:home' %}">
+<form id="consulta_precios" method="get" action="{{url_formulario}}">
     {% csrf_token %}
     <script>
         const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;

@@ -17,7 +17,8 @@
 {% block content %}
 <!-- Primera Línea: Formulario de Búsqueda -->
 <div class="container my-3">
-    {% include "precios/search_form.html" %}
+    {% url 'precios:home' as url_formulario %}
+    {% include "precios/search_form.html" with url_formulario=url_formulario%}
 </div>
 
 <!-- Segunda Línea: Resumen de Resultados y Ofertas -->
@@ -38,7 +39,7 @@
                 
                 <div class="col-2">
                     {% include "precios/filtro_orden.html" %}
-                    {% include "precios/filtros.html" %}
+                    {% include "precios/filtro_filtro.html" %}
                 </div>
             
                 <div class="col-10">
