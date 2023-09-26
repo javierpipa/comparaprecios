@@ -31,7 +31,9 @@ INTERNAL_IPS = [
 
 SITE_ID = 1
 
-GOOGLE_API_KEY = config('GOOGLE_API_KEY', default='valor_predeterminado')
+#GOOGLE_API_KEY = config('GOOGLE_API_KEY', default='valor_predeterminado')
+GOOGLE_API_KEY = 'AIzaSyCo7T3wALOQPslQIV2DHtGfMNG1sErNBVY'
+
 
 INSTALLED_APPS = [
     'djangocms_admin_style',
