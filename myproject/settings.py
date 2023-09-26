@@ -4,7 +4,7 @@ from pathlib import Path
 from django.conf import settings as django_settings
 from django.utils.translation import gettext_lazy as _
 from django.contrib.messages import constants as messages
-from decouple import config
+# from decouple import config
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
