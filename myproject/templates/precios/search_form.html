@@ -1,0 +1,21 @@
+<form id="consulta_precios" method="get" action="{% url 'precios:home' %}">
+    {% csrf_token %}
+    <script>
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    </script>
+    <div class="row">
+        <div class="col">
+            <div class="input-group ">
+                <label class="visually-hidden" for="nombre"></label>
+                <input name="nombre" type="text" class="form-control" id="nombre" placeholder="Queso o Pepsi o Codigo EAN" value="{{ context.resumen.nombre }}" required>
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-light">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+</form>

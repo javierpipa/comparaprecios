@@ -1,0 +1,13 @@
+<div class="row">
+    {% for row in articulos_dict %}
+        <div class="col-xxl-2 col-xl-3 col-lg-4 col-md-4 col-sm-6 col-6">
+            <div class="card h-100" style="min-height: 25rem; ">
+                    {% include "precios/includes/articulo.html" with row=row.articulo ofertas=row.ofertas%}
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-lg-3">
+                {{ context.resumen.mensaje}}
+        </div>
+    {% endfor %}
+</div>

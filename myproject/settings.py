@@ -108,6 +108,7 @@ INSTALLED_APPS = [
     "djangocms_page_meta",
     "djangocms_page_tags",
     'django_json_ld',
+    'django_user_agents',
 ]
 
 ########## django-json-ld
@@ -265,6 +266,7 @@ MIDDLEWARE = [
     'cms.middleware.toolbar.ToolbarMiddleware',
     'cms.middleware.language.LanguageCookieMiddleware',
     "debug_toolbar.middleware.DebugToolbarMiddleware",
+    'django_user_agents.middleware.UserAgentMiddleware',
 ]
 
 ROOT_URLCONF = 'myproject.urls'
@@ -348,6 +350,7 @@ CACHES = {
     }
 }
 
+USER_AGENTS_CACHE = 'default'
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
