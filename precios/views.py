@@ -587,9 +587,6 @@ def precios(request):
     messages.warning(request,  str(getMessage()))
     
     context = {}
-    context['mobile']   = True
-
-    context['variables'] = {"ahora": datetime.now()}
     
     islogged =  request.user.is_authenticated
     if not islogged:

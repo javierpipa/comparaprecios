@@ -1,5 +1,6 @@
 {% extends "base.html" %}
-{% load humanize mathfilters cms_tags menu_tags sekizai_tags static i18n static %}  
+{% load humanize mathfilters cms_tags menu_tags sekizai_tags static i18n static user_agents %}  
+
 
 {% block title %}Buscar artículos{% endblock %}
 {% block extrahead %}
@@ -34,7 +35,8 @@
 <div class="container my-3">
     <div class="row">
         {% if request.user_agent.is_pc %}
-            
+        
+            {% if context.resumen.articulos_count %}
                 <!-- Escritorio: Filtro y Orden en dos columnas -->
                 
                 <div class="col-2">
@@ -45,7 +47,7 @@
                 <div class="col-10">
                     {% include "precios/articulos.html" %}
                 </div>
-            
+            {% endif %}
         {% else %}
             <!-- Móvil: Filtro y Orden en el mismo espacio -->
             <div class="col-12">

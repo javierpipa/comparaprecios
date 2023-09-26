@@ -18,22 +18,27 @@
                  endif 
             </div> -->
         </div>
-        <a href='{% url "precios:detalle" row.slug %}' class="card-img-top">
+        <!-- <a href='{% url "precios:detalle" row.slug %}' class="card-img-top">
             <img src="{{row.image1}}" class="imageover card-img-top" alt="{{ row.vendidoen.site }}">
+        </a> -->
+        <a href='{% url "precios:detalle" row.slug %}' class="card-img-top d-flex justify-content-center p-3">
+            <img src="{{row.image1}}" class="imageover card-img-top" alt="{{ row.vendidoen.site }}" style="max-width: 80%;">
         </a>
         
         <div class="card-body">
-            <h5 class="card-title">
-                <a href='{% url "precios:detalle" row.slug %}'  class="card-link">
-                    {{ row.nombre|title }}
-                </a>
-            </h5>
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <a href='{% url "precios:detalle" row.slug %}'  class="card-link">
+                        {{ row.nombre|title }}
+                    </a>
+                </h5>
+                <h5 class="justify-content-end mb-0">
+                    <span class="badge-info">$ {{ row.mejorprecio|floatformat:0|intcomma }} </span>
+                </h5>
+            </div>
+
             <div class="float-start">
 
-                
-                    <h5 class="justify-content-end">
-                        <span class="badge-info ">$ {{ row.mejorprecio|floatformat:0|intcomma }} </span>
-                    </h5>
                 
                 {% if row.color %}
                     <span class="badge bg-dark">Color: {{ row.color }}</span>

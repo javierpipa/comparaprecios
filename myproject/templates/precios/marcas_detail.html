@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static user_agents %}
 
 {% block title %}{{ object.nombre|title }}{% endblock %}
 
@@ -21,7 +21,73 @@
 {% endblock %}
 
 {% block content %}
+<!-- Primera Línea: Formulario de Búsqueda -->
+<!-- <div class="container my-3">
+    'precios:brands_detail' resumen.brand
+    {% url 'precios:home' as url_formulario %}
+    {% include "precios/search_form.html" with url_formulario=url_formulario%}
+</div> -->
 
+<!-- Segunda Línea: Resumen de Resultados y Ofertas -->
+<div class="container my-3">
+    <div class="float-center align-middle">
+        <small>
+            <span id="total-results"> {{ context.resumen.articulos_count }} resultados y {{ context.resumen.ofertas_count }} ofertas.</span>
+        </small>
+    </div>
+</div>
+
+<!-- Tercera Línea: Filtro, Orden y Artículos -->
+<div class="container my-3">
+    <div class="row">
+        {% if request.user_agent.is_pc %}
+            
+                <!-- Escritorio: Filtro y Orden en dos columnas -->
+                
+                <div class="col-2">
+                    {% include "precios/filtro_orden.html" %}
+                    {% include "precios/filtro_filtro.html" %}
+                </div>
+            
+                <div class="col-10">
+                    {% include "precios/articulos.html" %}
+                </div>
+            
+        {% else %}
+            <!-- Móvil: Filtro y Orden en el mismo espacio -->
+            
+            <div class="col-12">
+                <div class="d-block d-lg-none">
+                    {% include "precios/filtros_y_orden.html" %}
+                    {% if resumen.articulos_count %}
+                        <div class="container alert alert-secondary py-3 my-2" role="alert">
+                            <div class="row">
+                                <div class="col float-start">
+                                    <a class="btn btn-light align-middle btn-sm" data-bs-toggle="offcanvas" href="#offcanvasOrden" role="button" aria-controls="offcanvasOrden"><i class="bi bi-sort-down"  title="Ordenar"></i>Ordenar</a>
+                                </div>
+                                <div class="col">
+                                    <div class="float-center align-middle">
+                                        <small>
+                                            <span id="total-results" > {{ resumen.articulos_count }} resultados y {{ resumen.ofertas_count }} ofertas.</span>
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="col float-end">
+                                    <div class="float-end align-middle">
+                                        <a class="btn btn-light align-middle btn-sm" data-bs-toggle="offcanvas" href="#offcanvasFiltro" role="button" aria-controls="offcanvasFiltro"><i class="bi bi-filter" title="Filtrar"></i>Filtrar</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                {% include "precios/articulos.html" %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
 <div class="container" data-aos="fade-up">
     <div class="col-sm-12">
         <!-- <button id="toggle-column-button" class="btn btn-light align-middle btn-sm">Cambiar Vista</button> -->
@@ -101,7 +167,7 @@
     }
 
 </style>
-{% endblock %}
+
 
 {% block pagination %}
   {% include "paginacion.html" %}
