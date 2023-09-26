@@ -24,7 +24,7 @@ blinker==1.6.2
 blis==0.7.9
 Brotli==1.0.9
 cachetools==5.3.1
-catalogue==2.0.8
+# catalogue==2.0.8
 celery==5.2.2
 certifi==2022.12.7
 cffi==1.15.1
@@ -50,7 +50,7 @@ decorator==5.1.1
 defusedxml==0.7.1
 dj-shop-cart==6.0.1
 Django==3.2.18
-django-admin-sortable==2.3
+# django-admin-sortable==2.3
 django-allauth==0.53.1
 django-app-enabler==0.2.0
 django-appconf==1.0.5
