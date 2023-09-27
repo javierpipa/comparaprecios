@@ -18,7 +18,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-(h$6-v$5wukt&o#k^27_y+7b9!mol%iqyh-t+z_@r%(1u*^9qs'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=False)
 
 
 ALLOWED_HOSTS = ['*']
@@ -33,7 +33,8 @@ SITE_ID = 1
 
 GOOGLE_API_KEY = config('GOOGLE_API_KEY', default='valor_predeterminado')
 
-print(GOOGLE_API_KEY)
+
+
 INSTALLED_APPS = [
     'djangocms_admin_style',
     'django.contrib.admin',
