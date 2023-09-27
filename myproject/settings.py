@@ -1,10 +1,13 @@
 import os
+import logging
 
 from pathlib import Path
 from django.conf import settings as django_settings
 from django.utils.translation import gettext_lazy as _
 from django.contrib.messages import constants as messages
 from decouple import config
+from logging.handlers import RotatingFileHandler
+from django.utils.log import ServerFormatter, RequireDebugTrue, RequireDebugFalse, AdminEmailHandler
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -465,6 +468,12 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 100
 }
 #### LOGS
+#Define folder a usar
+log_folder = '/var/log/devop' 
+
+if not os.path.exists(log_folder):
+    os.makedirs(log_folder)
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -473,23 +482,23 @@ LOGGING = {
             'format': '%(asctime)s %(levelname)s %(name)s %(message)s'
         },
         'django.server': {
-            '()': 'django.utils.log.ServerFormatter',
+            '()': ServerFormatter,
             'format': '[%(server_time)s] %(message)s',
         }
     },
     'filters': {
         'require_debug_true': {
-            '()': 'django.utils.log.RequireDebugTrue',
+            '()': RequireDebugTrue,
         },
         'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse',
+            '()': RequireDebugFalse,
         },
     },
     'handlers': {
         'request_handler': {
             'level': 'ERROR',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': '/var/log/devop/request_log.log',
+            'filename': os.path.join(log_folder, 'request_log.log'),
             'maxBytes': 1024 * 1024 * 5,  # 5Mb
             'backupCount': 5,
             'formatter': 'verbose'
@@ -498,7 +507,7 @@ LOGGING = {
             'level': 'ERROR',
             'filters': ['require_debug_true'],
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': '/var/log/devop/default_log.log',
+            'filename': os.path.join(log_folder, 'default_log.log'), 
             'maxBytes': 1024 * 1024 * 5,  # 5Mb
             'backupCount': 5,
             'formatter': 'verbose'
@@ -507,7 +516,7 @@ LOGGING = {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': '/var/log/devop/devo_server_log.log',
+            'filename': os.path.join(log_folder, 'devo_server_log.log'),
             'maxBytes': 1024 * 1024 * 5,  # 5Mb
             'backupCount': 5,
             'formatter': 'django.server'
@@ -521,7 +530,7 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
             'formatter': 'verbose',
-            'filename': '/var/log/devop/gunicorn.errors.log',
+            'filename': os.path.join(log_folder, 'gunicorn.errors.log'), 
             'maxBytes': 1024 * 1024 * 100,  # 100 mb
         }
     },
@@ -546,6 +555,5 @@ LOGGING = {
             'handlers': ['gunicorn'],
             'propagate': True,
         },
-
     }
 }
