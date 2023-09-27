@@ -388,7 +388,7 @@ CELERY_RESULT_EXPIRES       = 150
 CELERY_CREATE_MISSING_QUEUES = True
 
 CELERY_FLOWER_USER = 'admin'
-CELERY_FLOWER_PASSWORD = 'cps112233'
+CELERY_FLOWER_PASSWORD = config('CELERY_FLOWER_PASSWORD', default='cps112233')
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/

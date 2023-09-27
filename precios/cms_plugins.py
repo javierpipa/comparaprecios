@@ -5,54 +5,54 @@ from django.utils.translation import gettext_lazy as _
 
 
 
-from precios_integration.models import (
-    SettingsPluginModel, 
-    PlanPluginModel,
-    ContenidoPlanPluginModel
-)
+# from precios_integration.models import (
+#     SettingsPluginModel, 
+#     PlanPluginModel,
+#     ContenidoPlanPluginModel
+# )
 
 
-class SettingsPluginPublisher(CMSPluginBase):
-    model = SettingsPluginModel  # model where plugin data are saved
-    module = _("Precios")
-    name = _("Settings Plugin")  # name of the plugin in the interface
-    render_template = "precios_integration/settings_plugin.html"
-    cache = False
+# class SettingsPluginPublisher(CMSPluginBase):
+#     model = SettingsPluginModel  # model where plugin data are saved
+#     module = _("Precios")
+#     name = _("Settings Plugin")  # name of the plugin in the interface
+#     render_template = "precios_integration/settings_plugin.html"
+#     cache = False
 
-    def render(self, context, instance, placeholder):
-        context.update({'instance': instance})
-        return context
+#     def render(self, context, instance, placeholder):
+#         context.update({'instance': instance})
+#         return context
 
-plugin_pool.register_plugin(SettingsPluginPublisher)  # register the plugin
+# plugin_pool.register_plugin(SettingsPluginPublisher)  # register the plugin
 
 
-#### Planes de members
-class PlanPluginPublisher(CMSPluginBase):
-    model = PlanPluginModel  # model where plugin data are saved
-    module = _("Precios")
-    name = _("Planes Plugin")  # name of the plugin in the interface
-    render_template = "precios_integration/planes.html"
-    cache = False
-    allow_children = True
+# #### Planes de members
+# class PlanPluginPublisher(CMSPluginBase):
+#     model = PlanPluginModel  # model where plugin data are saved
+#     module = _("Precios")
+#     name = _("Planes Plugin")  # name of the plugin in the interface
+#     render_template = "precios_integration/planes.html"
+#     cache = False
+#     allow_children = True
 
-    def render(self, context, instance, placeholder):
-        planes          = PlanPluginModel.objects.filter(Plan__publico=True).order_by('Plan__my_order')
-        # all()
-        # filter(publico=True, tipo=TIPO_PLAN.PERSONAS).order_by('my_order')
-        arr_planes      = []
-        for plan in planes:
-            contenidoPlan   = ContenidoPlanPluginModel.objects.all()
-        # filter(ContenidoPlan=instance)
-        # .order_by('my_order')
-            contenido     = {
-                'plan': plan,
-                'incorpora' : contenidoPlan
-            }
-            arr_planes.append(contenido)
-        context.update({'instance': arr_planes})
-        return context
+#     def render(self, context, instance, placeholder):
+#         planes          = PlanPluginModel.objects.filter(Plan__publico=True).order_by('Plan__my_order')
+#         # all()
+#         # filter(publico=True, tipo=TIPO_PLAN.PERSONAS).order_by('my_order')
+#         arr_planes      = []
+#         for plan in planes:
+#             contenidoPlan   = ContenidoPlanPluginModel.objects.all()
+#         # filter(ContenidoPlan=instance)
+#         # .order_by('my_order')
+#             contenido     = {
+#                 'plan': plan,
+#                 'incorpora' : contenidoPlan
+#             }
+#             arr_planes.append(contenido)
+#         context.update({'instance': arr_planes})
+#         return context
 
-plugin_pool.register_plugin(PlanPluginPublisher)  # register the plugin
+# plugin_pool.register_plugin(PlanPluginPublisher)  # register the plugin
 
 
 # #### Contenido de planes de members
