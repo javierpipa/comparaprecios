@@ -26,7 +26,8 @@ from lxml import etree
 from django.utils.dateparse import parse_date
 from django.core.exceptions import ObjectDoesNotExist
 
-from django.db.models import F, Sum, Count
+from django.db.models import F, Sum, Count, Min, Max
+
 import pandas as pd
 import numpy as np
 from fuzzywuzzy import fuzz
@@ -180,6 +181,15 @@ def generate_filters(articulos):
     # Unidad de medida
     medida_um = articulos.values('medida_um').annotate(Count('id', distinct=True)).order_by()
     filtro['medida_um'] = medida_um
+
+    # # Rango de precios
+    # rango_precios = articulos.aggregate(
+    #     min_precio=Min('mejorprecio'),
+    #     max_precio=Max('mejorprecio')
+    # )
+
+    # filtro['min_precio'] = rango_precios['min_precio']
+    # filtro['max_precio'] = rango_precios['max_precio']
 
     return filtro
 

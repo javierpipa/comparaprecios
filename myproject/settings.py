@@ -33,7 +33,7 @@ SITE_ID = 1
 
 GOOGLE_API_KEY = config('GOOGLE_API_KEY', default='valor_predeterminado')
 
-
+print(GOOGLE_API_KEY)
 INSTALLED_APPS = [
     'djangocms_admin_style',
     'django.contrib.admin',
@@ -378,7 +378,6 @@ CELERY_TASK_SERIALIZER      = "json"
 CELERY_TASK_DEFAULT_QUEUE   = "craw_queu"
 CELERY_DEFAULT_QUEUE        = "craw_queu"
 CELERY_DEFAULT_EXCHANGE     = "craw_exchange"
-# CELERY_DEFAULT_ROUTING_KEY  = "mybinance"
 CELERY_RESULT_BACKEND       = "django-db"
 CELERY_ENABLE_UTC           = True
 CELERY_TIMEZONE             = "America/Santiago"
@@ -389,10 +388,6 @@ CELERY_CREATE_MISSING_QUEUES = True
 
 CELERY_FLOWER_USER = 'admin'
 CELERY_FLOWER_PASSWORD = 'cps112233'
-
-
-# from celery import Celery
-# print(celery.current_app().conf)
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
@@ -489,7 +484,7 @@ LOGGING = {
         'request_handler': {
             'level': 'ERROR',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': '/var/log/devop/request_log.log',
+            'filename': 'logs/request_log.log',
             'maxBytes': 1024 * 1024 * 5,  # 5Mb
             'backupCount': 5,
             'formatter': 'verbose'
@@ -498,7 +493,7 @@ LOGGING = {
             'level': 'ERROR',
             'filters': ['require_debug_true'],
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': '/var/log/devop/default_log.log',
+            'filename': 'logs/default_log.log',
             'maxBytes': 1024 * 1024 * 5,  # 5Mb
             'backupCount': 5,
             'formatter': 'verbose'
@@ -507,7 +502,7 @@ LOGGING = {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': '/var/log/devop/devo_server_log.log',
+            'filename': 'logs/devo_server_log.log',
             'maxBytes': 1024 * 1024 * 5,  # 5Mb
             'backupCount': 5,
             'formatter': 'django.server'
@@ -521,7 +516,7 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
             'formatter': 'verbose',
-            'filename': '/var/log/devop/gunicorn.errors.log',
+            'filename': 'logs/gunicorn.errors.log',
             'maxBytes': 1024 * 1024 * 100,  # 100 mb
         }
     },
