@@ -62,10 +62,14 @@
                         <span class="badge bg-secondary">{{ row.medida_cant }} {{ row.medida_um }}</span>
                     {% endif %}
                 </p>
-
                 {%if row.ean_13 %}
-                    <h6 class="card-subtitle mb-2 text-muted"> <small>{{ row.ean_13}}</small></h6>
+                    <h6 class="card-subtitle mb-2 text-muted mt-2 mb-2"> <!-- Añadido mt-2 mb-2 -->
+                        <small>{{ row.ean_13}}</small>
+                    </h6>
                 {% endif %}
+                <!-- {%if row.ean_13 %}
+                    <h6 class="card-subtitle mb-2 text-muted"> <small>{{ row.ean_13}}</small></h6>
+                {% endif %} -->
             </div>
 
         </div>
