@@ -477,10 +477,14 @@ def generate_rules(rules, debug):
                 print('no agrega regla')
 
 
-def is_vendedores_in(a_quienes, b_quienes):
+def is_vendedores_in(a_quienes, b_quienes, debug=False):
     si_esta = False
     # arr_a_quienes   = ' '.join(str(e) for e in a_quienes)
     # arr_b_quienes   = ' '.join(str(e) for e in b_quienes)
+
+    if debug:
+        print(f'a_quienes{a_quienes}')
+        print(f'b_quienes{b_quienes}')
 
     for a in a_quienes:
         # print(f'a={a}')
@@ -598,7 +602,7 @@ def check_sailers(c, minimo, fuz_level=70, debug=False):
                         arr_otro_vender     = row0['quienesvenden']
 
                         fuz         = fuzz.token_sort_ratio(este_nombre, otro_nombre)
-                        print(f'Y tiene fuz={fuz}')
+                        
                         if fuz < fuz_level:
                             paso_nombre = otro_nombre.replace(most_common_word,'')
                             fuz         = fuzz.token_sort_ratio(este_nombre, paso_nombre)
@@ -819,10 +823,10 @@ def check_pd(c, check_nombre=False, check_ean=False, check_grados=False, check_m
                                 c = add_vendedores(c, cuenta0, cuenta02)
                 if check_envase:
                     if este_envase == '' and otro_envase !='' and row02['r_envase'] == 0 \
-                        and not is_vendedores_in(arr_quienes_vender, arr_otro_vender):
+                        and not is_vendedores_in(arr_quienes_vender, arr_otro_vender, debug=True):
                         c.at[cuenta0,'lo__envase'] = otro_envase
                         c.at[cuenta0,'r_envase'] = 1
-                        c.at[cuenta0,'rule'] = 'check_envase'
+                        c.at[cuenta0,'rule'] = 'REGLA check_envase'
                         c = add_vendedores(c, cuenta0, cuenta02)
                 if check_nombre:
                     if row02['r_nombre'] == 0 and row0['r_nombre'] == 0 and este_medida_cant == otro_medida_cant \
@@ -1110,22 +1114,19 @@ def intenta_marca(marca_obj, debug):
         # c = check_pd(c, check_nombre=True,  check_ean=False, check_grados=False, check_medida=False, check_envase=False,  fuz_level=fuzl, debug=debug)
     
 
-
-
-    # fuz_levels = (95,93,)
     if num_rules_created > 10:
         fuz_levels = (93,)
     else:
         fuz_levels = (93,)
 
-    # for fuzl in fuz_levels:
-    #     if debug:
-    #         print(f"Check sailers min=1 fuz={fuzl}")
-    #     c = check_sailers(c, 1, fuzl, debug)
+    for fuzl in fuz_levels:
+        if debug:
+            print(f"Check sailers min=1 fuz={fuzl}")
+        c = check_sailers(c, 1, fuzl, debug)
 
-    #     if debug:
-    #         print(f"Check sailers min=2 fuz={fuzl}")
-    #     c = check_sailers(c, 2, fuzl, debug)
+        if debug:
+            print(f"Check sailers min=2 fuz={fuzl}")
+        c = check_sailers(c, 2, fuzl, debug)
 
     
 
