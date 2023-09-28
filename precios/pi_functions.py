@@ -26,7 +26,8 @@ from lxml import etree
 from django.utils.dateparse import parse_date
 from django.core.exceptions import ObjectDoesNotExist
 
-from django.db.models import F, Sum, Count
+from django.db.models import F, Sum, Count, Min, Max
+
 import pandas as pd
 import numpy as np
 from fuzzywuzzy import fuzz
@@ -180,6 +181,15 @@ def generate_filters(articulos):
     # Unidad de medida
     medida_um = articulos.values('medida_um').annotate(Count('id', distinct=True)).order_by()
     filtro['medida_um'] = medida_um
+
+    # # Rango de precios
+    # rango_precios = articulos.aggregate(
+    #     min_precio=Min('mejorprecio'),
+    #     max_precio=Max('mejorprecio')
+    # )
+
+    # filtro['min_precio'] = rango_precios['min_precio']
+    # filtro['max_precio'] = rango_precios['max_precio']
 
     return filtro
 
@@ -467,10 +477,14 @@ def generate_rules(rules, debug):
                 print('no agrega regla')
 
 
-def is_vendedores_in(a_quienes, b_quienes):
+def is_vendedores_in(a_quienes, b_quienes, debug=False):
     si_esta = False
     # arr_a_quienes   = ' '.join(str(e) for e in a_quienes)
     # arr_b_quienes   = ' '.join(str(e) for e in b_quienes)
+
+    if debug:
+        print(f'a_quienes{a_quienes}')
+        print(f'b_quienes{b_quienes}')
 
     for a in a_quienes:
         # print(f'a={a}')
@@ -588,7 +602,7 @@ def check_sailers(c, minimo, fuz_level=70, debug=False):
                         arr_otro_vender     = row0['quienesvenden']
 
                         fuz         = fuzz.token_sort_ratio(este_nombre, otro_nombre)
-                        print(f'Y tiene fuz={fuz}')
+                        
                         if fuz < fuz_level:
                             paso_nombre = otro_nombre.replace(most_common_word,'')
                             fuz         = fuzz.token_sort_ratio(este_nombre, paso_nombre)
@@ -604,6 +618,7 @@ def check_sailers(c, minimo, fuz_level=70, debug=False):
                             best_medida_cant    = otro_medida_cant
                             best_envase         = otro_envase
                             linea               = cuenta02
+                            
 
                 if best_id:
                     c.at[cuenta0,'lo__nombre']  = best_nombre 
@@ -613,13 +628,18 @@ def check_sailers(c, minimo, fuz_level=70, debug=False):
                     c.at[cuenta0,'r_grados'] = 1
                     c.at[cuenta0,'rule'] = f'check_sailers 1'
 
+
+                    # if este_envase == '' and otro_envase !='' and row02['r_envase'] == 0 \
+
                     if este_envase == "":
                         c.at[cuenta0,'lo__envase']      = best_envase
+                        c.at[cuenta0,'rule']            = f'check_sailers envase'
+                        c.at[cuenta0,'r_envase'] = 1
 
                     if este_medida_cant == 0:
                         c.at[cuenta0,'lo__medida_cant'] = best_medida_cant
 
-                    add_vendedores(c, cuenta0, linea)
+                    c = add_vendedores(c, cuenta0, linea)
                     
                     # else:
                     #     if debug:        
@@ -746,7 +766,7 @@ def check_pd(c, check_nombre=False, check_ean=False, check_grados=False, check_m
                             if c.at[cuenta02,'rule'] == '' :
                                 c.at[cuenta02,'rule'] = 'check_ean'
                             
-                            add_vendedores(c, cuenta0, cuenta02)
+                            c = add_vendedores(c, cuenta0, cuenta02)
                             # print('4 Fin')
                             if debug:        
                                 df_matches = c.loc[
@@ -800,14 +820,14 @@ def check_pd(c, check_nombre=False, check_ean=False, check_grados=False, check_m
 
                                 c.at[cuenta0,'rule'] = 'check_grados+Nombre'
 
-                                add_vendedores(c, cuenta0, cuenta02)
+                                c = add_vendedores(c, cuenta0, cuenta02)
                 if check_envase:
                     if este_envase == '' and otro_envase !='' and row02['r_envase'] == 0 \
-                        and not is_vendedores_in(arr_quienes_vender, arr_otro_vender):
+                        and not is_vendedores_in(arr_quienes_vender, arr_otro_vender, debug=True):
                         c.at[cuenta0,'lo__envase'] = otro_envase
                         c.at[cuenta0,'r_envase'] = 1
-                        c.at[cuenta0,'rule'] = 'check_envase'
-                        add_vendedores(c, cuenta0, cuenta02)
+                        c.at[cuenta0,'rule'] = 'REGLA check_envase'
+                        c = add_vendedores(c, cuenta0, cuenta02)
                 if check_nombre:
                     if row02['r_nombre'] == 0 and row0['r_nombre'] == 0 and este_medida_cant == otro_medida_cant \
                         and not is_vendedores_in(arr_quienes_vender, arr_otro_vender):
@@ -1077,27 +1097,28 @@ def intenta_marca(marca_obj, debug):
 
     fuz_levels = (88, )
     for fuzl in fuz_levels:
-        if debug:
-            print("Check- EAN")
-        c = check_pd(c, check_nombre=False, check_ean=True,  check_grados=False, check_medida=False, check_envase=False,  fuz_level=fuzl, debug=debug)
+        # if debug:
+        #     print("Check- EAN")
+        # c = check_pd(c, check_nombre=False, check_ean=True,  check_grados=False, check_medida=False, check_envase=False,  fuz_level=fuzl, debug=debug)
 
-        if debug:
-            print("Check- Grados")
-        c = check_pd(c, check_nombre=False, check_ean=False, check_grados=True,  check_medida=False, check_envase=False,  fuz_level=fuzl, debug=debug)
+        # if debug:
+        #     print("Check- Grados")
+        # c = check_pd(c, check_nombre=False, check_ean=False, check_grados=True,  check_medida=False, check_envase=False,  fuz_level=fuzl, debug=debug)
 
         if debug:
             print("Check- envase")
         c = check_pd(c, check_nombre=False, check_ean=False, check_grados=False, check_medida=False, check_envase=True,   fuz_level=fuzl, debug=debug)
 
-        if debug:
-            print("Check- Nombre")
-        c = check_pd(c, check_nombre=True,  check_ean=False, check_grados=False, check_medida=False, check_envase=False,  fuz_level=fuzl, debug=debug)
+        # if debug:
+        #     print("Check- Nombre")
+        # c = check_pd(c, check_nombre=True,  check_ean=False, check_grados=False, check_medida=False, check_envase=False,  fuz_level=fuzl, debug=debug)
     
-    # fuz_levels = (95,93,)
+
     if num_rules_created > 10:
         fuz_levels = (93,)
     else:
         fuz_levels = (93,)
+
     for fuzl in fuz_levels:
         if debug:
             print(f"Check sailers min=1 fuz={fuzl}")
@@ -1107,17 +1128,7 @@ def intenta_marca(marca_obj, debug):
             print(f"Check sailers min=2 fuz={fuzl}")
         c = check_sailers(c, 2, fuzl, debug)
 
-        # if debug:
-        #     print(f"Check sailers min=3 fuz={fuzl}")
-        # c = check_sailers(c, 3, fuzl, debug)
     
-
-    # # ### Limpia checks
-    # for cuenta, row in c.iterrows():
-    #     c.at[cuenta,'r_nombre'] = 0
-    #     c.at[cuenta,'r_medida'] = 0
-    #     c.at[cuenta,'r_grados'] = 0
-    #     c.at[cuenta,'r_envase'] = 0
 
     # ###### Casos especiales, donde hay 1 registro solamente
     # ### Caso envase que haya solo 1 registro

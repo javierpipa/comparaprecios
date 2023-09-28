@@ -303,12 +303,10 @@ class Command(BaseCommand):
             rules.value = 0
             rules.save()
             
-
+            Unifica.objects.filter(automatico=True).delete() 
 
             Vendedores.objects.all().delete()
             Articulos.objects.all().delete()
-            Unifica.objects.filter(automatico=True).delete() 
-
 
             self.create_articles(marcaid)
             # return

@@ -234,7 +234,7 @@ class Lista(models.Model):
 
 class DetalleLista(models.Model):
     lista           = models.ForeignKey(Lista, on_delete=models.CASCADE, default=1)
-    articulo        = models.ForeignKey(to='precios.Articulos', on_delete=models.PROTECT, blank=True, null=True, db_constraint=False)
+    articulo        = models.ForeignKey(to='precios.Articulos', on_delete=models.CASCADE, blank=True, null=True, db_constraint=False)
     cantidad        = models.IntegerField(default=0)
 
     def __str__(self):

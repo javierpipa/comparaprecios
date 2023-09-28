@@ -21,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-(h$6-v$5wukt&o#k^27_y+7b9!mol%iqyh-t+z_@r%(1u*^9qs'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=False)
 
 
 ALLOWED_HOSTS = ['*']
@@ -35,6 +35,7 @@ INTERNAL_IPS = [
 SITE_ID = 1
 
 GOOGLE_API_KEY = config('GOOGLE_API_KEY', default='valor_predeterminado')
+
 
 
 INSTALLED_APPS = [
@@ -381,7 +382,6 @@ CELERY_TASK_SERIALIZER      = "json"
 CELERY_TASK_DEFAULT_QUEUE   = "craw_queu"
 CELERY_DEFAULT_QUEUE        = "craw_queu"
 CELERY_DEFAULT_EXCHANGE     = "craw_exchange"
-# CELERY_DEFAULT_ROUTING_KEY  = "mybinance"
 CELERY_RESULT_BACKEND       = "django-db"
 CELERY_ENABLE_UTC           = True
 CELERY_TIMEZONE             = "America/Santiago"
@@ -391,11 +391,7 @@ CELERY_RESULT_EXPIRES       = 150
 CELERY_CREATE_MISSING_QUEUES = True
 
 CELERY_FLOWER_USER = 'admin'
-CELERY_FLOWER_PASSWORD = 'cps112233'
-
-
-# from celery import Celery
-# print(celery.current_app().conf)
+CELERY_FLOWER_PASSWORD = config('CELERY_FLOWER_PASSWORD', default='cps112233')
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
@@ -498,7 +494,9 @@ LOGGING = {
         'request_handler': {
             'level': 'ERROR',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(log_folder, 'request_log.log'),
+#            'filename': os.path.join(log_folder, 'request_log.log'),
+            'filename': 'logs/request_log.log',
+
             'maxBytes': 1024 * 1024 * 5,  # 5Mb
             'backupCount': 5,
             'formatter': 'verbose'
@@ -507,7 +505,8 @@ LOGGING = {
             'level': 'ERROR',
             'filters': ['require_debug_true'],
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(log_folder, 'default_log.log'), 
+#            'filename': os.path.join(log_folder, 'default_log.log'), 
+            'filename': 'logs/default_log.log',
             'maxBytes': 1024 * 1024 * 5,  # 5Mb
             'backupCount': 5,
             'formatter': 'verbose'
@@ -516,7 +515,8 @@ LOGGING = {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(log_folder, 'devo_server_log.log'),
+#            'filename': os.path.join(log_folder, 'devo_server_log.log'),
+            'filename': 'logs/devo_server_log.log',
             'maxBytes': 1024 * 1024 * 5,  # 5Mb
             'backupCount': 5,
             'formatter': 'django.server'
@@ -530,7 +530,8 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
             'formatter': 'verbose',
-            'filename': os.path.join(log_folder, 'gunicorn.errors.log'), 
+#            'filename': os.path.join(log_folder, 'gunicorn.errors.log'), 
+            'filename': 'logs/gunicorn.errors.log',
             'maxBytes': 1024 * 1024 * 100,  # 100 mb
         }
     },
