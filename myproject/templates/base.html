@@ -182,8 +182,16 @@
 
       <nav id="navbar" class="navbar">
         <ul>
-
-          {% show_menu 0 100 0 100 'menu/menu.html' %}
+          {% if request.path == '/' %}
+            <li class="nav-link">
+                <a href="/blog/"><span>Blog</span></a>
+            </li>
+            {% else %}
+            <li class="nav-link">
+                <a href="/"><span>Home</span></a>
+            </li>
+            {% endif %}
+          <!-- {% show_menu 0 100 0 100 'menu/menu.html' %} -->
           <li class="nav-link dropdown">
             <a href="#"><span>Precios </span><i class="bi bi-chevron-down"></i></a>
             <ul>
