@@ -307,8 +307,6 @@ class Command(BaseCommand):
 
             Vendedores.objects.all().delete()
             Articulos.objects.all().delete()
-            
-
 
             self.create_articles(marcaid)
             # return
