@@ -182,6 +182,10 @@ def generate_filters(articulos):
     medida_um = articulos.values('medida_um').annotate(Count('id', distinct=True)).order_by()
     filtro['medida_um'] = medida_um
 
+    # Unidad de talla
+    medida_um = articulos.values('talla').annotate(Count('id', distinct=True)).order_by()
+    filtro['talla'] = medida_um
+
     # # Rango de precios
     # rango_precios = articulos.aggregate(
     #     min_precio=Min('mejorprecio'),
@@ -370,12 +374,14 @@ def createRule(si_marca,
                 si_medida_cant,
                 si_unidades,
                 si_envase,
+                si_talla,
                 entonces_marca='',
                 entonces_nombre='',
                 entonces_grados='',
                 entonces_medida_cant='',
                 entonces_unidades='',
                 entonces_envase='',
+                entonces_talla='',
                 tipo='',
               ):
     # entonces_nombre = reemplaza_palabras(entonces_nombre)
@@ -396,7 +402,8 @@ def createRule(si_marca,
                 si_grados2=si_grados, 
                 si_medida_cant=si_medida_cant,
                 si_unidades=si_unidades,
-                si_envase=si_envase
+                si_envase=si_envase,
+                si_talla=si_talla
         )
         
 
@@ -413,7 +420,7 @@ def createRule(si_marca,
             obj.entonces_medida_cant    = entonces_medida_cant
 
         obj.entonces_unidades       = entonces_unidades
-        
+        obj.entonces_talla          = entonces_talla
         obj.tipo                    = tipo
         obj.contador                = 0
         obj.automatico              = True
@@ -428,12 +435,14 @@ def createRule(si_marca,
                 si_medida_cant=si_medida_cant,
                 si_unidades=si_unidades,
                 si_envase=si_envase,
+                si_talla=si_talla,
                 entonces_marca=entonces_marca,
                 entonces_nombre=entonces_nombre,
                 entonces_grados2=entonces_grados,
                 entonces_medida_cant=entonces_medida_cant,
                 entonces_unidades=entonces_unidades,
                 entonces_envase=entonces_envase,
+                entonces_talla=entonces_talla,
                 tipo=tipo,
                 contador=0,
                 automatico=True
@@ -456,7 +465,8 @@ def generate_rules(rules, debug):
                 rule['si_grados']       != rule['entonces_grados']      or \
                 rule['si_medida_cant']  != rule['entonces_medida_cant'] or \
                 rule['si_unidades']     != rule['entonces_unidades']    or \
-                rule['si_envase']       != rule['entonces_envase'] :
+                rule['si_envase']       != rule['entonces_envase']      or \
+                rule['si_talla']        != rule['entonces_talla']    :   
                 createRule(
                     si_marca,
                     rule['si_nombre'],
@@ -464,6 +474,7 @@ def generate_rules(rules, debug):
                     rule['si_medida_cant'],
                     rule['si_unidades'],
                     rule['si_envase'],
+                    rule['si_talla'],
 
                     entonces_marca,
                     rule['entonces_nombre'],
@@ -471,6 +482,7 @@ def generate_rules(rules, debug):
                     rule['entonces_medida_cant'],
                     rule['entonces_unidades'],
                     rule['entonces_envase'],
+                    rule['entonces_talla'],
                     rule['tipo'],
                 )
             else:
@@ -1097,21 +1109,21 @@ def intenta_marca(marca_obj, debug):
 
     fuz_levels = (88, )
     for fuzl in fuz_levels:
-        # if debug:
-        #     print("Check- EAN")
-        # c = check_pd(c, check_nombre=False, check_ean=True,  check_grados=False, check_medida=False, check_envase=False,  fuz_level=fuzl, debug=debug)
+        if debug:
+            print("Check- EAN")
+        c = check_pd(c, check_nombre=False, check_ean=True,  check_grados=False, check_medida=False, check_envase=False,  fuz_level=fuzl, debug=debug)
 
-        # if debug:
-        #     print("Check- Grados")
-        # c = check_pd(c, check_nombre=False, check_ean=False, check_grados=True,  check_medida=False, check_envase=False,  fuz_level=fuzl, debug=debug)
+        if debug:
+            print("Check- Grados")
+        c = check_pd(c, check_nombre=False, check_ean=False, check_grados=True,  check_medida=False, check_envase=False,  fuz_level=fuzl, debug=debug)
 
         if debug:
             print("Check- envase")
         c = check_pd(c, check_nombre=False, check_ean=False, check_grados=False, check_medida=False, check_envase=True,   fuz_level=fuzl, debug=debug)
 
-        # if debug:
-        #     print("Check- Nombre")
-        # c = check_pd(c, check_nombre=True,  check_ean=False, check_grados=False, check_medida=False, check_envase=False,  fuz_level=fuzl, debug=debug)
+        if debug:
+            print("Check- Nombre")
+        c = check_pd(c, check_nombre=True,  check_ean=False, check_grados=False, check_medida=False, check_envase=False,  fuz_level=fuzl, debug=debug)
     
 
     if num_rules_created > 10:
@@ -1312,7 +1324,8 @@ def intenta_marca(marca_obj, debug):
             or  row0['articulo__medida_cant']   != row0['lo__medida_cant'] \
             or  row0['articulo__unidades']      != row0['lo__unidades'] \
             or  row0['articulo__grados2']       != row0['lo__grados2'] \
-            or  row0['articulo__envase']        != row0['lo__envase'] :
+            or  row0['articulo__envase']        != row0['lo__envase'] \
+            or  row0['articulo__talla']         != row0['lo__talla']    :
             reglas.append({
                 'si_marca'              : row0['articulo__marca'],
                 'si_nombre'             : row0['articulo__nombre'],
@@ -1320,12 +1333,14 @@ def intenta_marca(marca_obj, debug):
                 'si_medida_cant'        : row0['articulo__medida_cant'],
                 'si_unidades'           : row0['articulo__unidades'],
                 'si_envase'             : row0['articulo__envase'],
+                'si_talla'              : row0['articulo__talla'],
                 'entonces_marca'        : row0['articulo__marca'],
                 'entonces_nombre'       : row0['lo__nombre'],
                 'entonces_grados'       : row0['lo__grados2'],
                 'entonces_medida_cant'  : row0['lo__medida_cant'],
                 'entonces_unidades'     : row0['lo__unidades'],
                 'entonces_envase'       : row0['lo__envase'],
+                'entonces_talla'        : row0['lo__talla'],
                 'tipo'                  : row0['rule'],
                 'fuz'                   : 100,
             })
@@ -1377,6 +1392,7 @@ def create_PD_From(recordset):
                                                       'articulo__grados2', 
                                                       'articulo__ean_13',
                                                       'articulo__envase',
+                                                      'articulo__talla',
                                                       )
                                     )
                                 )
@@ -1388,6 +1404,7 @@ def create_PD_From(recordset):
     df_articulos['lo__unidades']            = 0
     df_articulos['lo__grados2']             = 0
     df_articulos['lo__envase']              = ''
+    df_articulos['lo__talla']               = ''
     df_articulos['lo__ean_13']              = ''
     
     df_articulos['r_nombre']    = 0
@@ -1418,7 +1435,7 @@ def create_PD_From(recordset):
             df_articulos.at[cuenta,'lo__envase']            = art.envase.strip()
         else:
             df_articulos.at[cuenta,'lo__envase']            = ''
-
+        df_articulos.at[cuenta,'lo__talla']            = art.talla
         df_articulos.at[cuenta,'lo__ean_13']           = art.ean_13
 
 
@@ -1432,12 +1449,14 @@ def add_rule(rules, row_es, row_debe_ser, tipo, fuz_level):
         'si_medida_cant':       row_es['articulo__medida_cant'],
         'si_unidades':          row_es['articulo__unidades'],
         'si_envase'  :          row_es['articulo__envase'],
+        'si_talla'  :           row_es['articulo__talla'],
         'entonces_marca' :      row_debe_ser['articulo__marca'],
         'entonces_nombre' :     row_debe_ser['articulo__nombre'],
         'entonces_grados' :     row_debe_ser['articulo__grados2'],
         'entonces_medida_cant': row_debe_ser['articulo__medida_cant'],
         'entonces_unidades' :   row_debe_ser['articulo__unidades'],
         'entonces_envase'   :   row_debe_ser['articulo__envase'],
+        'entonces_talla'    :   row_debe_ser['articulo__talla'],
         'tipo': tipo,
         'fuz': fuz_level,
     }

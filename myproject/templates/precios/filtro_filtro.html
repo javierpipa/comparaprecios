@@ -141,6 +141,33 @@
                     </div>
                 </div>
             </div>
+
+            {% if  filtro.talla|length > 1 %}
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingFour">
+                    <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#tallafilter">Talla</button>                     
+                </h2>
+                <div id="tallafilter" class="accordion-collapse collapse">
+                    <div class="card-body"  style="max-height:250px; overflow-y: scroll;">
+                        <ul class="list-group">
+                            {% for row in filtro.talla %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <a href="?talla={{ row.talla }}{% for key, value in request.GET.items %}{% ifnotequal key "talla" %}&{{ key }}={{ value }}{% endifnotequal %}{% endfor %}">
+                                    {{ row.talla|title }}
+                                </a>
+                                <span class="badge bg-primary rounded-pill">{{ row.id__count }}</span>
+                                {% if request.GET.talla == row.talla|stringformat:"s" %}
+                                    <a href="?{% for key, value in request.GET.items %}{% ifnotequal key "talla" %}{{ key }}={{ value }}{% endifnotequal %}{% if not forloop.last %}&{% endif %}{% endfor %}" class="remove-filter">
+                                        <i class="bi bi-x-circle"></i>
+                                    </a>
+                                {% endif %}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
             
 
             

@@ -331,9 +331,10 @@ def url_get(browser,
 
 def savePalabras(palabra):
     try:
-        palabraz  = AllPalabras.objects.get(palabra=palabra)
-        palabraz.contador = palabraz.contador + 1
-        palabraz.save()
+        palabraz2  = AllPalabras.objects.filter(palabra=palabra)
+        for palabraz in palabraz2:
+            palabraz.contador = palabraz.contador + 1
+            palabraz.save()
     except ObjectDoesNotExist:
         AllPalabras.objects.update_or_create(palabra=palabra, contador=1)
 
@@ -422,6 +423,7 @@ def create_prods(
         if url.nombre :
             nombre = url.nombre
             nombre_original = url.nombre
+            descripcion = url.descripcion
         else:
             nombre = ''
             nombre_original = ''
@@ -463,7 +465,7 @@ def create_prods(
         nombre =  nombre.replace('en lata','lata')
 
         # 2.2 mueve ennvases
-        envase, nombre = remueveYGuarda(ENVASES, nombre, " ", remover=True, todos=False)
+        envase, nombre = remueveYGuarda(ENVASES, nombre, " ", remover=True, todos=True)
         debug_nombre('4.- Envase: '+envase, debug)
 
         # 2.5 cambia palabras que contienen tal caracter
@@ -498,9 +500,9 @@ def create_prods(
         agregar_sufijos, nombre = remueveYGuarda(SUJIFOS_NOMBRE, nombre, " ", remover=True, todos=True)
         debug_nombre('5.- Quitar sufijos: '+agregar_sufijos, debug)
 
-        ## 4.05 Rretirro de tallas
-        tallas, nombre = remueveYGuardaSinSplit(TALLAS, nombre, remover=True, todos=True)
-        debug_nombre('6.- Quitar Tallas: '+tallas, debug)
+        ## 4.05 Anotacion de tallas
+        talla, nombre = remueveYGuardaSinSplit(TALLAS, nombre, remover=True, todos=True)
+        # debug_nombre('6.- Quitar Tallas: '+talla, debug)
 
 
         # ## 4.06 Dimension
@@ -562,6 +564,11 @@ def create_prods(
         if envase == "":
             envase, nombre = remueveYGuarda(ENVASES, nombre, " ", remover=True)
             envase = envase.replace(',','')
+        
+        if envase == "" and descripcion:        ## Si envase continua vacio, es posible que el envase este en el campo descripcion
+            envase, descripcion_modificada = remueveYGuarda(ENVASES, descripcion, " ", remover=True)
+            envase = envase.replace(',','')
+
 
         debug_nombre('9.- Quirta envase: '+envase, debug)
         
@@ -619,26 +626,13 @@ def create_prods(
 
         nombre = nombre.strip()
 
-        # nombre =  nombre.replace('bebida en light','bebida light')
-        # nombre =  nombre.replace('bebida - light','bebida light')
-        # nombre =  nombre.replace('libre azucar','sin azucar')
-        # nombre =  nombre.replace('bebida energeticas','bebida energetica')
-        # nombre =  nombre.replace('energy drink','bebida energetica')
-        # nombre =  nombre.replace('energizante ','energetica ')
-
-        # nombre =  nombre.replace('- light','light')
-        # nombre =  nombre.replace('. light','light')
-
-        # nombre =  nombre.replace('- Light','light')
-        # nombre =  nombre.replace('. Light','light')
-
         nombre =  nombre.replace('.',' ')
         nombre =  nombre.replace('  ',' ')
         nombre = nombre.strip()
 
         
-        if medida_um == "":
-            medida_um = tallas
+        # if medida_um == "":
+        #     medida_um = talla
         
 
         debug_nombre('20.- FINAL: '+ nombre, debug)
@@ -655,7 +649,7 @@ def create_prods(
         nombre = reemplaza_palabras(nombre)
         ### Revisiones
         reglas      = []
-        reglas, newmarca, nombre, grados, medida_cant, unidades, envase = unificacion(newmarca, nombre, grados, medida_cant, unidades, envase, debug, 3, reglas)
+        reglas, newmarca, nombre, grados, medida_cant, unidades, envase, talla = unificacion(newmarca, nombre, grados, medida_cant, unidades, envase, talla, debug, 3, reglas)
 
         ### Elimino marca que esta dentro del nombre    
         nombre = nombre.replace(newmarca.nombre, '')
@@ -676,6 +670,7 @@ def create_prods(
                 grados2=grados,
                 unidades=unidades,
                 envase=envase,
+                talla=talla
             )
             articulos_existentes = articulos_existentes  + 1
         except MultipleObjectsReturned:
@@ -687,10 +682,11 @@ def create_prods(
                     grados2=grados,
                     unidades=unidades,
                     envase=envase,
+                    talla=talla,
                 ).first()
         except ObjectDoesNotExist:
             
-            miarticulo  = create_article(newmarca, nombre, medida_cant, medida_um, nombre_original, unidades, dimension, color, envase, grados, ean_13, tipo)
+            miarticulo  = create_article(newmarca, nombre, medida_cant, medida_um, nombre_original, unidades, dimension, color, envase, grados, ean_13, tipo, talla)
             articulos_creados = articulos_creados + 1
             
 
@@ -724,7 +720,7 @@ def create_prods(
 
     # return registros, articulos_creados, articulos_existentes
 
-def create_article(newmarca, nombre, medida_cant, medida_um, nombre_original, unidades, dimension, color, envase, grados, ean_13, tipo):
+def create_article(newmarca, nombre, medida_cant, medida_um, nombre_original, unidades, dimension, color, envase, grados, ean_13, tipo, talla):
     new_article = Articulos.objects.create(
             marca=newmarca,
             nombre=nombre,
@@ -737,7 +733,8 @@ def create_article(newmarca, nombre, medida_cant, medida_um, nombre_original, un
             envase=envase,
             grados2=grados,
             ean_13=ean_13,
-            tipo=tipo
+            tipo=tipo,
+            talla=talla
         )
     return new_article
 
@@ -746,7 +743,6 @@ def get_dics():
     PALABRAS_INUTILES = AllPalabras.objects.filter(tipo=TIPOPALABRA.INUTIL).values_list('palabra',flat=True).all()
     
     SUJIFOS_NOMBRE = AllPalabras.objects.filter(tipo=TIPOPALABRA.SUJIFO_NOMBRE).values_list('palabra',flat=True).all()
-    # ean_13_site_ids = (38, 37, 21, 11, 10, 9 )
     ean_13_site_ids = list(Site.objects.filter(es_ean13=True).values_list('id', flat=True))
 
         
@@ -1348,7 +1344,7 @@ def remueveYGuarda(OBJETO, en_que_texto, split_por, remover=False, todos=False):
     return devuelve_palabra, en_que_texto
 
 
-def unificacion( marca, nombre, grados, medida_cant, unidades, envase, debug, k, reglas):
+def unificacion( marca, nombre, grados, medida_cant, unidades, envase, talla, debug, k, reglas):
     if (k>0):
         nombre = " ".join(nombre.split())
         query = Q()
@@ -1370,6 +1366,7 @@ def unificacion( marca, nombre, grados, medida_cant, unidades, envase, debug, k,
         query.add(Q(si_medida_cant=float(medida_cant)), Q.AND)
         query.add(Q(si_unidades=unidades), Q.AND)
         query.add(Q(si_envase=envase), Q.AND)
+        query.add(Q(si_talla=talla), Q.AND)
         uniones = Unifica.objects.filter(query)  
         for uni in uniones:
             debug_nombre('1.- unificacion: '+ marca.nombre + ' Rule: '+ str(uni.pk) + ' ' , debug)
@@ -1383,14 +1380,15 @@ def unificacion( marca, nombre, grados, medida_cant, unidades, envase, debug, k,
             medida_cant = uni.entonces_medida_cant
             unidades    = uni.entonces_unidades
             envase      = uni.entonces_envase
+            talla       = uni.entonces_talla
 
         
 
         if not nombre :
             nombre = marca.nombre
         
-        reglas, marca, nombre, grados, medida_cant, unidades, envase = unificacion(marca, nombre, grados, medida_cant, unidades, envase, debug, k-1, reglas)
+        reglas, marca, nombre, grados, medida_cant, unidades, envase, talla = unificacion(marca, nombre, grados, medida_cant, unidades, envase, talla, debug, k-1, reglas)
         
 
-    return reglas, marca, nombre, grados, medida_cant, unidades, envase
+    return reglas, marca, nombre, grados, medida_cant, unidades, envase, talla
 
