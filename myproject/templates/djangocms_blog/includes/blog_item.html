@@ -2,10 +2,10 @@
 
 <article id="post-{{ post.slug }}" class="post-item">
     <header>
-        <h3><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h3>
-        {% if post.subtitle %}
+        <!-- <h3><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h3> -->
+        <!-- {% if post.subtitle %}
             <h4>{{ post.subtitle }}</h4>
-        {% endif %}
+        {% endif %} -->
         {% block blog_meta %}
             {% include "djangocms_blog/includes/blog_meta.html" %}
         {% endblock %}
@@ -21,14 +21,8 @@
           {% for preview in previews %}<img src="{{ preview }}" />{% endfor %}
         </div>
     {% endif %}
-    <div class="blog-lead">
-        {% if not TRUNCWORDS_COUNT %}
-            {% render_model post "abstract" "" "" "safe" %}
-        {% else %}
-            {% render_model post "abstract" "" "" "truncatewords_html:TRUNCWORDS_COUNT|safe"  %}
-        {% endif %}
-    </div>
-    <footer class="read-more">
+    
+    <!-- <footer class="read-more">
         <a href="{{ post.get_absolute_url }}">{% trans "read more" %} &raquo;</a>
-    </footer>
+    </footer> -->
 </article>
