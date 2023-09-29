@@ -936,7 +936,7 @@ class Unifica(models.Model):
     
     def si_mrc_lst(self):
         return format_html(
-            '<a target="_new" href="/precios/brands/{}">{}</a>',
+            '<a target="_new" href="/precios/brands/detail/{}">{}</a>',
             self.si_marca.slug,
             self.si_marca.nombre,
         )
@@ -955,7 +955,7 @@ class Unifica(models.Model):
     
     def etc_mrc_lst(self):
         return format_html(
-            '<a target="_new" href="/precios/brands/{}">{}</a>',
+            '<a target="_new" href="/precios/brands/detail/{}">{}</a>',
             self.entonces_marca.slug,
             self.entonces_marca.nombre,
         )

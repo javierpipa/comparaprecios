@@ -10,18 +10,19 @@ from precios.pi_get import obtener_grados
 from precios.pi_functions import (
     createRule, 
     setMessage, 
-    buscar_articulos_con_y_sin_grados,
-    get_num_url_in_sites_per_brand,
-    get_articles_from_site,
-    get_url_from_site_mul,
-    get_url_from_site,
-    create_PD_From,
-    add_rule,
-    check_grados_b,
-    generate_rules,
+    # buscar_articulos_con_y_sin_grados,
+    # get_num_url_in_sites_per_brand,
+    # get_articles_from_site,
+    # get_url_from_site_mul,
+    # get_url_from_site,
+
+)   
+from precios.pi_rules import (
     intenta_marca,
-    imprime_reglas
-)    
+    imprime_reglas,
+    generate_rules,
+    create_PD_From,
+)
 from precios.pi_get import reemplaza_palabras        
 
 from fuzzywuzzy import fuzz, process
