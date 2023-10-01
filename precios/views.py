@@ -606,6 +606,9 @@ def precios(request):
             renvase         = request.POST.getlist('envase')
             rcolor          = request.POST.getlist('color')
             rmedida_cant    = request.POST.getlist('medida_cant')
+            rtalla          = request.POST.getlist('talla')
+            runidades       = request.POST.getlist('unidades')
+            rsupermercados  = request.POST.getlist('supermercados')
             orden           = request.POST.get('order', 'nombre')
             page_number     = request.POST.get('page_number',1)
         # page_number = 1
@@ -619,6 +622,9 @@ def precios(request):
             rgrados         = request.GET.getlist('grados')
             renvase         = request.GET.getlist('envase')
             rcolor          = request.GET.getlist('color')
+            rtalla          = request.GET.getlist('talla')
+            runidades       = request.GET.getlist('unidades')
+            rsupermercados  = request.GET.getlist('supermercados')
             orden           = request.GET.get("order", 'nombre')
         else:
             orden           =  'nombre'
@@ -635,7 +641,6 @@ def precios(request):
    
     if nombre !='' and puede_connsultar:
         momentos, supermercadoscount = getMomentos(request)
-        # articulos = Vendedores.objects.select_related('articulo', 'vendidoen').all()
         articulos = Articulos.objects.select_related('marca').all()
         
         if Articulos.objects.filter(ean_13__exact=nombre).exists():
@@ -686,10 +691,20 @@ def precios(request):
         if rmedida_cant:
             articulos = articulos.filter(medida_cant__in=rmedida_cant)
 
+        if rtalla:
+            articulos = articulos.filter(talla__in=rtalla)
+
+        if runidades:
+            articulos = articulos.filter(unidades__in=runidades)
+
         # MinSuperCompara
         ofertas_count  = 0
-        articulos = articulos.annotate(num_vendedores=Count('vendedores__vendidoen', filter=Q(vendedores__vendidoen__site__in=momentos, vendedores__vendidoen__precio__gt=0), distinct=True))
-        
+        print('rsupermercados=',rsupermercados)
+        if not rsupermercados:
+            articulos = articulos.annotate(num_vendedores=Count('vendedores__vendidoen', filter=Q(vendedores__vendidoen__site__in=momentos, vendedores__vendidoen__precio__gt=0), distinct=True))
+        else:
+            articulos = articulos.annotate(num_vendedores=Count('vendedores__vendidoen', filter=Q(vendedores__vendidoen__site__in=rsupermercados, vendedores__vendidoen__precio__gt=0), distinct=True))
+
         articulos_dict, articulos_count, ofertas_count = generate_articulos_dict(articulos, momentos, MinSuperCompara, orden)
         filtro = generate_filters(articulos)
         

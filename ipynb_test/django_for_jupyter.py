@@ -9,7 +9,7 @@ or call:\n
 print(PWD)
 def init_django(project_name='myproject'):
     # os.chdir(PWD)
-    os.chdir('/home/javier/hd1/Codigo/JAVIER/cms-1/myproject')
+    os.chdir('/home/javier/hd1/Codigo/JAVIER/test1/comparaprecios-1')
     project_name = project_name or os.environ.get('DJANGO_PROJECT') or None
     if project_name == None:
         raise Exception(PROJ_MISSING_MSG)

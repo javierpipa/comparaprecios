@@ -355,7 +355,7 @@ class ArticulosAdmin(admin.ModelAdmin):
         'unidades',
         'envase',
         "get_price",
-        
+        'talla',
     )
     inlines = [VendedoresInline,]
     search_fields= ["nombre"]
@@ -543,12 +543,14 @@ class UnificaAdmin(admin.ModelAdmin):
         "si_mdd",
         "si_udd",
         "si_env",
+        "si_talla",
         "etc_mrc_lst",
         "entonces_nombre",
         "etc_grd",
         "etc_mdd",
         "etc_udd",
         "etc_env",
+        "etc_talla",
     )
     list_display_links = ["si_nombre"]
     list_filter = ('automatico' , 'tipo' ,'si_marca','entonces_marca')

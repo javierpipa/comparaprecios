@@ -199,6 +199,7 @@
                                 <th class="border-gray-200" scope="col">Grados</th>
                                 <th class="border-gray-200" scope="col">Medida</th>
                                 <th class="border-gray-200" scope="col">Unidades</th>
+                                <th class="border-gray-200" scope="col">Talla</th>
                             </tr>
                         </thead>
                         <tr>
@@ -209,30 +210,20 @@
                             <td>{{ regla.si_grados2 }}</td>
                             <td>{{ regla.si_medida_cant }}</td>
                             <td>{{ regla.si_unidades }}</td>
+                            <td>{{ regla.si_talla }}</td>
                         </tr>
                         <tr>
                             <td>
                                 ENTONCES:
                             </td>
                             
-                            <td>
-                                {{regla.entonces_marca }}
-                            </td>
-                            <td>
-                                {{regla.entonces_nombre }}
-                            </td>
-                            <td>
-                                {{regla.entonces_envase }}
-                            </td>
-                            <td>
-                                {{regla.entonces_grados2 }}
-                            </td>
-                            <td>
-                                {{regla.entonces_medida_cant }}
-                            </td>
-                            <td>
-                                {{regla.entonces_unidades }}
-                            </td>                                      
+                            <td>{{regla.entonces_marca }}</td>
+                            <td>{{regla.entonces_nombre }}</td>
+                            <td>{{regla.entonces_envase }}</td>
+                            <td>{{regla.entonces_grados2 }}</td>
+                            <td>{{regla.entonces_medida_cant }}</td>
+                            <td>{{regla.entonces_unidades }}</td>
+                            <td>{{regla.entonces_talla }}</td>
                                     
                         </tr>
                         {% endfor %}

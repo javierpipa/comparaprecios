@@ -8,20 +8,22 @@ from django.core import management
 from precios.pi_get import obtener_grados
 
 from precios.pi_functions import (
-    createRule, 
+    
     setMessage, 
-    buscar_articulos_con_y_sin_grados,
-    get_num_url_in_sites_per_brand,
-    get_articles_from_site,
-    get_url_from_site_mul,
-    get_url_from_site,
-    create_PD_From,
-    add_rule,
-    check_grados_b,
-    generate_rules,
+    # buscar_articulos_con_y_sin_grados,
+    # get_num_url_in_sites_per_brand,
+    # get_articles_from_site,
+    # get_url_from_site_mul,
+    # get_url_from_site,
+
+)   
+from precios.pi_rules import (
     intenta_marca,
-    imprime_reglas
-)    
+    createRule, 
+    imprime_reglas,
+    generate_rules,
+    create_PD_From,
+)
 from precios.pi_get import reemplaza_palabras        
 
 from fuzzywuzzy import fuzz, process
@@ -109,98 +111,99 @@ class Command(BaseCommand):
 
 
 
-    def obtener_articulos_nombre_diferente(self, que_busco, donde):
-        nombre      = que_busco['nombre']
-        medida_cant = que_busco['medida_cant']
-        unidades    = que_busco['unidades']
-        marca       = que_busco['marca']
-        grados      = que_busco['grados2']
+    # def obtener_articulos_nombre_diferente(self, que_busco, donde):
+    #     nombre      = que_busco['nombre']
+    #     medida_cant = que_busco['medida_cant']
+    #     unidades    = que_busco['unidades']
+    #     marca       = que_busco['marca']
+    #     grados      = que_busco['grados2']
         
-        df_matches = donde.loc[
-            (donde['marca'] == marca) & 
-            (donde['medida_cant'] == medida_cant) & 
-            (donde['unidades'] == unidades) & 
-            # (donde['grados'] == grados) & 
-            (donde['nombre'] != nombre)
-        ]
-        return df_matches
+    #     df_matches = donde.loc[
+    #         (donde['marca'] == marca) & 
+    #         (donde['medida_cant'] == medida_cant) & 
+    #         (donde['unidades'] == unidades) & 
+    #         # (donde['grados'] == grados) & 
+    #         (donde['nombre'] != nombre)
+    #     ]
+    #     return df_matches
 
     ## Uno por ean13
-    def crear_rules_ean13(self, cuantos_minimo):
-        subquery = Articulos.objects.exclude(ean_13='').values('ean_13', 'marca_id', 'medida_cant').annotate(count=Count('ean_13')).filter(count__gt=cuantos_minimo).values('ean_13')
-        query = Articulos.objects.filter(ean_13__in=subquery).exclude(ean_13='').order_by('ean_13', '-grados2').values(
-            'nombre', 
-            'marca_id', 
-            'ean_13', 
-            'grados2', 
-            'unidades', 
-            'medida_cant',
-            'envase',
-            )
+    # def crear_rules_ean13(self, cuantos_minimo):
+    #     subquery = Articulos.objects.exclude(ean_13='').values('ean_13', 'marca_id', 'medida_cant').annotate(count=Count('ean_13')).filter(count__gt=cuantos_minimo).values('ean_13')
+    #     query = Articulos.objects.filter(ean_13__in=subquery).exclude(ean_13='').order_by('ean_13', '-grados2').values(
+    #         'nombre', 
+    #         'marca_id', 
+    #         'ean_13', 
+    #         'grados2', 
+    #         'unidades', 
+    #         'medida_cant',
+    #         'envase',
+    #         'talla',
+    #         )
 
-        primero = True
-        ean13 = float(0)
+    #     primero = True
+    #     ean13 = float(0)
 
-        cuenta_primeros = 0
-        cuenta_segundos = 0
+    #     cuenta_primeros = 0
+    #     cuenta_segundos = 0
 
-        si_marca            = None
-        si_nombre           = None
-        si_grados           = None
-        si_medida_cant      = None
-        si_unidades         = None
-        si_envase           = None
+    #     si_marca            = None
+    #     si_nombre           = None
+    #     si_grados           = None
+    #     si_medida_cant      = None
+    #     si_unidades         = None
+    #     si_envase           = None
 
-        entonces_marca      = None
-        entonces_nombre     = None
-        entonces_grados2    = None
-        entonces_medida_cant= None
-        entonces_unidades   = None
-        entonces_envase     = None
+    #     entonces_marca      = None
+    #     entonces_nombre     = None
+    #     entonces_grados2    = None
+    #     entonces_medida_cant= None
+    #     entonces_unidades   = None
+    #     entonces_envase     = None
 
-        for art in query:
-            if primero or ean13 != art['ean_13']:
-                cuenta_primeros = cuenta_primeros + 1
-                ean13 = art['ean_13']
-                primero = False
+    #     for art in query:
+    #         if primero or ean13 != art['ean_13']:
+    #             cuenta_primeros = cuenta_primeros + 1
+    #             ean13 = art['ean_13']
+    #             primero = False
                 
-                entonces_marca = Marcas.objects.filter(id=art['marca_id']).get()
-                entonces_nombre     = art['nombre']
-                entonces_grados2    = art['grados2']
-                entonces_medida_cant= art['medida_cant']
-                entonces_unidades   = art['unidades']
-                entonces_envase     = art['envase']
+    #             entonces_marca = Marcas.objects.filter(id=art['marca_id']).get()
+    #             entonces_nombre     = art['nombre']
+    #             entonces_grados2    = art['grados2']
+    #             entonces_medida_cant= art['medida_cant']
+    #             entonces_unidades   = art['unidades']
+    #             entonces_envase     = art['envase']
 
                 
-            else:
-                cuenta_segundos = cuenta_segundos  + 1
-                print(f'{cuenta_segundos}  marca= {entonces_marca.nombre} nombre=', art['nombre'])
+    #         else:
+    #             cuenta_segundos = cuenta_segundos  + 1
+    #             print(f'{cuenta_segundos}  marca= {entonces_marca.nombre} nombre=', art['nombre'])
 
-                si_marca        = Marcas.objects.filter(id=art['marca_id']).get()
-                si_nombre       = art['nombre']
-                si_grados       = art['grados2']
-                si_medida_cant  = art['medida_cant']
-                si_unidades     = art['unidades']
-                si_envase       = art['envase']
+    #             si_marca        = Marcas.objects.filter(id=art['marca_id']).get()
+    #             si_nombre       = art['nombre']
+    #             si_grados       = art['grados2']
+    #             si_medida_cant  = art['medida_cant']
+    #             si_unidades     = art['unidades']
+    #             si_envase       = art['envase']
 
-                createRule(
-                    si_marca, 
-                    si_nombre, 
-                    si_grados, 
-                    si_medida_cant, 
-                    si_unidades, 
-                    si_envase,
-                    entonces_marca, 
-                    entonces_nombre, 
-                    entonces_grados2, 
-                    entonces_medida_cant, 
-                    entonces_unidades ,
-                    entonces_envase,
-                    'ean_13'
-                )
-                ean13 = art['ean_13']
+    #             createRule(
+    #                 si_marca, 
+    #                 si_nombre, 
+    #                 si_grados, 
+    #                 si_medida_cant, 
+    #                 si_unidades, 
+    #                 si_envase,
+    #                 entonces_marca, 
+    #                 entonces_nombre, 
+    #                 entonces_grados2, 
+    #                 entonces_medida_cant, 
+    #                 entonces_unidades ,
+    #                 entonces_envase,
+    #                 'ean_13'
+    #             )
+    #             ean13 = art['ean_13']
 
-        print('cuenta_primeros', cuenta_primeros, cuenta_segundos)
+    #     print('cuenta_primeros', cuenta_primeros, cuenta_segundos)
 
     def create_articles(self, marcaid):
         if marcaid:
@@ -262,12 +265,15 @@ class Command(BaseCommand):
                         rowarticulo.medida_cant, 
                         rowarticulo.unidades, 
                         pon_envase, 
+                        rowarticulo.talla, 
+
                         entonces_marca, 
                         pon_nombre, 
                         rowarticulo.grados2, 
                         rowarticulo.medida_cant, 
                         rowarticulo.unidades,
                         pon_envase,
+                        rowarticulo.talla, 
                         'cambio de marca'
                     )
                 
@@ -307,9 +313,12 @@ class Command(BaseCommand):
 
             Vendedores.objects.all().delete()
             Articulos.objects.all().delete()
+            setMessage('Eliminando relacion con reglas')
+            self.elimina_relacion_reglas()
 
+            setMessage('Generando articulos Inicial')
             self.create_articles(marcaid)
-            # return
+            
 
         ### Articulos debe estar lleno !!!
         setMessage('Generando reglas de marcas')

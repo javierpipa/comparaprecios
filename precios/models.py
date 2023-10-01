@@ -701,6 +701,7 @@ class Articulos(ModelMeta, models.Model):
     grados2             = models.FloatField(default=0)
     ean_13              = models.CharField(max_length=50, default='', null=True, blank=True)
     tipo                = models.CharField(max_length=60, blank=True, null=True,default='')
+    talla               = models.CharField(max_length=50, default='', null=True, blank=True)
     slug                = AutoSlugField(populate_from=[
         'marca__slug',
         'nombre',
@@ -881,13 +882,13 @@ class Articulos(ModelMeta, models.Model):
         verbose_name_plural = 'Articulos'
         indexes = [
             models.Index(
-                fields=['marca', 'nombre', 'medida_cant', 'grados2', 'unidades', 'envase'],
+                fields=['marca', 'nombre', 'medida_cant', 'grados2', 'unidades', 'envase', 'talla'],
                 name='articulo_id1_idx',
             ),
         ]
-        ordering        = ( "marca", "nombre", "medida_cant","grados2","unidades", "envase" )
-        unique_together = [['marca', 'nombre', 'medida_cant','grados2','unidades', 'envase']]
-        index_together  = [['marca', 'nombre', 'medida_cant','grados2','unidades', 'envase']]
+        ordering        = ( "marca", "nombre", "medida_cant","grados2","unidades", "envase", "talla" )
+        unique_together = [['marca', 'nombre', 'medida_cant','grados2','unidades', 'envase', 'talla']]
+        index_together  = [['marca', 'nombre', 'medida_cant','grados2','unidades', 'envase', 'talla']]
 
         
 class Unifica(models.Model):
@@ -901,6 +902,7 @@ class Unifica(models.Model):
     si_medida_cant          = models.FloatField(default=0)
     si_unidades             = models.IntegerField(default=1)
     si_envase               = models.CharField(max_length=50, null=True, blank=True)
+    si_talla                = models.CharField(max_length=50, default='', null=True, blank=True)
 
     entonces_marca          = models.ForeignKey(Marcas, on_delete=models.PROTECT, default=1,related_name='entonces_marca')
     entonces_nombre         = models.CharField(max_length=250, null=True, blank=True)
@@ -908,6 +910,7 @@ class Unifica(models.Model):
     entonces_medida_cant    = models.FloatField(default=0)
     entonces_unidades       = models.IntegerField(default=1)
     entonces_envase         = models.CharField(max_length=50, null=True, blank=True)
+    entonces_talla          = models.CharField(max_length=50, default='', null=True, blank=True)
 
     contador                = models.IntegerField(default=0)
     automatico              = models.BooleanField(default=False)
@@ -933,7 +936,7 @@ class Unifica(models.Model):
     
     def si_mrc_lst(self):
         return format_html(
-            '<a target="_new" href="/precios/brands/{}">{}</a>',
+            '<a target="_new" href="/precios/brands/detail/{}">{}</a>',
             self.si_marca.slug,
             self.si_marca.nombre,
         )
@@ -952,7 +955,7 @@ class Unifica(models.Model):
     
     def etc_mrc_lst(self):
         return format_html(
-            '<a target="_new" href="/precios/brands/{}">{}</a>',
+            '<a target="_new" href="/precios/brands/detail/{}">{}</a>',
             self.entonces_marca.slug,
             self.entonces_marca.nombre,
         )
@@ -967,6 +970,9 @@ class Unifica(models.Model):
     
     def etc_env(self):
         return self.entonces_envase
+    
+    def etc_talla(self):
+        return self.entonces_talla
 
     def save(self, *args, **kwargs):
         if self.si_nombre:
@@ -982,7 +988,7 @@ class Unifica(models.Model):
         # ordering = ("si_marca", "si_nombre", "si_medida_cant", "si_grados2", "si_unidades", "si_envase")
         constraints = [
             models.UniqueConstraint(
-                fields=['si_marca', 'si_nombre', 'si_medida_cant', 'si_grados2', 'si_unidades', 'si_envase' ],
+                fields=['si_marca', 'si_nombre', 'si_medida_cant', 'si_grados2', 'si_unidades', 'si_envase', 'si_talla' ],
                 # condition=Q(deleted=False),
                 name='unique_if_not_deleted')
         ]
@@ -1094,7 +1100,8 @@ class SiteURLResults(models.Model):
                             OldDate=this_date
                     )
 
-        if not self.marca and self.nombre != '' and self.error404 == False:
+        ### Busco Marca
+        if not self.marca and self.nombre != '' and not self.error404:
             for posible_marca in Marcas.objects.filter(es_marca=True).values_list('nombre', flat=True).all():
                 if ( ' ' + posible_marca+' ' in self.nombre ) or ('' + posible_marca+' ' in self.nombre) or (' ' + posible_marca+'' in self.nombre):
                     if Marcas.objects.filter(nombre__iexact=posible_marca, es_marca=True).exists():
@@ -1212,7 +1219,8 @@ class ReemplazaPalabras(models.Model):
     
 
 class AllPalabras(models.Model):
-    palabra     = models.CharField(max_length=100, db_index=True, unique=True)
+    # palabra     = models.CharField(max_length=100, db_index=True, unique=True)
+    palabra     = models.CharField(max_length=100, db_index=True, unique=False)
     contador    = models.IntegerField(default=0)
     tipo        = models.CharField(
         max_length=20, 
@@ -1225,7 +1233,7 @@ class AllPalabras(models.Model):
     class Meta:
         verbose_name = "AllPalabras"
         verbose_name_plural = "AllPalabras"
-        
+        unique_together = [['tipo', 'palabra']]
         ordering = ("palabra",)
 
 
