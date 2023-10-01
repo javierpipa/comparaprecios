@@ -8,7 +8,7 @@ from django.core import management
 from precios.pi_get import obtener_grados
 
 from precios.pi_functions import (
-    createRule, 
+    
     setMessage, 
     # buscar_articulos_con_y_sin_grados,
     # get_num_url_in_sites_per_brand,
@@ -19,6 +19,7 @@ from precios.pi_functions import (
 )   
 from precios.pi_rules import (
     intenta_marca,
+    createRule, 
     imprime_reglas,
     generate_rules,
     create_PD_From,

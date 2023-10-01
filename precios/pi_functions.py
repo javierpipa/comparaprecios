@@ -147,12 +147,21 @@ def loadProductBeautifulSoup(sopa, como, que_busca, que_obtiene, metaopcion):
 def generate_filters(articulos):
     filtro = {}
 
+    articulo_ids = articulos.values_list('id', flat=True)
+
+    # Supermercados
+    # Filtrar los Vendedores que tienen esos Articulos
+    vendedores_filtrados = Vendedores.objects.filter(articulo__id__in=articulo_ids)
+    # Generar el filtro de supermercados
+    supermercados = vendedores_filtrados.values('vendidoen__site__siteName', 'vendidoen__site__id').annotate(Count('articulo', distinct=True)).order_by()
+    filtro['supermercados'] = supermercados
+
     # Marcas
     marcas = articulos.values('marca__nombre','marca_id').annotate(Count('id', distinct=True)).order_by()
     filtro['marcas'] = marcas
 
     # Grados
-    grados = articulos.values('grados2').order_by('grados2').annotate(Count('id', distinct=True))
+    grados = articulos.values('grados2').exclude(grados2=0).order_by('grados2').annotate(Count('id', distinct=True))
     filtro['grados'] = grados
 
     # Envase
@@ -160,7 +169,7 @@ def generate_filters(articulos):
     filtro['envase'] = envase
 
     # Color
-    color = articulos.values('color').annotate(Count('id', distinct=True)).order_by()
+    color = articulos.values('color').exclude(color='').annotate(Count('id', distinct=True)).order_by()
     filtro['color'] = color
 
     # Medida cantidad
@@ -178,6 +187,10 @@ def generate_filters(articulos):
     # Unidad de talla
     medida_um = articulos.values('talla').annotate(Count('id', distinct=True)).order_by()
     filtro['talla'] = medida_um
+
+    # Unidad de unidades
+    unidades = articulos.values('unidades').annotate(Count('id', distinct=True)).order_by()
+    filtro['unidades'] = unidades
 
     # # Rango de precios
     # rango_precios = articulos.aggregate(

@@ -29,7 +29,7 @@
                 </div>
             </div>
             
-            
+            {% if  filtro.grados|length > 0 %}
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="headingTwo">
                         <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#gradosfilter">Grados</button>
@@ -55,34 +55,92 @@
                         </div>
                     </div>
                 </div>
-            
-            <div class="accordion-item">
-                <h2 class="accordion-header" id="headingThree">
-                    <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#envasefilter">Envase</button>                     
-                </h2>
-                <div id="envasefilter" class="accordion-collapse collapse">
-                    <div class="card-body"  style="max-height:250px; overflow-y: scroll;">
-                        <ul class="list-group">
-                            {% for row in filtro.envase %}
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <a href="?envase={{ row.envase }}{% for key, value in request.GET.items %}{% ifnotequal key "envase" %}&{{ key }}={{ value }}{% endifnotequal %}{% endfor %}">
-                                    {{ row.envase|title }}
-                                </a>
-                                <span class="badge bg-primary rounded-pill">{{ row.id__count }}</span>
-                                {% if request.GET.envase == row.envase|stringformat:"s" %}
-                                    <a href="?{% for key, value in request.GET.items %}{% ifnotequal key "envase" %}{{ key }}={{ value }}{% endifnotequal %}{% if not forloop.last %}&{% endif %}{% endfor %}" class="remove-filter">
-                                        <i class="bi bi-x-circle"></i>
+            {% endif %}
+            {% if  filtro.supermercados|length > 0 %}
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingTwo">
+                        <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#supermercadosfilter">Supermercados</button>
+                    </h2>
+                    <div id="supermercadosfilter" class="accordion-collapse collapse">
+                        <div class="card-body" style="max-height:250px; overflow-y: scroll;">
+                            <ul class="list-group">
+                                {% for row in filtro.supermercados %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <a href="?supermercados={{ row.vendidoen__site__id|stringformat:"s"|replace_comma }}{% for key, value in request.GET.items %}{% ifnotequal key "vendidoen__site__id" %}&{{ key }}={{ value }}{% endifnotequal %}{% endfor %}">
+                                        {{ row.vendidoen__site__siteName|title }}
                                     </a>
-                                {% endif %}
-
-
-                            </li>
-                            {% endfor %}
-                        </ul>
+                                    <span class="badge bg-primary rounded-pill">{{ row.articulo__count }}</span>
+                                    
+                                    {% if request.GET.supermercados == row.vendidoen__site__id|stringformat:"s"|replace_comma %}
+                                        <a href="?{% for key, value in request.GET.items %}{% ifnotequal key "supermercados" %}{{ key }}={{ value }}{% endifnotequal %}{% if not forloop.last %}&{% endif %}{% endfor %}" class="remove-filter">
+                                            <i class="bi bi-x-circle"></i>
+                                        </a>
+                                    {% endif %}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
                     </div>
                 </div>
-            </div>
-            {% if  filtro.color|length > 1 %}
+            {% endif %}
+
+            {% if  filtro.unidades|length > 0 %}
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingThree">
+                        <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#unidadesfilter">Unidades</button>                     
+                    </h2>
+                    <div id="unidadesfilter" class="accordion-collapse collapse">
+                        <div class="card-body"  style="max-height:250px; overflow-y: scroll;">
+                            <ul class="list-group">
+                                {% for row in filtro.unidades %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <a href="?unidades={{ row.unidades }}{% for key, value in request.GET.items %}{% ifnotequal key "unidades" %}&{{ key }}={{ value }}{% endifnotequal %}{% endfor %}">
+                                        {{ row.unidades|title }}
+                                    </a>
+                                    <span class="badge bg-primary rounded-pill">{{ row.id__count }}</span>
+                                    {% if request.GET.unidades == row.unidades|stringformat:"s" %}
+                                        <a href="?{% for key, value in request.GET.items %}{% ifnotequal key "unidades" %}{{ key }}={{ value }}{% endifnotequal %}{% if not forloop.last %}&{% endif %}{% endfor %}" class="remove-filter">
+                                            <i class="bi bi-x-circle"></i>
+                                        </a>
+                                    {% endif %}
+
+
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+            {% if  filtro.envase|length > 0 %}
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingThree">
+                        <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#envasefilter">Envase</button>                     
+                    </h2>
+                    <div id="envasefilter" class="accordion-collapse collapse">
+                        <div class="card-body"  style="max-height:250px; overflow-y: scroll;">
+                            <ul class="list-group">
+                                {% for row in filtro.envase %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <a href="?envase={{ row.envase }}{% for key, value in request.GET.items %}{% ifnotequal key "envase" %}&{{ key }}={{ value }}{% endifnotequal %}{% endfor %}">
+                                        {{ row.envase|title }}
+                                    </a>
+                                    <span class="badge bg-primary rounded-pill">{{ row.id__count }}</span>
+                                    {% if request.GET.envase == row.envase|stringformat:"s" %}
+                                        <a href="?{% for key, value in request.GET.items %}{% ifnotequal key "envase" %}{{ key }}={{ value }}{% endifnotequal %}{% if not forloop.last %}&{% endif %}{% endfor %}" class="remove-filter">
+                                            <i class="bi bi-x-circle"></i>
+                                        </a>
+                                    {% endif %}
+
+
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+            {% if  filtro.color|length > 0 %}
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="headingFour">
                         <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#colorfilter">Color</button>                     
@@ -108,66 +166,67 @@
                     </div>
                 </div>
             {% endif %}
-            <div class="accordion-item">
-                <h2 class="accordion-header" id="headingFive">
-                    <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#medida_cantfilter">Medida</button>                     
-                </h2>
-                <div id="medida_cantfilter" class="accordion-collapse collapse">
-                    <div class="card-body"  style="max-height:250px; overflow-y: scroll;">
-                        <ul class="list-group">
-                            {% for row in filtro.medida %}
-                                {% with medida_cant_str=row.medida_cant|floatformat:0|stringformat:"s" %}
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <a href="?medida_cant={{ medida_cant_str }}{% for key, value in request.GET.items %}{% ifnotequal key "medida_cant" %}&{{ key }}={{ value }}{% endifnotequal %}{% endfor %}">
-                                            {{ row.medida_cant|floatformat:0|intcomma  }}
-                                            {% for um_row in filtro.medida_um %}
-                                                {% if um_row.medida_um == row.medida_um %}
-                                                    {{ um_row.medida_um }}
-                                                {% endif %}
-                                            {% endfor %}
-                                        </a>
-                                        <span class="badge bg-primary rounded-pill">{{ row.id__count }}</span>
-                                        {% if request.GET.medida_cant == medida_cant_str %}
-                                            <a href="?{% for key, value in request.GET.items %}{% ifnotequal key "medida_cant" %}{{ key }}={{ value }}{% endifnotequal %}{% if not forloop.last %}&{% endif %}{% endfor %}" class="remove-filter">
-                                                <i class="bi bi-x-circle"></i>
+
+            {% if  filtro.medida|length > 0 %}
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingFive">
+                        <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#medida_cantfilter">Medida</button>                     
+                    </h2>
+                    <div id="medida_cantfilter" class="accordion-collapse collapse">
+                        <div class="card-body"  style="max-height:250px; overflow-y: scroll;">
+                            <ul class="list-group">
+                                {% for row in filtro.medida %}
+                                    {% with medida_cant_str=row.medida_cant|floatformat:0|stringformat:"s" %}
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <a href="?medida_cant={{ medida_cant_str }}{% for key, value in request.GET.items %}{% ifnotequal key "medida_cant" %}&{{ key }}={{ value }}{% endifnotequal %}{% endfor %}">
+                                                {{ row.medida_cant|floatformat:0|intcomma  }}
+                                                {% for um_row in filtro.medida_um %}
+                                                    {% if um_row.medida_um == row.medida_um %}
+                                                        {{ um_row.medida_um }}
+                                                    {% endif %}
+                                                {% endfor %}
                                             </a>
-                                        {% endif %}
-                                    </li>
-                                {% endwith %}
-
-                            
-                            {% endfor %}
-                        </ul>
+                                            <span class="badge bg-primary rounded-pill">{{ row.id__count }}</span>
+                                            {% if request.GET.medida_cant == medida_cant_str %}
+                                                <a href="?{% for key, value in request.GET.items %}{% ifnotequal key "medida_cant" %}{{ key }}={{ value }}{% endifnotequal %}{% if not forloop.last %}&{% endif %}{% endfor %}" class="remove-filter">
+                                                    <i class="bi bi-x-circle"></i>
+                                                </a>
+                                            {% endif %}
+                                        </li>
+                                    {% endwith %}
+                                {% endfor %}
+                            </ul>
+                        </div>
                     </div>
                 </div>
-            </div>
-
-            {% if  filtro.talla|length > 1 %}
-            <div class="accordion-item">
-                <h2 class="accordion-header" id="headingFour">
-                    <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#tallafilter">Talla</button>                     
-                </h2>
-                <div id="tallafilter" class="accordion-collapse collapse">
-                    <div class="card-body"  style="max-height:250px; overflow-y: scroll;">
-                        <ul class="list-group">
-                            {% for row in filtro.talla %}
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <a href="?talla={{ row.talla }}{% for key, value in request.GET.items %}{% ifnotequal key "talla" %}&{{ key }}={{ value }}{% endifnotequal %}{% endfor %}">
-                                    {{ row.talla|title }}
-                                </a>
-                                <span class="badge bg-primary rounded-pill">{{ row.id__count }}</span>
-                                {% if request.GET.talla == row.talla|stringformat:"s" %}
-                                    <a href="?{% for key, value in request.GET.items %}{% ifnotequal key "talla" %}{{ key }}={{ value }}{% endifnotequal %}{% if not forloop.last %}&{% endif %}{% endfor %}" class="remove-filter">
-                                        <i class="bi bi-x-circle"></i>
+            {% endif %}
+            {% if  filtro.talla|length > 0 %}
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingFour">
+                        <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#tallafilter">Talla</button>                     
+                    </h2>
+                    <div id="tallafilter" class="accordion-collapse collapse">
+                        <div class="card-body"  style="max-height:250px; overflow-y: scroll;">
+                            <ul class="list-group">
+                                {% for row in filtro.talla %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <a href="?talla={{ row.talla }}{% for key, value in request.GET.items %}{% ifnotequal key "talla" %}&{{ key }}={{ value }}{% endifnotequal %}{% endfor %}">
+                                        {{ row.talla|title }}
                                     </a>
-                                {% endif %}
-                            </li>
-                            {% endfor %}
-                        </ul>
+                                    <span class="badge bg-primary rounded-pill">{{ row.id__count }}</span>
+                                    {% if request.GET.talla == row.talla|stringformat:"s" %}
+                                        <a href="?{% for key, value in request.GET.items %}{% ifnotequal key "talla" %}{{ key }}={{ value }}{% endifnotequal %}{% if not forloop.last %}&{% endif %}{% endfor %}" class="remove-filter">
+                                            <i class="bi bi-x-circle"></i>
+                                        </a>
+                                    {% endif %}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
                     </div>
                 </div>
-            </div>
-        {% endif %}
+            {% endif %}
+        
             
 
             

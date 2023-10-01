@@ -539,9 +539,26 @@ def create_prods(
             retorna, nombre = pack_search(nombre,busca)
             if retorna:
                 unidades = retorna
-                print(f"Queda: {nombre} unidades: {unidades}")    
+                
 
-    
+        if unidades == 1:
+            busca = '(\d+\s*unid)'
+            retorna, nombre = pack_search(nombre,busca)
+            if retorna:
+                retorna = retorna.replace('unid', '')
+                retorna = int(retorna)
+                unidades = retorna
+                print(f"Queda con nombre={nombre}   | Unidades={unidades}")    
+
+        if unidades == 1:
+            busca = '(\d+\s*uds)'
+            retorna, nombre = pack_search(nombre,busca)
+            if retorna:
+                retorna = retorna.replace('uds', '')
+                retorna = int(retorna)
+                unidades = retorna
+                print(f"Queda con nombre={nombre}   | Unidades={unidades}")    
+
         # 4.2 Unidades
         if unidades == 1:
             unidades = 1

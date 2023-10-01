@@ -6,6 +6,8 @@ from precios.models import (
     Vendedores,
     Unifica,
 )
+
+# Required Libraries
 from django.db.models import F, Sum, Count, Min, Max
 import pandas as pd
 import numpy as np
@@ -32,6 +34,18 @@ def is_vendedores_in(a_quienes, b_quienes, debug=False):
     return si_esta
 
 def check_sailers(c, minimo, fuz_level=70, debug=False):
+    '''
+    This function performs checks on the 'sailers' in the DataFrame.
+
+    Parameters:
+    - c (DataFrame): The DataFrame to be processed.
+    - minimo (int): The minimum threshold for performing the check.
+    - debug (bool): Flag to print debug information.
+
+    Returns:
+    - DataFrame: The processed DataFrame.
+    '''
+
     for _, row in c.iterrows():
         if len(row['quienesvenden']) <= minimo:
             query_str = build_query_string(row)
@@ -64,131 +78,6 @@ def build_query_string(row):
     
     return query_str
 
-
-
-# def check_sailers(c, minimo, fuz_level=70, debug=False):
-#     for cuenta0, row0 in c.iterrows():
-#         arr_quienes_vender  = row0['quienesvenden']
-#         cuantos_venden = len(arr_quienes_vender)
-#         if cuantos_venden <= minimo:
-#             if debug:        
-#                 df_debug = c.loc[
-#                     (c['articulo__pk']       == row0['articulo__pk'])
-#                 ]
-#                 print('**************************** ME INTERESA *********************************')
-#                 print(tabulate(df_debug, headers = 'keys', tablefmt = 'fancy_grid'))
-
-#             este_pk             = row0['articulo__pk']
-#             este_marca          = row0['articulo__marca']
-#             este_nombre         = row0['lo__nombre']
-#             este_grados         = row0['lo__grados2']
-#             este_medida_cant    = row0['lo__medida_cant']
-#             este_unidades       = row0['lo__unidades']
-#             este_envase         = row0['lo__envase']
-#             este_talla          = row0['lo__talla']
-#             este_ean_13         = row0['lo__ean_13']
-#             arr_quienes_vender  = row0['quienesvenden']
-#             este_envase         = este_envase.strip()
-
-#             # Inicializa un diccionario con las condiciones que siempre aplicarán
-#             condition_dict = {'lo__unidades': este_unidades, 'articulo__pk': este_pk}
-
-#             # Añade condiciones adicionales basadas en las variables
-#             if este_grados != 0:
-#                 condition_dict['lo__grados2'] = este_grados
-#             if este_medida_cant != 0:
-#                 condition_dict['lo__medida_cant'] = este_medida_cant
-#             if este_envase != "":
-#                 condition_dict['lo__envase'] = este_envase
-#             if este_talla != "":
-#                 condition_dict['lo__talla'] = este_talla
-
-#             # Construye la consulta
-#             query_str = ' & '.join([f"(c['{key}'] == {value})" for key, value in condition_dict.items()])
-#             query_str += f" & (c['articulo__pk'] != {este_pk})"
-
-#             # Ejecuta la consulta
-#             df_matches = c.query(query_str)
-
-            
-#             #     ]
-            
-
-#             cuantos_encuento = len(df_matches)
-#             if cuantos_encuento > 0:
-
-#                 # # Tokenizar las palabras
-#                 # word_tokens = [word for sentence in df_matches['lo__nombre'] for word in word_tokenize(sentence)]
-#                 # # Calcular la frecuencia de las palabras
-#                 # word_freq = FreqDist(word_tokens)
-#                 # # Encontrar la palabra más común
-#                 # if word_freq:
-#                 #     most_common_word = word_freq.most_common(1)[0][0]
-#                 # else:
-#                 #     most_common_word = ''
-
-#                 best_fuz = 0
-#                 best_id  = None
-#                 if debug:        
-#                     print(f'cuantos encuento={cuantos_encuento}')
-#                     print(tabulate(df_matches, headers = 'keys', tablefmt = 'psql'))
-#                 for cuenta02, row02 in df_matches.iterrows():
-#                     if  not is_vendedores_in(arr_quienes_vender, row02['quienesvenden']):
-#                         otro_pk             = row02['articulo__pk']
-#                         otro_marca          = row02['articulo__marca']
-#                         otro_nombre         = row02['lo__nombre']
-#                         otro_grados         = row02['lo__grados2']
-#                         otro_medida_cant    = row02['lo__medida_cant']
-#                         otro_unidades       = row02['lo__unidades']
-#                         otro_envase         = row02['lo__envase']
-#                         otro_talla          = row02['lo__talla']
-#                         otro_ean_13         = row02['lo__ean_13']
-#                         arr_otro_vender     = row0['quienesvenden']
-
-#                         fuz         = fuzz.token_sort_ratio(este_nombre, otro_nombre)
-                        
-#                         # if fuz < fuz_level:
-#                         #     paso_nombre = otro_nombre.replace(most_common_word,'')
-#                         #     fuz         = fuzz.token_sort_ratio(este_nombre, paso_nombre)
-
-#                         if fuz > best_fuz and fuz > fuz_level:
-#                             if debug:        
-#                                 print(f'check_sailers --- Grados Modificado !! fuz={fuz}, fuz_level={fuz_level}')
-
-#                             best_fuz            = fuz
-#                             best_id             = otro_pk
-#                             best_grados         = otro_grados
-#                             best_nombre         = otro_nombre
-#                             best_medida_cant    = otro_medida_cant
-#                             best_envase         = otro_envase
-#                             best_talla          = otro_talla
-#                             linea               = cuenta02
-                            
-
-#                 if best_id:
-#                     c.at[cuenta0,'lo__nombre']  = best_nombre 
-#                     c.at[cuenta0,'lo__grados2'] = best_grados
-
-#                     c.at[cuenta0,'r_nombre'] = 1
-#                     c.at[cuenta0,'r_grados'] = 1
-#                     c.at[cuenta0,'rule'] = f'check_sailers 1'
-
-
-#                     # if este_envase == '' and otro_envase !='' and row02['r_envase'] == 0 \
-
-#                     if este_envase == "":
-#                         c.at[cuenta0,'lo__envase']      = best_envase
-#                         c.at[cuenta0,'rule']            = f'check_sailers envase'
-#                         c.at[cuenta0,'r_envase'] = 1
-
-#                     if este_medida_cant == 0:
-#                         c.at[cuenta0,'lo__medida_cant'] = best_medida_cant
-
-#                     c = add_vendedores(c, cuenta0, linea)
-
-            
-            
-#     return c
 
 
 
@@ -417,22 +306,22 @@ def update_dataframe(c, row, best_match):
     return c
 
 
-def update_record(c, current_index, best_match, reason):
-    print("Dentro de update_record:", c.columns)
-    """
-    Actualiza el registro en c en el índice current_index con los valores de best_match.
-    """
-    c.at[current_index, 'lo__nombre'] = best_match['lo__nombre']
-    c.at[current_index, 'lo__grados2'] = best_match['lo__grados2']
-    c.at[current_index, 'lo__medida_cant'] = best_match['lo__medida_cant']
-    c.at[current_index, 'r_grados'] = 1
-    c.at[current_index, 'r_nombre'] = 1
-    c.at[current_index, 'rule'] = reason
+# def update_record(c, current_index, best_match, reason):
+#     print("Dentro de update_record:", c.columns)
+#     """
+#     Actualiza el registro en c en el índice current_index con los valores de best_match.
+#     """
+#     c.at[current_index, 'lo__nombre'] = best_match['lo__nombre']
+#     c.at[current_index, 'lo__grados2'] = best_match['lo__grados2']
+#     c.at[current_index, 'lo__medida_cant'] = best_match['lo__medida_cant']
+#     c.at[current_index, 'r_grados'] = 1
+#     c.at[current_index, 'r_nombre'] = 1
+#     c.at[current_index, 'rule'] = reason
     
-    # Nota: La función add_vendedores debería estar definida antes de llamar a esta función
-    c = add_vendedores(c, current_index, best_match.name)
+#     # Nota: La función add_vendedores debería estar definida antes de llamar a esta función
+#     c = add_vendedores(c, current_index, best_match.name)
     
-    return c
+#     return c
 
 def get_value_counts_df(c, column_name):
     """

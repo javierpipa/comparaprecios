@@ -1100,7 +1100,8 @@ class SiteURLResults(models.Model):
                             OldDate=this_date
                     )
 
-        if not self.marca and self.nombre != '' and self.error404 == False:
+        ### Busco Marca
+        if not self.marca and self.nombre != '' and not self.error404:
             for posible_marca in Marcas.objects.filter(es_marca=True).values_list('nombre', flat=True).all():
                 if ( ' ' + posible_marca+' ' in self.nombre ) or ('' + posible_marca+' ' in self.nombre) or (' ' + posible_marca+'' in self.nombre):
                     if Marcas.objects.filter(nombre__iexact=posible_marca, es_marca=True).exists():
