@@ -22,20 +22,19 @@ SECRET_KEY = 'django-insecure-(h$6-v$5wukt&o#k^27_y+7b9!mol%iqyh-t+z_@r%(1u*^9qs
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False)
-
+# DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 29240
 INTERNAL_IPS = [
     # ...
-    '127.0.0.1','www.devop.cl'
+    '127.0.0.1', 'www.devop.cl'
     # ...
 ]
 
 SITE_ID = 1
 
 GOOGLE_API_KEY = config('GOOGLE_API_KEY', default='valor_predeterminado')
-
 
 
 INSTALLED_APPS = [
@@ -84,14 +83,14 @@ INSTALLED_APPS = [
     'djangocms_frontend.contrib.utilities',
     'django_celery_beat',
     'django_celery_results',
-    
+
     'precios_integration',
     'precios',
-    
+
     'members',
     'mathfilters',
-    "rest_framework",    
-    
+    "rest_framework",
+
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -101,11 +100,11 @@ INSTALLED_APPS = [
     'django_extensions',
 
     'djangocms_blog',
-    'aldryn_apphooks_config', 
-    'parler', 
-    'taggit', 
+    'aldryn_apphooks_config',
+    'parler',
+    'taggit',
     'taggit_autosuggest',
-    'meta', 
+    'meta',
     'sortedm2m',
     'djangocms_maps',
     'djangocms_forms',
@@ -115,7 +114,7 @@ INSTALLED_APPS = [
     'django_user_agents',
 ]
 
-########## django-json-ld
+# django-json-ld
 # JSON_LD_CONTEXT_ATTRIBUTE       = 'sd'
 # JSON_LD_MODEL_ATTRIBUTE         = 'sd'
 # JSON_LD_DEFAULT_CONTEXT         = 'https://schema.org/'
@@ -125,7 +124,7 @@ INSTALLED_APPS = [
 # JSON_LD_GENERATE_URL            = True
 
 
-############    Google OAUTH
+# Google OAUTH
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend'
@@ -155,7 +154,7 @@ DJANGOCMS_FORMS_TEMPLATES = (
 )
 
 
-DJANGOCMS_FORMS_WIDGET_CSS_CLASSES = {'__all__': ('form-control', ) }
+DJANGOCMS_FORMS_WIDGET_CSS_CLASSES = {'__all__': ('form-control', )}
 DJANGOCMS_FORMS_USE_HTML5_REQUIRED = False
 DJANGOCMS_FORMS_REDIRECT_DELAY = 10000  # 10 seconds
 DJANGOCMS_FORMS_FORMAT_CHOICES = (
@@ -174,18 +173,18 @@ MAPS_PROVIDERS = [
 ]
 
 
-#### Metas
-META_USE_SITES                  = True
-META_USE_OG_PROPERTIES          = True
-META_USE_TITLE_TAG              = True
-META_USE_FACEBOOK_PROPERTIES    = True
-META_USE_TWITTER_PROPERTIES     = True
-META_USE_SCHEMAORG_PROPERTIES   = True
-META_USE_GOOGLEPLUS_PROPERTIES  = True # django-meta 1.x+
+# Metas
+META_USE_SITES = True
+META_USE_OG_PROPERTIES = True
+META_USE_TITLE_TAG = True
+META_USE_FACEBOOK_PROPERTIES = True
+META_USE_TWITTER_PROPERTIES = True
+META_USE_SCHEMAORG_PROPERTIES = True
+META_USE_GOOGLEPLUS_PROPERTIES = True  # django-meta 1.x+
 
-META_SITE_PROTOCOL              =   'https'
-META_SITE_DOMAIN                =   'devop.cl'
-META_SITE_NAME                  =   'DEVOP'
+META_SITE_PROTOCOL = 'https'
+META_SITE_DOMAIN = 'devop.cl'
+META_SITE_NAME = 'DEVOP'
 
 
 # META_INCLUDE_KEYWORDS
@@ -252,8 +251,7 @@ SCHEMAORG_TYPES = (
 # SCHEMAORG_TYPES = getattr(django_settings, "META_SCHEMAORG_TYPES", SCHEMAORG_TYPES)
 
 
-
-#### Metas
+# Metas
 MIDDLEWARE = [
     'cms.middleware.utils.ApphookReloadMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -322,7 +320,6 @@ THUMBNAIL_PROCESSORS = (
 )
 
 
-
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
@@ -374,20 +371,20 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Celery
-CELERYBEAT_SCHEDULER        = 'django_celery_beat.schedulers:DatabaseScheduler'
-BROKER_URL                  = 'amqp://crawler:crawlerpazz@localhost:5672/craw'
-CELERY_BROKER_URL           = 'amqp://crawler:crawlerpazz@localhost:5672/craw'
-CELERY_ACCEPT_CONTENT       = ['json']
-CELERY_TASK_SERIALIZER      = "json"
-CELERY_TASK_DEFAULT_QUEUE   = "craw_queu"
-CELERY_DEFAULT_QUEUE        = "craw_queu"
-CELERY_DEFAULT_EXCHANGE     = "craw_exchange"
-CELERY_RESULT_BACKEND       = "django-db"
-CELERY_ENABLE_UTC           = True
-CELERY_TIMEZONE             = "America/Santiago"
-CELERY_IGNORE_RESULT        = False
+CELERYBEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+BROKER_URL = 'amqp://crawler:crawlerpazz@localhost:5672/craw'
+CELERY_BROKER_URL = 'amqp://crawler:crawlerpazz@localhost:5672/craw'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = "json"
+CELERY_TASK_DEFAULT_QUEUE = "craw_queu"
+CELERY_DEFAULT_QUEUE = "craw_queu"
+CELERY_DEFAULT_EXCHANGE = "craw_exchange"
+CELERY_RESULT_BACKEND = "django-db"
+CELERY_ENABLE_UTC = True
+CELERY_TIMEZONE = "America/Santiago"
+CELERY_IGNORE_RESULT = False
 CELERY_STORE_ERRORS_EVEN_IF_IGNORED = True
-CELERY_RESULT_EXPIRES       = 150
+CELERY_RESULT_EXPIRES = 150
 CELERY_CREATE_MISSING_QUEUES = True
 
 CELERY_FLOWER_USER = 'admin'
@@ -414,15 +411,14 @@ STATIC_ROOT = "static_root"
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
-
 LANGUAGES = [
     ('es', 'Spanish'),
 ]
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
@@ -431,10 +427,9 @@ GOOGLE_ANALYTICS = {
 }
 
 
-
 PARLER_LANGUAGES = {
     1: (
-        {'code': 'es',},
+        {'code': 'es', },
     ),
     'default': {
         'fallbacks': ['es'],
@@ -442,13 +437,13 @@ PARLER_LANGUAGES = {
 }
 
 # #gmail_send/settings.py
-EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST='smtp.gmail.com'
-EMAIL_HOST_USER='pijavier983@gmail.com'
-EMAIL_HOST_PASSWORD='jybwrijkzlwhehbe' #past the key or password app here
-EMAIL_PORT=587
-EMAIL_USE_TLS=True
-DEFAULT_FROM_EMAIL='Javier Pi-DEVOP'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'pijavier983@gmail.com'
+EMAIL_HOST_PASSWORD = 'jybwrijkzlwhehbe'  # past the key or password app here
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = 'Javier Pi-DEVOP'
 
 
 MESSAGE_TAGS = {
@@ -463,9 +458,9 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 100
 }
-#### LOGS
-#Define folder a usar
-log_folder = '/var/log/devop' 
+# LOGS
+# Define folder a usar
+log_folder = '/var/log/devop'
 
 if not os.path.exists(log_folder):
     os.makedirs(log_folder)
@@ -494,7 +489,7 @@ LOGGING = {
         'request_handler': {
             'level': 'ERROR',
             'class': 'logging.handlers.RotatingFileHandler',
-#            'filename': os.path.join(log_folder, 'request_log.log'),
+            #            'filename': os.path.join(log_folder, 'request_log.log'),
             'filename': 'logs/request_log.log',
 
             'maxBytes': 1024 * 1024 * 5,  # 5Mb
@@ -505,7 +500,7 @@ LOGGING = {
             'level': 'ERROR',
             'filters': ['require_debug_true'],
             'class': 'logging.handlers.RotatingFileHandler',
-#            'filename': os.path.join(log_folder, 'default_log.log'), 
+            #            'filename': os.path.join(log_folder, 'default_log.log'),
             'filename': 'logs/default_log.log',
             'maxBytes': 1024 * 1024 * 5,  # 5Mb
             'backupCount': 5,
@@ -515,7 +510,7 @@ LOGGING = {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'logging.handlers.RotatingFileHandler',
-#            'filename': os.path.join(log_folder, 'devo_server_log.log'),
+            #            'filename': os.path.join(log_folder, 'devo_server_log.log'),
             'filename': 'logs/devo_server_log.log',
             'maxBytes': 1024 * 1024 * 5,  # 5Mb
             'backupCount': 5,
@@ -530,7 +525,7 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
             'formatter': 'verbose',
-#            'filename': os.path.join(log_folder, 'gunicorn.errors.log'), 
+            #            'filename': os.path.join(log_folder, 'gunicorn.errors.log'),
             'filename': 'logs/gunicorn.errors.log',
             'maxBytes': 1024 * 1024 * 100,  # 100 mb
         }
