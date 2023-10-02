@@ -470,7 +470,7 @@ def create_prods(
         debug_nombre('4.- Envase: '+envase, debug)
 
         # 2.5 cambia palabras que contienen tal caracter
-        nombre = cambiaPalabras(nombre)
+        # nombre = cambiaPalabras(nombre)
         
         nombre,  grados = obtener_grados(nombre)
 
@@ -665,10 +665,6 @@ def create_prods(
         nombre =  nombre.replace('  ',' ')
         nombre = nombre.strip()
 
-        
-        # if medida_um == "":
-        #     medida_um = talla
-        
 
         debug_nombre('20.- FINAL: '+ nombre, debug)
 
@@ -884,15 +880,8 @@ def cambiaPalabras(nombre):
     nombre =  nombre.replace('6*90ml','6 un. 90 cc')
     nombre =  nombre.replace('6*80ml','6 un. 80 cc')
     nombre =  nombre.replace('3L*3 ','3 un. 3 l')
-
-    nombre =  nombre.replace('no retornable','desechable')
-
-    ## Ojo  la  union entre  desechable  y retornable
-    # nombre =  nombre.replace('desechable','')
     nombre =  nombre.replace('multipack','')
     nombre =  nombre.replace('4 de 1,5 l','4 un. 1.5 l.')
-    
-
     nombre =  nombre.replace('grados ','° ')
     nombre =  nombre.replace('u.)','unidades )')
     nombre =  nombre.replace('*',' - ')
@@ -905,7 +894,6 @@ def cambiaPalabras(nombre):
     nombre =  nombre.replace('3.0lt','3.0 lt')
     nombre =  nombre.replace('- 6unid',' 6 un. ')
     nombre =  nombre.replace('- 3unid',' 3 un. ')
-    nombre =  nombre.replace('no endulzado','sin endulzar')
     nombre =  nombre.replace('1/4 kg','250 gr.')
     nombre =  nombre.replace('7kg','7 kg')
     nombre =  nombre.replace('5kg','5 kg')
@@ -915,7 +903,11 @@ def cambiaPalabras(nombre):
     nombre =  nombre.replace('pack x 6','6 un. ')
     nombre =  nombre.replace('pack x6','6 un. ')
     
-    
+
+    # nombre =  nombre.replace('no retornable','desechable')
+    ## Ojo  la  union entre  desechable  y retornable
+    # nombre =  nombre.replace('desechable','')
+    # nombre =  nombre.replace('no endulzado','sin endulzar')
     # nombre =  nombre.replace('pack x 12','12 un. ')
     # nombre =  nombre.replace('arandanos','arandano')
     # nombre =  nombre.replace('sugar free','sin azucar')
@@ -931,7 +923,19 @@ def cambiaPalabras(nombre):
     # nombre =  nombre.replace('arroz especial sushi grado 1','arroz preparado sushi')
     # nombre =  nombre.replace('arroz food service para sushi','arroz preparado sushi')
     # nombre =  nombre.replace('arroz especial preparado chaufan','arroz preparado chaufan')
-
+    # nombre =  nombre.replace('virg.','virgen ')
+    # nombre =  nombre.replace('aero.','aerosol ')
+    # nombre =  nombre.replace('desinf.','desinfectante ')
+    # nombre =  nombre.replace('desm.','desmenuzado ')
+    # nombre =  nombre.replace('beb.','bebida ')
+    # nombre =  nombre.replace('inst.','instantanea ')
+    # nombre =  nombre.replace('cer. ','cereal ')
+    # nombre =  nombre.replace('alim. ','alimento ')
+    # nombre =  nombre.replace('c. cristal 4.6° pack botella 355 X 6u ','cerveza cristal 4.6° 355 cc 6 un. ')
+    # nombre =  nombre.replace('c. sol ','cerveza sol ')
+    # nombre =  nombre.replace(' zero azúcar',' sin azucar ')    
+    # nombre =  nombre.replace('relleno con ','relleno ')
+    # nombre =  nombre.replace('gelatina en polvo ','gelatina ')
 
     nombre =  nombre.replace('pack 2 ','2 un. ')
     nombre =  nombre.replace('pack 2x ','2 un. ')
@@ -958,8 +962,6 @@ def cambiaPalabras(nombre):
     nombre =  nombre.replace(' botellas,',' botella ')
     nombre =  nombre.replace(' 2 botellas',' 2 un. botella')
     nombre =  nombre.replace('light, 4 de',' 4 un. light')
-    
-
     nombre =  nombre.replace('2.4lt','2.4 l')
     nombre =  nombre.replace(' 3 en 1',' 3 un. ')
     nombre =  nombre.replace(' 64un',' 64 un. ')
@@ -969,36 +971,21 @@ def cambiaPalabras(nombre):
     nombre =  nombre.replace(' 52un',' 52 un. ')
     nombre =  nombre.replace(' 54 und',' 54 un. ')
     nombre =  nombre.replace(' 68 und',' 68 un. ')
-    nombre =  nombre.replace('virg.','virgen ')
-    nombre =  nombre.replace('aero.','aerosol ')
-    nombre =  nombre.replace('desinf.','desinfectante ')
     nombre =  nombre.replace('Display 6 ','6 un. ')
-    nombre =  nombre.replace('desm.','desmenuzado ')
-    nombre =  nombre.replace('beb.','bebida ')
-    nombre =  nombre.replace('inst.','instantanea ')
     nombre =  nombre.replace('x54 unid','54 un. ')
     nombre =  nombre.replace('2x1 unidades','2 un. ')
     nombre =  nombre.replace('6X isotonica','6 un. isotonica')
-
-
-    nombre =  nombre.replace('cer. ','cereal ')
-    nombre =  nombre.replace('alim. ','alimento ')
     nombre =  nombre.replace('12 Latas ','12 un. lata ')
-    nombre =  nombre.replace('c. cristal 4.6° pack botella 355 X 6u ','cerveza cristal 4.6° 355 cc 6 un. ')
-    nombre =  nombre.replace('c. sol ','cerveza sol ')
     nombre =  nombre.replace('rinde 1 l','')
-
     nombre =  nombre.replace('2,25l','2.25 lt.')
     nombre =  nombre.replace('2,5l','2.5 lt.')
     nombre =  nombre.replace('2,5mts.','2.5 mt.')
     nombre =  nombre.replace('2,7lt.','2.7 lt.')
     nombre =  nombre.replace('2,8lt','2.8 lt.')
-    nombre =  nombre.replace(' zero azúcar',' sin azucar ')
     nombre =  nombre.replace(' zero ',' sin azucar ')
     nombre =  nombre.replace('bebidas','bebida')
     nombre =  nombre.replace('bbonnet','bonnet')
-    nombre =  nombre.replace('relleno con ','relleno ')
-    nombre =  nombre.replace('gelatina en polvo ','gelatina ')
+    
     
 
     ## saco annios
@@ -1013,11 +1000,7 @@ def cambiaPalabras(nombre):
     nombre =  nombre.replace(' 2019','')
     nombre =  nombre.replace(' 2020','')
     nombre =  nombre.replace(' 2021','')
-
     nombre =  nombre.replace('ml',' ml')
-    # if nombre.find('seleccion') ==  -1 and nombre.find('capuccino') ==  -1 and nombre.find('cappuccino') ==  -1:
-    #     nombre =  nombre.replace('cc',' cc')
-        
     nombre =  nombre.replace(',','.')
 
     return nombre
