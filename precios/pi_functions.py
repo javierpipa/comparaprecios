@@ -151,7 +151,7 @@ def generate_filters(articulos):
 
     # Supermercados
     # Filtrar los Vendedores que tienen esos Articulos
-    vendedores_filtrados = Vendedores.objects.filter(articulo__id__in=articulo_ids)
+    vendedores_filtrados = Vendedores.objects.filter(articulo__id__in=articulo_ids).exclude(vendidoen__precio=0)
     # Generar el filtro de supermercados
     supermercados = vendedores_filtrados.values('vendidoen__site__siteName', 'vendidoen__site__id').annotate(Count('articulo', distinct=True)).order_by()
     filtro['supermercados'] = supermercados
