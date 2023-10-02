@@ -24,11 +24,22 @@
     </div>
     {% endif %}
     {% endspaceless %}
-    {% if post.app_config.use_placeholder %}
+    <!-- {% if post.app_config.use_placeholder %}
         <div class="blog-content">{% render_placeholder post.content %}</div>
+        holatarolas
     {% else %}
         <div class="blog-content">{% render_model post "post_text" "post_text" "" "safe" %}</div>
-    {% endif %}
+    {% endif %} -->
+    <div class="blog-lead">
+        
+        {% if not TRUNCWORDS_COUNT %}
+            {% render_model post "abstract" "" "" "safe" %}
+        {% else %}
+        
+            {% render_model post "abstract" "" "" "truncatewords_html:TRUNCWORDS_COUNT|safe"  %}
+        {% endif %}
+        
+    </div>
     {% if view.liveblog_enabled %}
         {% include "liveblog/includes/post_detail.html" %}
     {% endif %}
