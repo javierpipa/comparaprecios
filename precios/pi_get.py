@@ -419,6 +419,7 @@ def create_prods(
         registros = registros + 1
         cantidad = 1
         grados = ''
+        talla = ''
         ## Nombre
         if url.nombre :
             nombre = url.nombre
@@ -540,6 +541,23 @@ def create_prods(
             if retorna:
                 unidades = retorna
                 
+        if unidades == 1:
+            busca = '(\d+\s*unidades)'
+            retorna, nombre = pack_search(nombre,busca)
+            if retorna:
+                retorna = retorna.replace('unidades', '')
+                retorna = int(retorna)
+                unidades = retorna
+                # print(f"Queda con nombre={nombre}   | Unidades={unidades}")  
+
+        if unidades == 1:
+            busca = '(\d+\s*unidad)'
+            retorna, nombre = pack_search(nombre,busca)
+            if retorna:
+                retorna = retorna.replace('unidad', '')
+                retorna = int(retorna)
+                unidades = retorna
+                # print(f"Queda con nombre={nombre}   | Unidades={unidades}")  
 
         if unidades == 1:
             busca = '(\d+\s*unid)'
@@ -548,7 +566,7 @@ def create_prods(
                 retorna = retorna.replace('unid', '')
                 retorna = int(retorna)
                 unidades = retorna
-                print(f"Queda con nombre={nombre}   | Unidades={unidades}")    
+                # print(f"Queda con nombre={nombre}   | Unidades={unidades}")    
 
         if unidades == 1:
             busca = '(\d+\s*uds)'
@@ -557,7 +575,7 @@ def create_prods(
                 retorna = retorna.replace('uds', '')
                 retorna = int(retorna)
                 unidades = retorna
-                print(f"Queda con nombre={nombre}   | Unidades={unidades}")    
+                # print(f"Queda con nombre={nombre}   | Unidades={unidades}")    
 
         # 4.2 Unidades
         if unidades == 1:
@@ -663,7 +681,14 @@ def create_prods(
         else:
             ean_13 = None
         
+        ## 1er cambio hecho, se hace reemplazo de frases o palabras
         nombre = reemplaza_palabras(nombre)
+        ## Nuevamente se buscan tallas:
+        ## 4.05 Anotacion de tallas
+        if talla == '':
+            talla, nombre = remueveYGuardaSinSplit(TALLAS, nombre, remover=True, todos=True)
+        
+
         ### Revisiones
         reglas      = []
         reglas, newmarca, nombre, grados, medida_cant, unidades, envase, talla = unificacion(newmarca, nombre, grados, medida_cant, unidades, envase, talla, debug, 3, reglas)
@@ -863,7 +888,7 @@ def cambiaPalabras(nombre):
     nombre =  nombre.replace('no retornable','desechable')
 
     ## Ojo  la  union entre  desechable  y retornable
-    nombre =  nombre.replace('desechable','')
+    # nombre =  nombre.replace('desechable','')
     nombre =  nombre.replace('multipack','')
     nombre =  nombre.replace('4 de 1,5 l','4 un. 1.5 l.')
     
@@ -891,22 +916,21 @@ def cambiaPalabras(nombre):
     nombre =  nombre.replace('pack x6','6 un. ')
     
     
-    nombre =  nombre.replace('pack x 12','12 un. ')
-    nombre =  nombre.replace('arandanos','arandano')
-    nombre =  nombre.replace('sugar free','sin azucar')
-    nombre =  nombre.replace('rissoto','risotto')
-    nombre =  nombre.replace('arroz primavera','arroz preparado primavera')
-    nombre =  nombre.replace('arroz pre graneado','arroz pregraneado')
-    nombre =  nombre.replace('arroz paella','arroz para paella')
-    nombre =  nombre.replace('arroz especial basmati pregraneado','arroz basmati')
-    nombre =  nombre.replace('arroz curry champinon','arroz especial preparado curry champinon')
-    nombre =  nombre.replace('arroz preparado primavera','arroz especial preparado primavera')
-    nombre =  nombre.replace('arroz primavera','arroz especial preparado primavera')
-    nombre =  nombre.replace('arroz para sushi','arroz preparado sushi')
-    nombre =  nombre.replace('arroz especial sushi grado 1','arroz preparado sushi')
-    nombre =  nombre.replace('arroz food service para sushi','arroz preparado sushi')
-
-    nombre =  nombre.replace('arroz especial preparado chaufan','arroz preparado chaufan')
+    # nombre =  nombre.replace('pack x 12','12 un. ')
+    # nombre =  nombre.replace('arandanos','arandano')
+    # nombre =  nombre.replace('sugar free','sin azucar')
+    # nombre =  nombre.replace('rissoto','risotto')
+    # nombre =  nombre.replace('arroz primavera','arroz preparado primavera')
+    # nombre =  nombre.replace('arroz pre graneado','arroz pregraneado')
+    # nombre =  nombre.replace('arroz paella','arroz para paella')
+    # nombre =  nombre.replace('arroz especial basmati pregraneado','arroz basmati')
+    # nombre =  nombre.replace('arroz curry champinon','arroz especial preparado curry champinon')
+    # nombre =  nombre.replace('arroz preparado primavera','arroz especial preparado primavera')
+    # nombre =  nombre.replace('arroz primavera','arroz especial preparado primavera')
+    # nombre =  nombre.replace('arroz para sushi','arroz preparado sushi')
+    # nombre =  nombre.replace('arroz especial sushi grado 1','arroz preparado sushi')
+    # nombre =  nombre.replace('arroz food service para sushi','arroz preparado sushi')
+    # nombre =  nombre.replace('arroz especial preparado chaufan','arroz preparado chaufan')
 
 
     nombre =  nombre.replace('pack 2 ','2 un. ')

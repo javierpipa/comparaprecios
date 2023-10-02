@@ -587,6 +587,7 @@ class ReemplazaPalabrasAdmin(admin.ModelAdmin):
         'reemplazo',
         'contador',
     )
+    search_fields= ["palabra", "reemplazo"]
 class EstadisticasBlackListAdmin(admin.ModelAdmin):
     list_display = ('agente', 'no_contabilizar', 'mostrar_consultas')
 

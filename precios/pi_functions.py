@@ -184,8 +184,8 @@ def generate_filters(articulos):
     medida_um = articulos.values('medida_um').annotate(Count('id', distinct=True)).order_by()
     filtro['medida_um'] = medida_um
 
-    # Unidad de talla
-    medida_um = articulos.values('talla').annotate(Count('id', distinct=True)).order_by()
+    # Talla
+    medida_um = articulos.values('talla').exclude(talla='').annotate(Count('id', distinct=True)).order_by()
     filtro['talla'] = medida_um
 
     # Unidad de unidades
