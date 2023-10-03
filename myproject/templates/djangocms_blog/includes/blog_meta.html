@@ -38,7 +38,7 @@
     {% endif %}
 </ul>
 <ul class="post-detail tags">
-    {% if post.categories.exists %}
+    <!-- {% if post.categories.exists %}
         {% for category in post.categories.all %}
             {% if category.slug %}
                 <li class="category_{{ forloop.counter }}"><a href="{% url 'djangocms_blog:posts-category' category=category.slug %}" class="blog-categories-{{ category.count }}">{{ category.name }}</a>{% if not forloop.last %}, {% endif %}</li>
@@ -49,5 +49,5 @@
         {% for tag in post.tags.all %}
             <li class="tag_{{ forloop.counter }}"><a href="{% url 'djangocms_blog:posts-tagged' tag=tag.slug %}" class="blog-tag blog-tag-{{ tag.count }}">{{ tag.name }}</a>{% if not forloop.last %}, {% endif %}</li>
         {% endfor %}
-    {% endif %}
+    {% endif %} -->
 </ul>
