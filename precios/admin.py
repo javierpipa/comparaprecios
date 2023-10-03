@@ -7,10 +7,8 @@ from django.utils.safestring import mark_safe
 
 from django import forms
 
-
-
-
 from django import forms
+from precios.views import export_as_json
 from precios.models import (
     Settings,
     Site, 
@@ -43,6 +41,15 @@ from precios.models import (
     Direccion,
     Horario_atencion,
 )
+from django.contrib import admin
+# from .models import   SiteURLResults
+
+class TuModeloAdmin(admin.ModelAdmin):
+    actions = [export_as_json]
+
+# admin.site.register(SiteURLResults, TuModeloAdmin)
+
+
 ###  FORMS
 class AreasDespachoForm(forms.ModelForm):
     class Meta:
@@ -288,6 +295,7 @@ class CamposEnSitioAdmin(admin.ModelAdmin):
     inlines = [SelectorCampoInline]
 
 class SiteURLResultsAdmin(admin.ModelAdmin):
+    actions = [export_as_json]
     list_display = (
         "site",
         "nombre",

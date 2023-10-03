@@ -10,8 +10,11 @@ import pytz
 utc=pytz.UTC
 
 from precios.views_cart import getLastCart
+import json
+from django.http import HttpResponse
 
 import re
+from django.core import serializers
 import urllib.parse
 from django.db.models import Avg, Q
 
@@ -65,6 +68,12 @@ from precios.pi_get import (
 
 # @cache_page(60 * 5)   ## 5 minutos
 
+
+def export_as_json(modeladmin, request, queryset):
+    response = HttpResponse(content_type="application/json")
+    response['Content-Disposition'] = 'attachment; filename={}.json'.format(modeladmin.model.__name__)
+    serializers.serialize("json", queryset, stream=response)
+    return response
 
 def busca_marca(nombre):
     palabras = nombre.split()
