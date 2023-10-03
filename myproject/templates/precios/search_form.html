@@ -5,15 +5,15 @@
     </script>
     <div class="row">
         <div class="col">
-            <div class="input-group ">
+
+            <div class="input-group mb-3">
                 <label class="visually-hidden" for="nombre"></label>
                 <input name="nombre" type="text" class="form-control" id="nombre" placeholder="Queso o Pepsi o Codigo EAN" value="{{ context.resumen.nombre }}" required>
-                <div class="input-group-append">
-                    <button type="submit" class="btn btn-light">
-                        <i class="bi bi-search"></i>
-                    </button>
-                </div>
-            </div>
+
+                <button class="btn btn-outline-secondary" type="submit" id="button-addon2">
+                    <i class="bi bi-search"></i>
+                </button>
+              </div>
         </div>
     </div>
     

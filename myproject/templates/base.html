@@ -144,7 +144,7 @@
       </div>
         {% if user.is_authenticated %}
           <a href="{% url 'precios:cart' %}" data-bs-toggle="tooltip" title="Lista sin nombre" id="botonlista" target="Lista">
-              <button type="button" class="btn btn-success position-relative">
+              <button type="button" class="btn btn-sm btn-success position-relative">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cart" viewBox="0 0 16 16">
                       <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"></path>
                   </svg>
@@ -169,7 +169,7 @@
         <a href="#" class="twitter"><i class="bi bi-twitter"></i></a>
         <a href="#" class="facebook"><i class="bi bi-facebook"></i></a>
         <a href="https://www.instagram.com/devop.cl/" class="instagram"><i class="bi bi-instagram"></i></a>
-        <a href="https://www.linkedin.com/in/javier-pi/" class="linkedin"><i class="bi bi-linkedin"></i></i></a>
+        <a href="https://www.linkedin.com/in/javier-pi/" class="linkedin"><i class="bi bi-linkedin"></i></a>
       </div>
     </div>
   </section>
@@ -181,16 +181,24 @@
       
 
       <nav id="navbar" class="navbar">
-        <ul>
+        <ul> 
           {% if request.path == '/' %}
-            <li class="nav-link">
-                <a href="/blog/"><span>Blog</span></a>
-            </li>
-            {% else %}
-            <li class="nav-link">
-                <a href="/"><span>Home</span></a>
-            </li>
-            {% endif %}
+          <li class="nav-link">
+              <a href="/blog/"><span>Blog</span></a>
+          </li>
+          {% else %}
+          <li class="nav-link">
+              <a href="/"><span>Home</span></a>
+          </li>
+          {% endif %}
+        
+          {% if request.path != '/' and request.path != '/blog/' %}
+          <li class="nav-link">
+              <a href="/blog/"><span>Blog</span></a>
+          </li>
+          {% endif %}
+          
+      
           <!-- {% show_menu 0 100 0 100 'menu/menu.html' %} -->
           <li class="nav-link dropdown">
             <a href="#"><span>Precios </span><i class="bi bi-chevron-down"></i></a>
