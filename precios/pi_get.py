@@ -533,49 +533,77 @@ def create_prods(
                     nombre = nombre.replace('unidades ','')
                     break
 
-        if unidades == 1:
-            busca = '(\d+)\s*(?:packs?|unidades?|pack)\s*x'
-            # print(f"Encontrado: {nombre} ")
+        # Lista de patrones de búsqueda
+        busquedas = [
+            r'(\d+)\s*(?:packs?|unidades?|pack)\s*x',
+            r'(\d+\s*unidades)',
+            r'(\d+\s*unidad)',
+            r'(\d+\s*unid)',
+            r'(\d+\s*uds)',
+            r'(\d+)\s*x\s*'
+        ]
 
-            retorna, nombre = pack_search(nombre,busca)
-            if retorna:
-                unidades = retorna
+        # Bucle para buscar y actualizar unidades y nombre
+        for busca in busquedas:
+            if unidades == 1:  # Si ya hemos encontrado unidades, no necesitamos seguir buscando
+                retorna, nombre = pack_search(nombre, busca)
+                if retorna:
+                    # Elimina cualquier palabra no numérica (como "unidades", "pack", etc.)
+                    retorna = re.sub(r'\D', '', retorna)
+                    unidades = int(retorna)
+                    break  # Salir del bucle una vez que se encuentre una coincidencia
+
+
+        # if unidades == 1:
+        #     busca = '(\d+)\s*(?:packs?|unidades?|pack)\s*x'
+        #     # print(f"Encontrado: {nombre} ")
+
+        #     retorna, nombre = pack_search(nombre,busca)
+        #     if retorna:
+        #         unidades = retorna
                 
-        if unidades == 1:
-            busca = '(\d+\s*unidades)'
-            retorna, nombre = pack_search(nombre,busca)
-            if retorna:
-                retorna = retorna.replace('unidades', '')
-                retorna = int(retorna)
-                unidades = retorna
-                # print(f"Queda con nombre={nombre}   | Unidades={unidades}")  
+        # if unidades == 1:
+        #     busca = '(\d+\s*unidades)'
+        #     retorna, nombre = pack_search(nombre,busca)
+        #     if retorna:
+        #         retorna = retorna.replace('unidades', '')
+        #         retorna = int(retorna)
+        #         unidades = retorna
+                
 
-        if unidades == 1:
-            busca = '(\d+\s*unidad)'
-            retorna, nombre = pack_search(nombre,busca)
-            if retorna:
-                retorna = retorna.replace('unidad', '')
-                retorna = int(retorna)
-                unidades = retorna
-                # print(f"Queda con nombre={nombre}   | Unidades={unidades}")  
+        # if unidades == 1:
+        #     busca = '(\d+\s*unidad)'
+        #     retorna, nombre = pack_search(nombre,busca)
+        #     if retorna:
+        #         retorna = retorna.replace('unidad', '')
+        #         retorna = int(retorna)
+        #         unidades = retorna
+                
 
-        if unidades == 1:
-            busca = '(\d+\s*unid)'
-            retorna, nombre = pack_search(nombre,busca)
-            if retorna:
-                retorna = retorna.replace('unid', '')
-                retorna = int(retorna)
-                unidades = retorna
-                # print(f"Queda con nombre={nombre}   | Unidades={unidades}")    
+        # if unidades == 1:
+        #     busca = '(\d+\s*unid)'
+        #     retorna, nombre = pack_search(nombre,busca)
+        #     if retorna:
+        #         retorna = retorna.replace('unid', '')
+        #         retorna = int(retorna)
+        #         unidades = retorna
+                
 
-        if unidades == 1:
-            busca = '(\d+\s*uds)'
-            retorna, nombre = pack_search(nombre,busca)
-            if retorna:
-                retorna = retorna.replace('uds', '')
-                retorna = int(retorna)
-                unidades = retorna
-                # print(f"Queda con nombre={nombre}   | Unidades={unidades}")    
+        # if unidades == 1:
+        #     busca = '(\d+\s*uds)'
+        #     retorna, nombre = pack_search(nombre,busca)
+        #     if retorna:
+        #         retorna = retorna.replace('uds', '')
+        #         retorna = int(retorna)
+        #         unidades = retorna
+
+        # if unidades == 1:
+        #     busca = '(\d+)\s*x\s*'
+        #     retorna, nombre = pack_search(nombre,busca)
+        #     if retorna:
+        #         retorna = int(retorna)
+        #         unidades = retorna
+                  
 
         # 4.2 Unidades
         if unidades == 1:
@@ -839,13 +867,22 @@ def get_dics():
             listamarcas, \
             campoMarcaObj
 
-def pack_search(en_que_texto,que_busco):
-    x = re.findall(r''+que_busco, en_que_texto, re.IGNORECASE)
+def pack_search(en_que_texto, que_busco):
+    x = re.findall(que_busco, en_que_texto, re.IGNORECASE)
     if x:
-        en_que_texto = re.sub(''+ que_busco,'',en_que_texto,re.IGNORECASE)
+        en_que_texto = re.sub(que_busco, '', en_que_texto, flags=re.IGNORECASE)
         return x[0], en_que_texto
     else:
         return None, en_que_texto
+    
+
+# def pack_search(en_que_texto,que_busco):
+#     x = re.findall(r''+que_busco, en_que_texto, re.IGNORECASE)
+#     if x:
+#         en_que_texto = re.sub(''+ que_busco,'',en_que_texto,re.IGNORECASE)
+#         return x[0], en_que_texto
+#     else:
+#         return None, en_que_texto
 
 
 def cambiaPalabras(nombre):
