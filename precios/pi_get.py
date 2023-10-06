@@ -227,7 +227,6 @@ def url_get(browser,
         ld_response = product_details_fromsoup(ld_json_tags, is_selenium=False)
 
     if ld_response:
-        
         nombre              = ld_response.get("name").lstrip().lower()
         nombre              = nombre.replace('&quot;','')
         if '|' in nombre:

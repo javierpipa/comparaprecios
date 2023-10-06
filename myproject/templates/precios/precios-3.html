@@ -26,7 +26,11 @@
 <div class="container my-3">
     <div class="float-center align-middle">
         <small>
-            <span id="total-results"> {{ context.resumen.articulos_count }} resultados y {{ context.resumen.ofertas_count }} ofertas.</span>
+            <span id="total-results"> {{ context.resumen.articulos_count|intcomma }} resultados y {{ context.resumen.ofertas_count|intcomma }} ofertas.
+                {% if user.is_active and user.is_staff %}
+                   ( {{context.resumen.ofertas_count|div:context.resumen.articulos_count|floatformat:3|intcomma}} )
+                {% endif %}
+            </span>
         </small>
     </div>
 </div>
