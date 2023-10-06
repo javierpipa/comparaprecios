@@ -262,6 +262,7 @@ class MarcasDetailView(generic.DetailView):
         envase_filter   = self.request.GET.get('envase', None)
         medida_cant_filter = self.request.GET.get('medida_cant', None)
         color_filter    = self.request.GET.get('color', None)
+        unidades_filter    = self.request.GET.get('unidades', None)
         
         params = self.request.GET.copy()
         if 'page' in params:
@@ -281,6 +282,8 @@ class MarcasDetailView(generic.DetailView):
             articulos = articulos.filter(medida_cant__in=medida_cant_filter)
         if color_filter:
             articulos = articulos.filter(color__in=color_filter)
+        if unidades_filter:
+            articulos = articulos.filter(unidades__in=unidades_filter)
 
 
         articulos_dict, articulos_count, ofertas_count = generate_articulos_dict(articulos, momentos, 0, orden)

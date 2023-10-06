@@ -639,7 +639,7 @@ class MarcasSistema(models.Model):
         return super(MarcasSistema, self).save(*args, **kwargs)
 
 
-
+from urllib.parse import urlencode
 class Marcas(models.Model):
     nombre              = models.CharField(max_length=250, unique=True, blank=False, null=False)
     slug                = AutoSlugField(populate_from='nombre', editable=True, unique=True, db_index=True, slugify_function=my_slugify_function)
@@ -649,11 +649,7 @@ class Marcas(models.Model):
     @property
     def rulesCount(self) -> int:
         return Unifica.objects.filter(si_marca=self).count() + Unifica.objects.filter(entonces_marca=self).count() 
-    
-    # @property
-    # def rulesToCount(self) -> int:
-    #     return Unifica.objects.filter(entonces_marca=self).count()
-    
+      
     @property
     def resultsCount(self) -> int:
         return Articulos.objects.filter( marca=self).count()
@@ -678,7 +674,13 @@ class Marcas(models.Model):
         ordering = ("nombre",)
 
     def get_absolute_url(self):
+        # base_url = reverse('precios:home')
+        # query_string =  urlencode({'marca': self.id})
+        # return f"{base_url}?{query_string}"
         return reverse("precios:brands_detail", args=(self.slug,))
+        
+        
+        
 
     def get_update_url(self):
         return reverse("precios:Marcas_update", args=(self.pk,))

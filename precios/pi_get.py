@@ -373,12 +373,16 @@ def reemplaza_palabras(texto):
     return texto
 
 
+def remove_dollar_sign_and_following(text):
+    return re.sub(r'\$.*$', '', text)
 
 # Words with both alphabets and numbers
 # Using isdigit() + isalpha() + any()
 # res = []
 # temp = nombre.split()
 def get_palabras_con_numychar(texto):
+    ## La función get_palabras_con_numychar toma un string texto como entrada 
+    # y devuelve una lista de palabras que contienen al menos un carácter alfabético y al menos un dígito numérico.
     res = []
     temp = texto.split()
     for idx in temp:
@@ -386,6 +390,39 @@ def get_palabras_con_numychar(texto):
             res.append(idx.strip())
 
     return res
+
+def normaliza_talla(talla):
+    talla = talla.replace('/', '-').strip()
+    match talla:
+        case 'talla xs':
+            return 'talla xp'
+        case 'talla s':
+            return 'talla p'
+        case 'talla ch':
+            return 'talla p'
+        case 'talla ch-m':
+            return 'talla p-m'
+        case 'talla s-m':
+            return 'talla p-m'
+        case 'talla l':
+            return 'talla g'
+        case 'talla l-xl':
+            return 'talla g-xg'
+        case 'talla xl':
+            return 'talla xg'
+        case 'talla xxl':
+            return 'talla xxg'
+    
+    return talla
+
+def extract_and_remove_weight_range_updated(text):
+    match = re.search(r'(\d+([.,]\d+)?\s*[-–a]\s*\d+([.,]\d+)?)\s*kg', text, re.IGNORECASE)
+    if match:
+        weight_range = match.group(0)
+        new_text = re.sub(re.escape(weight_range), '', text)
+        return weight_range, new_text.strip()
+    return '', text
+
 ## Create Products
 ####################
 def create_prods(
@@ -417,19 +454,20 @@ def create_prods(
 
     for url in urls:
         registros = registros + 1
-        cantidad = 1
-        grados = ''
-        talla = ''
-        ## Nombre
+        cantidad    = 1
+        grados      = ''
+        talla       = ''
+        color       = ""
+        dimension   = ''
+        newmarca    = None
+
         if url.nombre :
             nombre = url.nombre
             nombre_original = url.nombre
             descripcion = url.descripcion
         else:
-            nombre = ''
-            nombre_original = ''
-            ## Si no hay nombre, loop
             articulos_nombre_vacio = articulos_nombre_vacio + 1
+            ## Si no hay nombre, loop
             continue
 
         unidades    = url.unidades
@@ -441,8 +479,7 @@ def create_prods(
         tipo   = url.tipo 
         debug_nombre('1.- Inicio: '+ nombre, debug)
         #######
-
-        newmarca = None
+        
         newmarca_str = url.marca
         if Marcas.objects.filter(nombre=newmarca_str).exists():
             newmarca = Marcas.objects.filter(nombre=newmarca_str).get()
@@ -451,28 +488,26 @@ def create_prods(
             articulos_marca_vacio = articulos_marca_vacio + 1
             continue
         
+        nombre = reemplaza_palabras(nombre)
+
+
         # nombre, newmarca, newmarca_str = getMarca(nombre,url ,campoMarcaObj, listamarcas, sin_marca, debug)
-        debug_nombre('10.- Quirta Marca: '+newmarca_str, debug)
+        # debug_nombre('10.- Quirta Marca: '+newmarca_str, debug)
         
         # ## 1.4 Remueve colores
-        color = ""
         # color, nombre = remueveYGuarda(COLORES, nombre, " ", remover=True, todos=True)
         # color = color.replace(',', '')
-        # debug_nombre('2.- Colores: '+ color, debug)
         
         # # 1.5 rremueve todos los ', 1 Un'
         inutiles, nombre = remueveYGuardaSinSplit(PALABRAS_INUTILES, nombre, remover=True, todos=True)
         debug_nombre('3.- Inutiles: '+inutiles, debug)
-        nombre =  nombre.replace('en lata','lata')
+        
 
-        # 2.2 mueve ennvases
+        # 2.2 mueve envases
         envase, nombre = remueveYGuarda(ENVASES, nombre, " ", remover=True, todos=True)
         debug_nombre('4.- Envase: '+envase, debug)
-
-        # 2.5 cambia palabras que contienen tal caracter
-        # nombre = cambiaPalabras(nombre)
         
-        nombre,  grados = obtener_grados(nombre)
+        
 
         res = get_palabras_con_numychar(nombre)
         for palabra in res:
@@ -490,10 +525,9 @@ def create_prods(
 
             nombre = nombre.replace(palabra, reemplaza_con) 
             
-        
-        nombre = reemplaza_palabras(nombre)
 
-        # nombre =  nombre.replace('®','')
+        nombre,  grados = obtener_grados(nombre)
+
         ## Quito DE
         nombre =  nombre.replace(' de ',' ')
         
@@ -505,16 +539,13 @@ def create_prods(
         talla, nombre = remueveYGuardaSinSplit(TALLAS, nombre, remover=True, todos=True)
         # debug_nombre('6.- Quitar Tallas: '+talla, debug)
 
-
-        # ## 4.06 Dimension
-        dimension = ''
-
-
         # 4.2 Unidad de medida
-        nombre = nombre.rstrip()
-        nombre = nombre.lstrip()
-        nombre = nombre.strip()
-        nombre = nombre.replace('  ', ' ')
+        # nombre = nombre.rstrip()
+        # nombre = nombre.lstrip()
+        # nombre = nombre.strip()
+        # nombre = nombre.replace('  ', ' ')
+        dimension, nombre = extract_and_remove_weight_range_updated(nombre)
+
         if medida_cant == 0:
             nombre, medida_cant, medida_um, dimension = get_unidadMedida(nombre, UMEDIDAS)
         
@@ -533,6 +564,7 @@ def create_prods(
                     nombre = nombre.replace('unidades ','')
                     break
 
+        # 4.2 Unidades
         # Lista de patrones de búsqueda
         busquedas = [
             r'(\d+)\s*(?:packs?|unidades?|pack)\s*x',
@@ -540,9 +572,9 @@ def create_prods(
             r'(\d+\s*unidad)',
             r'(\d+\s*unid)',
             r'(\d+\s*uds)',
-            r'(\d+)\s*x\s*'
+            r'(\d+)\s*x\s*',
+            r'\s*[^\S\n\t]+x\s*(\d+)'
         ]
-
         # Bucle para buscar y actualizar unidades y nombre
         for busca in busquedas:
             if unidades == 1:  # Si ya hemos encontrado unidades, no necesitamos seguir buscando
@@ -554,58 +586,6 @@ def create_prods(
                     break  # Salir del bucle una vez que se encuentre una coincidencia
 
 
-        # if unidades == 1:
-        #     busca = '(\d+)\s*(?:packs?|unidades?|pack)\s*x'
-        #     # print(f"Encontrado: {nombre} ")
-
-        #     retorna, nombre = pack_search(nombre,busca)
-        #     if retorna:
-        #         unidades = retorna
-                
-        # if unidades == 1:
-        #     busca = '(\d+\s*unidades)'
-        #     retorna, nombre = pack_search(nombre,busca)
-        #     if retorna:
-        #         retorna = retorna.replace('unidades', '')
-        #         retorna = int(retorna)
-        #         unidades = retorna
-                
-
-        # if unidades == 1:
-        #     busca = '(\d+\s*unidad)'
-        #     retorna, nombre = pack_search(nombre,busca)
-        #     if retorna:
-        #         retorna = retorna.replace('unidad', '')
-        #         retorna = int(retorna)
-        #         unidades = retorna
-                
-
-        # if unidades == 1:
-        #     busca = '(\d+\s*unid)'
-        #     retorna, nombre = pack_search(nombre,busca)
-        #     if retorna:
-        #         retorna = retorna.replace('unid', '')
-        #         retorna = int(retorna)
-        #         unidades = retorna
-                
-
-        # if unidades == 1:
-        #     busca = '(\d+\s*uds)'
-        #     retorna, nombre = pack_search(nombre,busca)
-        #     if retorna:
-        #         retorna = retorna.replace('uds', '')
-        #         retorna = int(retorna)
-        #         unidades = retorna
-
-        # if unidades == 1:
-        #     busca = '(\d+)\s*x\s*'
-        #     retorna, nombre = pack_search(nombre,busca)
-        #     if retorna:
-        #         retorna = int(retorna)
-        #         unidades = retorna
-                  
-
-        # 4.2 Unidades
         if unidades == 1:
             unidades = 1
 
@@ -627,6 +607,7 @@ def create_prods(
         if envase == "":
             envase, nombre = remueveYGuarda(ENVASES, nombre, " ", remover=True)
             envase = envase.replace(',','')
+            
         
         if envase == "" and descripcion:        ## Si envase continua vacio, es posible que el envase este en el campo descripcion
             envase, descripcion_modificada = remueveYGuarda(ENVASES, descripcion, " ", remover=True)
@@ -635,64 +616,67 @@ def create_prods(
 
         debug_nombre('9.- Quirta envase: '+envase, debug)
         
-        nombre      = nombre.replace('  ',' ')
-        nombre      =  nombre.rstrip()
 
-        if nombre.endswith('rinde'):
-            nombre = nombre[:-5] 
+        # if nombre.endswith('rinde'):
+        #     nombre = nombre[:-5] 
         
         nombre      = nombre + ' ' +  agregar_sufijos 
         debug_nombre('11.- agrega sufijos:'+ nombre, debug)
 
 
-        envase = envase.rstrip()
-        if len(envase)  > 1:
-            if envase[-1] == ',' :
-                envase = envase[:-1] 
-        envase = envase.strip()
+        # envase = envase.rstrip()
+        # if len(envase)  > 1:
+        #     if envase[-1] == ',' :
+        #         envase = envase[:-1] 
+        # envase = envase.strip()
         
         nombre = nombre.rstrip()
         if len(nombre)  > 1:
-            if nombre[-1] == ','  or nombre[-1] == '-'  or nombre[-1] == '.' or nombre[-2] == ' y' or nombre[-1] == '+' :
+            if nombre[-1] == ','  or nombre[-1] == '-'  or nombre[-1] == '.' or nombre[-2] == ' y' or nombre[-1] == '+' or nombre[-1] == '–' or nombre[-1] == 'x':
                 nombre = nombre[:-1] 
+        
+        #     if nombre.startswith(","):
+        #         nombre = nombre[1:] 
+        #         nombre = nombre.rstrip()
+
+        #     nombre = nombre.rstrip()
+        #     if nombre.endswith('- x'):
+        #         nombre = nombre[:-3] 
+
+        #     nombre = nombre.rstrip()
+        #     if nombre.endswith('- un'):
+        #         nombre = nombre[:-4] 
             
-            nombre = nombre.rstrip()
-            if nombre.startswith(","):
-                nombre = nombre[1:] 
+        nombre = nombre.rstrip()
+        if nombre.endswith('-') or nombre.endswith('.'):
+            nombre = nombre[:-1] 
 
-            nombre = nombre.rstrip()
-            if nombre.endswith('- x'):
-                nombre = nombre[:-3] 
+        #     nombre = nombre.rstrip()
+        #     if nombre.endswith(' un'):
+        #         nombre = nombre[:-3] 
 
-            nombre = nombre.rstrip()
-            if nombre.endswith('- un'):
-                nombre = nombre[:-4] 
-            
-            nombre = nombre.rstrip()
-            if nombre.endswith('-'):
-                nombre = nombre[:-1] 
+        #     if nombre.endswith(' aya'):
+        #         nombre = nombre.replace(' aya','')                
+        #     nombre = nombre.rstrip()
+        #     ## Quitamos Pack si aun lo tiene
+        if nombre.startswith("pack "):
+            nombre      = nombre.replace('pack ',' ')
+        #     nombre =  nombre.replace(' lata','')
 
-            nombre = nombre.rstrip()
-            if nombre.endswith(' un'):
-                nombre = nombre[:-3] 
+        if nombre.startswith("- "):
+            nombre =  nombre.replace('- ','')
 
-            if nombre.endswith(' aya'):
-                nombre = nombre.replace(' aya','')                
-            nombre = nombre.rstrip()
-            ## Quitamos Pack si aun lo tiene
-            if nombre.startswith("pack "):
-                nombre      = nombre.replace('pack ',' ')
-            nombre =  nombre.replace(' lata','')
-
-        if nombre.startswith("un. "):
-            nombre =  nombre.replace('un. ','')
-
-        nombre = nombre.strip()
-
+        nombre =  remove_dollar_sign_and_following(nombre)
         nombre =  nombre.replace('.',' ')
-        nombre =  nombre.replace('  ',' ')
-        nombre = nombre.strip()
+        nombre =  nombre.replace(',',' ')
+        envase =  envase.replace(',',' ')
 
+        nombre      = nombre.strip()
+        medida_um   = medida_um.strip()
+        dimension   = dimension.strip()
+        color       = color.strip()
+        envase      = envase.strip()
+        talla       = talla.strip()        
 
         debug_nombre('20.- FINAL: '+ nombre, debug)
 
@@ -705,13 +689,38 @@ def create_prods(
         else:
             ean_13 = None
         
-        ## 1er cambio hecho, se hace reemplazo de frases o palabras
+        ## 2do cambio hecho, se hace reemplazo de frases o palabras
         nombre = reemplaza_palabras(nombre)
         ## Nuevamente se buscan tallas:
         ## 4.05 Anotacion de tallas
         if talla == '':
             talla, nombre = remueveYGuardaSinSplit(TALLAS, nombre, remover=True, todos=True)
         
+        if talla == '':
+            busquedas = [
+                ' xxg',
+                ' xg',
+                ' rn',
+                ' xg',
+                ' prematuro'
+            ]
+            for busca in busquedas:
+                if talla == '':  # Si ya hemos encontrado talla, no necesitamos seguir buscando
+                    if busca in nombre:
+                        talla = 'talla' + busca
+                        nombre = nombre.replace(busca,'')
+                        break
+
+        if medida_cant == 0:
+            nombre, medida_cant, medida_um, dimension = get_unidadMedida(nombre, UMEDIDAS)
+
+        if talla:
+            talla = normaliza_talla(talla)
+
+        if grados == '':
+            nombre,  grados = obtener_grados(nombre)
+        # if unidades == 1:
+        #     retorna, nombre = pack_search(nombre, '^\d{1,2}')
 
         ### Revisiones
         reglas      = []
@@ -876,69 +885,62 @@ def pack_search(en_que_texto, que_busco):
         return None, en_que_texto
     
 
-# def pack_search(en_que_texto,que_busco):
-#     x = re.findall(r''+que_busco, en_que_texto, re.IGNORECASE)
-#     if x:
-#         en_que_texto = re.sub(''+ que_busco,'',en_que_texto,re.IGNORECASE)
-#         return x[0], en_que_texto
-#     else:
-#         return None, en_que_texto
 
 
-def cambiaPalabras(nombre):
-    nombre =  nombre.replace('brujas salamanca',' ')
-    nombre =  nombre.replace('artesanos cochiguaz',' ')
-    nombre =  nombre.replace('artesanos',' ')
-    nombre =  nombre.replace('º gl','° ')
-    nombre =  nombre.replace('º','°')
-    nombre =  nombre.replace('° gl','° ')
-    nombre =  nombre.replace('°c ','° ')
-    nombre =  nombre.replace('Â° ','° ')
-    nombre =  nombre.replace('°g ','° ')
-    nombre =  nombre.replace('°gl','° ')
-    nombre =  nombre.replace('40g ','40° ')
-    nombre =  nombre.replace('40g,','40°,')
-    nombre =  nombre.replace('14g ','14° ')
-    nombre =  nombre.replace('35g ','35° ')
-    nombre =  nombre.replace('35 g°','35° ')
-    nombre =  nombre.replace('4.5 botella','4.5° botella')
-    nombre =  nombre.replace('35 grados ','35° ')
-    nombre =  nombre.replace('14°gl ','14° ')
-    nombre =  nombre.replace('13g, ','13° ')
-    nombre =  nombre.replace('13,5 °, ','13.5° ')
-    nombre =  nombre.replace('13,5 ° gl, ','13.5° ')
-    nombre =  nombre.replace('13,6 gl, ','13.6° ')
-    nombre =  nombre.replace('12.5g, ','12.5° ')
-    nombre =  nombre.replace('14.5g, ','14.5° ')
-    nombre =  nombre.replace('14.2g, ','14.2° ')
-    nombre =  nombre.replace('14g, ','14° ')
-    nombre =  nombre.replace('12g, ','12° ')
-    nombre =  nombre.replace('pierna 15g, ','pierna 15° ')
-    nombre =  nombre.replace('6*90ml','6 un. 90 cc')
-    nombre =  nombre.replace('6*80ml','6 un. 80 cc')
-    nombre =  nombre.replace('3L*3 ','3 un. 3 l')
-    nombre =  nombre.replace('multipack','')
-    nombre =  nombre.replace('4 de 1,5 l','4 un. 1.5 l.')
-    nombre =  nombre.replace('grados ','° ')
-    nombre =  nombre.replace('u.)','unidades )')
-    nombre =  nombre.replace('*',' - ')
-    nombre =  nombre.replace('1,5l','1.5 l')
-    nombre =  nombre.replace('1.2l','1.2 l')
-    nombre =  nombre.replace('1,75l','1.75 l')
-    nombre =  nombre.replace('1.5l','1.5 l')
-    nombre =  nombre.replace('1.5lt','1.5 lt')
-    nombre =  nombre.replace('3.0lt pet','3.0 lt')
-    nombre =  nombre.replace('3.0lt','3.0 lt')
-    nombre =  nombre.replace('- 6unid',' 6 un. ')
-    nombre =  nombre.replace('- 3unid',' 3 un. ')
-    nombre =  nombre.replace('1/4 kg','250 gr.')
-    nombre =  nombre.replace('7kg','7 kg')
-    nombre =  nombre.replace('5kg','5 kg')
-    nombre =  nombre.replace('1kgr','1 kg')
-    nombre =  nombre.replace('1 kgr','1 kg')
-    nombre =  nombre.replace('tripack ','3 un. ')
-    nombre =  nombre.replace('pack x 6','6 un. ')
-    nombre =  nombre.replace('pack x6','6 un. ')
+# def cambiaPalabras(nombre):
+#     nombre =  nombre.replace('brujas salamanca',' ')
+#     nombre =  nombre.replace('artesanos cochiguaz',' ')
+#     nombre =  nombre.replace('artesanos',' ')
+#     nombre =  nombre.replace('º gl','° ')
+#     nombre =  nombre.replace('º','°')
+#     nombre =  nombre.replace('° gl','° ')
+#     nombre =  nombre.replace('°c ','° ')
+#     nombre =  nombre.replace('Â° ','° ')
+#     nombre =  nombre.replace('°g ','° ')
+#     nombre =  nombre.replace('°gl','° ')
+#     nombre =  nombre.replace('40g ','40° ')
+#     nombre =  nombre.replace('40g,','40°,')
+#     nombre =  nombre.replace('14g ','14° ')
+#     nombre =  nombre.replace('35g ','35° ')
+#     nombre =  nombre.replace('35 g°','35° ')
+#     nombre =  nombre.replace('4.5 botella','4.5° botella')
+#     nombre =  nombre.replace('35 grados ','35° ')
+#     nombre =  nombre.replace('14°gl ','14° ')
+#     nombre =  nombre.replace('13g, ','13° ')
+#     nombre =  nombre.replace('13,5 °, ','13.5° ')
+#     nombre =  nombre.replace('13,5 ° gl, ','13.5° ')
+#     nombre =  nombre.replace('13,6 gl, ','13.6° ')
+#     nombre =  nombre.replace('12.5g, ','12.5° ')
+#     nombre =  nombre.replace('14.5g, ','14.5° ')
+#     nombre =  nombre.replace('14.2g, ','14.2° ')
+#     nombre =  nombre.replace('14g, ','14° ')
+#     nombre =  nombre.replace('12g, ','12° ')
+#     nombre =  nombre.replace('pierna 15g, ','pierna 15° ')
+#     nombre =  nombre.replace('6*90ml','6 un. 90 cc')
+#     nombre =  nombre.replace('6*80ml','6 un. 80 cc')
+#     nombre =  nombre.replace('3L*3 ','3 un. 3 l')
+#     nombre =  nombre.replace('multipack','')
+#     nombre =  nombre.replace('4 de 1,5 l','4 un. 1.5 l.')
+#     nombre =  nombre.replace('grados ','° ')
+#     nombre =  nombre.replace('u.)','unidades )')
+#     nombre =  nombre.replace('*',' - ')
+#     nombre =  nombre.replace('1,5l','1.5 l')
+#     nombre =  nombre.replace('1.2l','1.2 l')
+#     nombre =  nombre.replace('1,75l','1.75 l')
+#     nombre =  nombre.replace('1.5l','1.5 l')
+#     nombre =  nombre.replace('1.5lt','1.5 lt')
+#     nombre =  nombre.replace('3.0lt pet','3.0 lt')
+#     nombre =  nombre.replace('3.0lt','3.0 lt')
+#     nombre =  nombre.replace('- 6unid',' 6 un. ')
+#     nombre =  nombre.replace('- 3unid',' 3 un. ')
+#     nombre =  nombre.replace('1/4 kg','250 gr.')
+#     nombre =  nombre.replace('7kg','7 kg')
+#     nombre =  nombre.replace('5kg','5 kg')
+#     nombre =  nombre.replace('1kgr','1 kg')
+#     nombre =  nombre.replace('1 kgr','1 kg')
+#     nombre =  nombre.replace('tripack ','3 un. ')
+#     nombre =  nombre.replace('pack x 6','6 un. ')
+#     nombre =  nombre.replace('pack x6','6 un. ')
     
 
     # nombre =  nombre.replace('no retornable','desechable')
@@ -1230,19 +1232,6 @@ def remueveYGuardaSinSplit( OBJETO, en_que_texto, remover=False, todos=False):
     devuelve_palabra    = devuelve_palabra.strip()
 
     return devuelve_palabra, en_que_texto
-
-
-# def obtener_grados(frase):
-#     match = re.search(r'(\d+(?:,\d+)?)\s*°', frase, re.IGNORECASE)
-#     if match:
-#         grados = float(match.group(1).replace(',', '.'))
-#         nombre = frase.replace(match.group(), '').strip()
-#     else:
-#         grados = None
-#         nombre = frase.strip()
-#     return nombre, grados
-
-
 
 
 def obtener_grados(frase):
