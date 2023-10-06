@@ -639,7 +639,7 @@ class MarcasSistema(models.Model):
         return super(MarcasSistema, self).save(*args, **kwargs)
 
 
-
+from urllib.parse import urlencode
 class Marcas(models.Model):
     nombre              = models.CharField(max_length=250, unique=True, blank=False, null=False)
     slug                = AutoSlugField(populate_from='nombre', editable=True, unique=True, db_index=True, slugify_function=my_slugify_function)
@@ -649,11 +649,7 @@ class Marcas(models.Model):
     @property
     def rulesCount(self) -> int:
         return Unifica.objects.filter(si_marca=self).count() + Unifica.objects.filter(entonces_marca=self).count() 
-    
-    # @property
-    # def rulesToCount(self) -> int:
-    #     return Unifica.objects.filter(entonces_marca=self).count()
-    
+      
     @property
     def resultsCount(self) -> int:
         return Articulos.objects.filter( marca=self).count()
@@ -678,7 +674,13 @@ class Marcas(models.Model):
         ordering = ("nombre",)
 
     def get_absolute_url(self):
+        # base_url = reverse('precios:home')
+        # query_string =  urlencode({'marca': self.id})
+        # return f"{base_url}?{query_string}"
         return reverse("precios:brands_detail", args=(self.slug,))
+        
+        
+        
 
     def get_update_url(self):
         return reverse("precios:Marcas_update", args=(self.pk,))
@@ -993,6 +995,13 @@ class Unifica(models.Model):
                 name='unique_if_not_deleted')
         ]
 
+class Breadcrumb(models.Model):
+    nombre = models.CharField(max_length=50, blank=True, null=True, default='', db_index=True, unique=True)
+
+class Breadcrumb_list(models.Model):
+    posicion        = models.IntegerField(default=0)
+    breadcrumbs     = models.ForeignKey(Breadcrumb, on_delete=models.CASCADE, default=1)
+
 ### Almacen de resultados
 class SiteURLResults(models.Model):
     """
@@ -1028,6 +1037,7 @@ class SiteURLResults(models.Model):
     image           = models.URLField(max_length=600, blank=True, null=True, default='')
 
     reglas          = models.ManyToManyField(Unifica, related_name="las_reglas", default=None, blank=True)
+    breadcrumbs     = models.ManyToManyField(Breadcrumb_list)
 
         
     @property
@@ -1102,17 +1112,26 @@ class SiteURLResults(models.Model):
 
         ### Busco Marca
         if not self.marca and self.nombre != '' and not self.error404:
+            temp = self.nombre.split()
+            for palabra_busco in temp:
+                for posible_marca in Marcas.objects.filter(nombre=palabra_busco, es_marca=True).values_list('nombre', flat=True).all():
+                # if ( ' ' + posible_marca+' ' in self.nombre ) or ('' + posible_marca+' ' in self.nombre) or (' ' + posible_marca+'' in self.nombre):
+                #     if Marcas.objects.filter(nombre__iexact=posible_marca, es_marca=True).exists():
+                    self.marca = posible_marca
+                    self.nombre = self.nombre.replace(posible_marca, '')
+                    print(f'1- reemplaza aca marca que llega= {self.marca}')
+                    break
+
+        if not self.marca and self.nombre != '' and not self.error404:
             for posible_marca in Marcas.objects.filter(es_marca=True).values_list('nombre', flat=True).all():
-                if ( ' ' + posible_marca+' ' in self.nombre ) or ('' + posible_marca+' ' in self.nombre) or (' ' + posible_marca+'' in self.nombre):
-                    if Marcas.objects.filter(nombre__iexact=posible_marca, es_marca=True).exists():
-                        # self.marca = posible_marca
-                        # self.nombre = self.nombre.replace(posible_marca, '')
-                        print(f'reemplaza aca marca que llega= {self.marca}')
-                        break
+                if ( ' ' + posible_marca +' ' in self.nombre ) :
+                    self.marca = posible_marca
+                    self.nombre = self.nombre.replace(posible_marca, '')
+                    print(f'2- reemplaza aca marca que llega= {self.marca}')
 
         if not Marcas.objects.filter(nombre__iexact=self.marca, es_marca=True).exists() and not self.marca and self.idproducto:
             if self.site.es_ean13 and Articulos.objects.filter(ean_13 = self.idproducto).exclude(marca__es_marca = False).exists():
-                print(f'SiteURLResults: Utiliza la marca de un articulo con mismo ean_13 ean_13={self.idproducto} marca={self.marca}')
+                print(f'3- SiteURLResults: Utiliza la marca de un articulo con mismo ean_13 ean_13={self.idproducto} marca={self.marca}')
                 art = Articulos.objects.filter(ean_13 = self.idproducto).exclude(marca__es_marca = False).values_list('marca__nombre', flat=True).first()
                 self.marca = art
             else:
@@ -1166,6 +1185,7 @@ class PriceHistory(models.Model):
             ("FromResult"),
         ]
         ordering = ("-OldDate",)
+
 
 class Vendedores(models.Model):
     """

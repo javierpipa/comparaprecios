@@ -367,7 +367,7 @@ class Command(BaseCommand):
         cuenta = 0
         nocuenta = 0
         for art in arts:
-            if art.cuanntosvenden == 0:
+            if art.cuanntosvenden() == 0:
                 try:
                     art.delete()
                     cuenta = cuenta + 1

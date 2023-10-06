@@ -648,14 +648,18 @@ def precios(request):
     registrar_consulta(request, clase_consultada="cslta_", elemento_id=1, texto_busqueda=nombre)
 
    
-    if nombre !='' and puede_connsultar:
+    # if nombre !='' and puede_connsultar:
+    if  puede_connsultar:
         momentos, supermercadoscount = getMomentos(request)
         articulos = Articulos.objects.select_related('marca').all()
         
         if Articulos.objects.filter(ean_13__exact=nombre).exists():
             articulos = Articulos.objects.filter(ean_13__exact=nombre)
         else:
-            marca, palabras = busca_marca(nombre)  
+            if nombre !='':
+                marca, palabras = busca_marca(nombre)  
+            else:
+                palabras = ''
 
             # Si encontramos una marca, la utilizamos para filtrar los artículos
             if marca:
@@ -675,17 +679,10 @@ def precios(request):
             for palabra in palabras_buscar:
                 cuenta = cuenta + 1
                 if cuenta == 1:
-                    articulos = articulos.filter(
-                        Q(nombre__istartswith=palabra)
-                    )
+                    articulos = articulos.filter(Q(nombre__istartswith=palabra))
                 else:
-                    articulos = articulos.filter(
-                        Q(nombre__icontains=palabra)
-                    )
+                    articulos = articulos.filter(Q(nombre__icontains=palabra))
             articulos = articulos.distinct()
-
-
-
 
         # MinSuperCompara
         ofertas_count  = 0
