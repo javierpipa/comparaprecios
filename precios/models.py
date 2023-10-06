@@ -997,10 +997,14 @@ class Unifica(models.Model):
 
 class Breadcrumb(models.Model):
     nombre = models.CharField(max_length=50, blank=True, null=True, default='', db_index=True, unique=True)
+    def __str__(self):
+        return "{0}".format( self.nombre)
 
 class Breadcrumb_list(models.Model):
     posicion        = models.IntegerField(default=0)
     breadcrumbs     = models.ForeignKey(Breadcrumb, on_delete=models.CASCADE, default=1)
+    def __str__(self):
+        return "{0}: {1} ".format( self.posicion, self.breadcrumbs)
 
 ### Almacen de resultados
 class SiteURLResults(models.Model):
