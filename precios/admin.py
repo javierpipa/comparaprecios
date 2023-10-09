@@ -318,7 +318,7 @@ class SiteURLResultsAdmin(admin.ModelAdmin):
     readonly_fields = ('created', 'updated','reglas',)
     list_filter = ('site','error404','updated')
     inlines = [PriceHistoryInline]
-    search_fields= ["url"]
+    search_fields= ["url", "idproducto"]
 
 class ResultsAdmin(admin.ModelAdmin):
     list_display = (

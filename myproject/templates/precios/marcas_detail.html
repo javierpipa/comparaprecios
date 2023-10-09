@@ -29,13 +29,9 @@
 </div> -->
 
 <!-- Segunda Línea: Resumen de Resultados y Ofertas -->
-<div class="container my-3">
-    <div class="float-center align-middle">
-        <small>
-            <span id="total-results"> {{ context.resumen.articulos_count }} resultados y {{ context.resumen.ofertas_count }} ofertas.</span>
-        </small>
-    </div>
-</div>
+{% include "precios/segunda_linea.html" with articulos_count=resumen.articulos_count ofertas_count=resumen.ofertas_count%}
+
+
 
 <!-- Tercera Línea: Filtro, Orden y Artículos -->
 <div class="container my-3">
