@@ -40,6 +40,9 @@ from precios.models import (
     EstadisticasBlackList,
     Direccion,
     Horario_atencion,
+    Breadcrumb,
+    Breadcrumb_list
+
 )
 from django.contrib import admin
 # from .models import   SiteURLResults
@@ -315,7 +318,7 @@ class SiteURLResultsAdmin(admin.ModelAdmin):
     readonly_fields = ('created', 'updated','reglas',)
     list_filter = ('site','error404','updated')
     inlines = [PriceHistoryInline]
-    search_fields= ["url"]
+    search_fields= ["url", "idproducto"]
 
 class ResultsAdmin(admin.ModelAdmin):
     list_display = (
@@ -660,5 +663,8 @@ admin.site.register(EstadisticasBlackList, EstadisticasBlackListAdmin)
 
 admin.site.register(Direccion, DireccionAdmin)
 admin.site.register(Horario_atencion)
+
+admin.site.register(Breadcrumb)
+admin.site.register(Breadcrumb_list)
 
 admin.site.register(Hello)

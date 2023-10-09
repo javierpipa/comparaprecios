@@ -1,0 +1,12 @@
+{% load humanize mathfilters %}
+<div class="container my-3">
+    <div class="float-center align-middle">
+        <small>
+            <span id="total-results"> {{ articulos_count|intcomma }} resultados y {{ ofertas_count|intcomma }} ofertas.
+                {% if user.is_active and user.is_staff and ofertas_count > 0%}
+                   (Compresión: {{ofertas_count|div:articulos_count|sub:1|mul:100|floatformat:2}} %)
+                {% endif %}
+            </span>
+        </small>
+    </div>
+</div>

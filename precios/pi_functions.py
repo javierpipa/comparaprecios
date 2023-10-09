@@ -157,7 +157,7 @@ def generate_filters(articulos):
     filtro['supermercados'] = supermercados
 
     # Marcas
-    marcas = articulos.values('marca__nombre','marca_id').annotate(Count('id', distinct=True)).order_by()
+    marcas = articulos.values('marca__nombre','marca_id').exclude(marca__es_marca=False).annotate(Count('id', distinct=True)).order_by()
     filtro['marcas'] = marcas
 
     # Grados
@@ -173,7 +173,7 @@ def generate_filters(articulos):
     filtro['color'] = color
 
     # Medida cantidad
-    medida_cant = articulos.values('medida_cant').annotate(Count('id', distinct=True)).order_by()
+    medida_cant = articulos.values('medida_cant').exclude(medida_cant=0).annotate(Count('id', distinct=True)).order_by()
     filtro['medida_cant'] = medida_cant
 
     # Medida (cantidad y unidad de medida)

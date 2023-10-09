@@ -49,6 +49,7 @@ from precios.pi_functions import (
 )
 from precios.pi_supermercado import (
     product_details_fromsoup,
+    product_details_fromsoup_breadcrumb,
 )
 
 from datetime import datetime, timedelta
@@ -69,7 +70,9 @@ from precios.models import (
     Settings,
     ReemplazaPalabras,
     AllPalabras,
-    TIPOPALABRA
+    TIPOPALABRA,
+    Breadcrumb,
+    Breadcrumb_list,
 )
 
 #### Get URL's
@@ -222,9 +225,22 @@ def url_get(browser,
         # print(f'try w selenium url={url}')
         ld_json_tags = browser.find_elements(By.XPATH,('//script[@type="application/ld+json"]'))
         ld_response = product_details_fromsoup(ld_json_tags, is_selenium=True)
+        ld_response_bread = product_details_fromsoup_breadcrumb(ld_json_tags, is_selenium=True)
     else:
         ld_json_tags = browser.find_all('script', type='application/ld+json')
         ld_response = product_details_fromsoup(ld_json_tags, is_selenium=False)
+        ld_response_bread = product_details_fromsoup_breadcrumb(ld_json_tags, is_selenium=False)
+
+    bread_list_arr = []
+    if ld_response_bread:
+        
+        for item in ld_response_bread:
+            bread, created = Breadcrumb.objects.get_or_create(nombre=item['name'])
+
+            bread_list, created = Breadcrumb_list.objects.get_or_create(posicion=item['position'], breadcrumbs=bread)
+            bread_list_arr.append(bread_list)
+            
+
 
     if ld_response:
         nombre              = ld_response.get("name").lstrip().lower()
@@ -281,6 +297,8 @@ def url_get(browser,
         if precio == "":
             precio = 0
 
+         
+        laurl.breadcrumbs.set(bread_list_arr)
         laurl.precio        = int(precio)
         
         laurl.error404 = False
@@ -340,8 +358,9 @@ def savePalabras(palabra):
 
 
 def reemplaza_palabras(texto):
-    texto_origen=texto
+    
     if texto:
+        
         temp = texto.split()
         for palabra_busco in temp:
             savePalabras(palabra_busco)
@@ -357,8 +376,8 @@ def reemplaza_palabras(texto):
 
         ######## Por cada palabra o frase en ReemplazaPalabras
         pal_o_frases = ReemplazaPalabras.objects.all()
+        
         for pal_o_frase in pal_o_frases:
-            
             if pal_o_frase.palabra in texto:
                 if pal_o_frase.reemplazo:
                     texto = texto.replace(pal_o_frase.palabra, pal_o_frase.reemplazo)
@@ -422,6 +441,89 @@ def extract_and_remove_weight_range_updated(text):
         return weight_range, new_text.strip()
     return '', text
 
+def replace_comma_in_degrees(text):
+    # return re.sub(r'(\d+),(\d+)°', r'\1.\2°', text)
+    # Reemplazar comas en grados por puntos
+    text = re.sub(r'(\d+),(\d+)°', r'\1.\2°', text)
+    # Eliminar 'gl' si está presente al lado derecho de '°'
+    text = re.sub(r'°\s*gl', '°', text)
+    return text
+
+def get_unidades2(nombre, unidades):
+    # Lista de patrones de búsqueda
+
+    busquedas = [
+        r'(\d+)\s*(?:packs?|unidades?|pack)\s*x',
+        r'(\d+\s*unidades)',
+        r'(\d+\s*unidad)',
+        r'(\d+\s*unid)',
+        r'(\d+\s*uds)',
+        r'(\d+)\s*x\s*',
+        r'\s*[^\S\n\t]+x\s*(\d+)'
+    ]
+    # Bucle para buscar y actualizar unidades y nombre
+    for busca in busquedas:
+        if unidades == 1:  # Si ya hemos encontrado unidades, no necesitamos seguir buscando
+            retorna, nombre = pack_search(nombre, busca)
+            if retorna:
+                # Elimina cualquier palabra no numérica (como "unidades", "pack", etc.)
+                retorna = re.sub(r'\D', '', retorna)
+                unidades = int(retorna)
+                return nombre, unidades
+            
+                # break  # Salir del bucle una vez que se encuentre una coincidencia
+    return nombre, 1
+## 4.05 Anotacion de tallas
+def obtener_talla(nombre, TALLAS):
+    talla, nombre           = remueveYGuardaSinSplit(TALLAS, nombre, remover=True, todos=True)
+    if talla == '':
+        busquedas = [
+            ' xxg',
+            ' xg',
+            ' rn',
+            ' xg',
+            ' prematuro'
+        ]
+        for busca in busquedas:
+            if talla == '':  # Si ya hemos encontrado talla, no necesitamos seguir buscando
+                if busca in nombre:
+                    talla = 'talla' + busca
+                    nombre = nombre.replace(busca,'')
+                    break
+    if talla:
+        talla = normaliza_talla(talla)
+
+    return talla, nombre
+
+def obtener_marca(nombre, marca):
+    ## Revisamos si la marca en la URL existe
+    
+    if not Marcas.objects.filter(es_marca=True, nombre=marca).exists():
+
+        # Busca marca con espacios a ambos lados
+        for posible_marca in Marcas.objects.filter(es_marca=True).values_list('nombre', flat=True).all():
+            if ( ' ' + posible_marca +' ' in nombre ) :
+                marca  = posible_marca
+                nombre = nombre.replace(posible_marca, '')
+                
+                return nombre, marca
+            
+        # Busca marca SIN espacios a ambos lados
+        for posible_marca in Marcas.objects.filter(es_marca=True).values_list('nombre', flat=True).all():
+            if (  posible_marca  in nombre ) :
+                marca  = posible_marca
+                nombre = nombre.replace(posible_marca, '')
+                
+                return nombre, marca
+    else:
+        posible_marca = Marcas.objects.filter(es_marca=True, nombre=marca).values_list('nombre', flat=True).get()
+        nombre = nombre.replace(posible_marca, '')
+        return nombre, marca
+
+    if not Marcas.objects.filter(es_marca=True, nombre=marca).exists():
+        print('Marca no existe')
+    return nombre, marca
+
 ## Create Products
 ####################
 def create_prods(
@@ -459,6 +561,11 @@ def create_prods(
         color       = ""
         dimension   = ''
         newmarca    = None
+        nombre      = ''
+        nombre_original = ''
+        descripcion = ''
+        
+
 
         if url.nombre :
             nombre = url.nombre
@@ -472,6 +579,12 @@ def create_prods(
         unidades    = url.unidades
         medida_um   = url.medida_um
         medida_cant = url.medida_cant
+        newmarca_str = url.marca
+        breadcrumbs  = url.breadcrumbs.all()
+                    
+        
+        # for bred in breadcrumbs:
+        #     print(bred)
 
         #######
         nombre = nombre.lower()
@@ -479,7 +592,7 @@ def create_prods(
         debug_nombre('1.- Inicio: '+ nombre, debug)
         #######
         
-        newmarca_str = url.marca
+        
         if Marcas.objects.filter(nombre=newmarca_str).exists():
             newmarca = Marcas.objects.filter(nombre=newmarca_str).get()
             nombre = nombre.replace(newmarca_str, '')
@@ -488,6 +601,7 @@ def create_prods(
             continue
         
         nombre = reemplaza_palabras(nombre)
+        nombre = replace_comma_in_degrees(nombre)
 
 
         # nombre, newmarca, newmarca_str = getMarca(nombre,url ,campoMarcaObj, listamarcas, sin_marca, debug)
@@ -539,10 +653,6 @@ def create_prods(
         # debug_nombre('6.- Quitar Tallas: '+talla, debug)
 
         # 4.2 Unidad de medida
-        # nombre = nombre.rstrip()
-        # nombre = nombre.lstrip()
-        # nombre = nombre.strip()
-        # nombre = nombre.replace('  ', ' ')
         dimension, nombre = extract_and_remove_weight_range_updated(nombre)
 
         if medida_cant == 0:
@@ -564,26 +674,9 @@ def create_prods(
                     break
 
         # 4.2 Unidades
-        # Lista de patrones de búsqueda
-        busquedas = [
-            r'(\d+)\s*(?:packs?|unidades?|pack)\s*x',
-            r'(\d+\s*unidades)',
-            r'(\d+\s*unidad)',
-            r'(\d+\s*unid)',
-            r'(\d+\s*uds)',
-            r'(\d+)\s*x\s*',
-            r'\s*[^\S\n\t]+x\s*(\d+)'
-        ]
-        # Bucle para buscar y actualizar unidades y nombre
-        for busca in busquedas:
-            if unidades == 1:  # Si ya hemos encontrado unidades, no necesitamos seguir buscando
-                retorna, nombre = pack_search(nombre, busca)
-                if retorna:
-                    # Elimina cualquier palabra no numérica (como "unidades", "pack", etc.)
-                    retorna = re.sub(r'\D', '', retorna)
-                    unidades = int(retorna)
-                    break  # Salir del bucle una vez que se encuentre una coincidencia
-
+        
+        
+        nombre, unidades = get_unidades2(nombre, unidades)
 
         if unidades == 1:
             unidades = 1
@@ -623,20 +716,15 @@ def create_prods(
         debug_nombre('11.- agrega sufijos:'+ nombre, debug)
 
 
-        # envase = envase.rstrip()
-        # if len(envase)  > 1:
-        #     if envase[-1] == ',' :
-        #         envase = envase[:-1] 
-        # envase = envase.strip()
         
         nombre = nombre.rstrip()
         if len(nombre)  > 1:
-            if nombre[-1] == ','  or nombre[-1] == '-'  or nombre[-1] == '.' or nombre[-2] == ' y' or nombre[-1] == '+' or nombre[-1] == '–' or nombre[-1] == 'x':
+            if nombre[-1] == ','  or nombre[-1] == '-'  or nombre[-1] == '.' or nombre[-2] == ' y' or nombre[-1] == '+' or nombre[-1] == '–' or nombre[-2] == ' x':
                 nombre = nombre[:-1] 
         
-        #     if nombre.startswith(","):
-        #         nombre = nombre[1:] 
-        #         nombre = nombre.rstrip()
+            if nombre.startswith(":") or nombre.startswith("!") or nombre.startswith("+") or nombre.startswith(" "):
+                nombre = nombre[1:] 
+                nombre = nombre.rstrip()
 
         #     nombre = nombre.rstrip()
         #     if nombre.endswith('- x'):
@@ -691,30 +779,12 @@ def create_prods(
         ## 2do cambio hecho, se hace reemplazo de frases o palabras
         nombre = reemplaza_palabras(nombre)
         ## Nuevamente se buscan tallas:
-        ## 4.05 Anotacion de tallas
-        if talla == '':
-            talla, nombre = remueveYGuardaSinSplit(TALLAS, nombre, remover=True, todos=True)
         
-        if talla == '':
-            busquedas = [
-                ' xxg',
-                ' xg',
-                ' rn',
-                ' xg',
-                ' prematuro'
-            ]
-            for busca in busquedas:
-                if talla == '':  # Si ya hemos encontrado talla, no necesitamos seguir buscando
-                    if busca in nombre:
-                        talla = 'talla' + busca
-                        nombre = nombre.replace(busca,'')
-                        break
 
         if medida_cant == 0:
             nombre, medida_cant, medida_um, dimension = get_unidadMedida(nombre, UMEDIDAS)
 
-        if talla:
-            talla = normaliza_talla(talla)
+        talla, nombre = obtener_talla(nombre, TALLAS)
 
         if grados == '':
             nombre,  grados = obtener_grados(nombre)
@@ -760,7 +830,7 @@ def create_prods(
                 ).first()
         except ObjectDoesNotExist:
             
-            miarticulo  = create_article(newmarca, nombre, medida_cant, medida_um, nombre_original, unidades, dimension, color, envase, grados, ean_13, tipo, talla)
+            miarticulo  = create_article(newmarca, nombre, medida_cant, medida_um, nombre_original, unidades, dimension, color, envase, grados, ean_13, tipo, talla, breadcrumbs)
             articulos_creados = articulos_creados + 1
             
 
@@ -772,6 +842,10 @@ def create_prods(
         
         if ean_13:
             miarticulo.ean_13 = ean_13
+            miarticulo.save()
+
+        if breadcrumbs:
+            miarticulo.breadcrumbs.set(breadcrumbs)
             miarticulo.save()
 
 
@@ -794,7 +868,7 @@ def create_prods(
 
     # return registros, articulos_creados, articulos_existentes
 
-def create_article(newmarca, nombre, medida_cant, medida_um, nombre_original, unidades, dimension, color, envase, grados, ean_13, tipo, talla):
+def create_article(newmarca, nombre, medida_cant, medida_um, nombre_original, unidades, dimension, color, envase, grados, ean_13, tipo, talla, breadcrumbs):
     new_article = Articulos.objects.create(
             marca=newmarca,
             nombre=nombre,
@@ -809,7 +883,9 @@ def create_article(newmarca, nombre, medida_cant, medida_um, nombre_original, un
             ean_13=ean_13,
             tipo=tipo,
             talla=talla
+            
         )
+    new_article.breadcrumbs.set(breadcrumbs)
     return new_article
 
 def get_dics():

@@ -8,7 +8,7 @@
             {% if  filtro.supermercados|length > 0 %}
             <div class="accordion-item">
                 <h2 class="accordion-header" id="headingTwo">
-                    <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#supermercadosfilter">Supermercados</button>
+                    <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#supermercadosfilter">Supermercados ({{filtro.supermercados|length}})</button>
                 </h2>
                 <div id="supermercadosfilter" class="accordion-collapse collapse">
                     <div class="card-body" style="max-height:250px; overflow-y: scroll;">
@@ -34,7 +34,7 @@
             {% endif %}
             <div class="accordion-item">
                 <h2 class="accordion-header" id="headingOne">
-                    <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#Marcasfilter">Marcas</button>									
+                    <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#Marcasfilter">Marcas ({{filtro.marcas|length}})</button>									
                 </h2>
                 <div id="Marcasfilter" class="accordion-collapse collapse">
                     <div class="card-body" style="max-height:250px; overflow-y: scroll;">
@@ -60,7 +60,7 @@
             {% if  filtro.grados|length > 0 %}
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="headingTwo">
-                        <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#gradosfilter">Grados</button>
+                        <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#gradosfilter">Grados ({{filtro.grados|length}})</button>
                     </h2>
                     <div id="gradosfilter" class="accordion-collapse collapse">
                         <div class="card-body" style="max-height:250px; overflow-y: scroll;">
@@ -89,7 +89,7 @@
             {% if  filtro.unidades|length > 0 %}
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="headingThree">
-                        <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#unidadesfilter">Unidades</button>                     
+                        <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#unidadesfilter">Unidades ({{filtro.unidades|length}})</button>                     
                     </h2>
                     <div id="unidadesfilter" class="accordion-collapse collapse">
                         <div class="card-body"  style="max-height:250px; overflow-y: scroll;">
@@ -117,7 +117,7 @@
             {% if  filtro.envase|length > 0 %}
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="headingThree">
-                        <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#envasefilter">Envase</button>                     
+                        <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#envasefilter">Envase ({{filtro.envase|length}})</button>                     
                     </h2>
                     <div id="envasefilter" class="accordion-collapse collapse">
                         <div class="card-body"  style="max-height:250px; overflow-y: scroll;">
@@ -145,7 +145,7 @@
             {% if  filtro.color|length > 0 %}
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="headingFour">
-                        <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#colorfilter">Color</button>                     
+                        <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#colorfilter">Color ({{filtro.color|length}})</button>                     
                     </h2>
                     <div id="colorfilter" class="accordion-collapse collapse">
                         <div class="card-body"  style="max-height:250px; overflow-y: scroll;">
@@ -172,7 +172,7 @@
             {% if  filtro.medida|length > 0 %}
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="headingFive">
-                        <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#medida_cantfilter">Medida</button>                     
+                        <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#medida_cantfilter">Medida ({{filtro.medida|length}})</button>                     
                     </h2>
                     <div id="medida_cantfilter" class="accordion-collapse collapse">
                         <div class="card-body"  style="max-height:250px; overflow-y: scroll;">
@@ -202,10 +202,10 @@
                     </div>
                 </div>
             {% endif %}
-            {% if  filtro.talla|length > 0 %}
+            {% if filtro.talla|length > 0 %}
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="headingFour">
-                        <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#tallafilter">Talla</button>                     
+                        <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#tallafilter">Talla ({{filtro.talla|length}})</button>                     
                     </h2>
                     <div id="tallafilter" class="accordion-collapse collapse">
                         <div class="card-body"  style="max-height:250px; overflow-y: scroll;">

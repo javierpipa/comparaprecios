@@ -145,6 +145,37 @@ def find_product_details_in_ld_json_beautiful(url):
         return {'message': f'by try, Error al acceder a la página e={str(e)}'}
 
 
+def product_details_fromsoup_breadcrumb(ld_json_tags, is_selenium=False):
+    for tag in ld_json_tags:
+        try:
+            if is_selenium:
+                ld_json_text = tag.get_attribute('textContent')
+                if ld_json_text:
+                    ld_json = json.loads(ld_json_text)
+            else:
+                if isinstance(tag, str):
+                    ld_json = json.loads(tag)
+                else:
+                    ld_json = json.loads(tag.string)
+                
+
+            if isinstance(ld_json, dict) and ld_json.get('@type') == 'BreadcrumbList':
+                return extract_list_details(ld_json)
+            elif isinstance(ld_json, dict) and '@graph' in ld_json:
+                for item in ld_json['@graph']:
+                    if isinstance(item, dict) and item.get('@type') == 'BreadcrumbList':
+                        return extract_list_details(item)
+            # else:
+            #     print("No encontrado")
+        except json.JSONDecodeError:
+            # pass
+            print(f'Error en product_details_fromsoup JSONDecodeError --->  {ld_json_tags}')
+        except Exception as e:
+            print(f'Error en product_details_fromsoup ---> {str(e)} {ld_json_tags}')
+    
+    print('llega aca')
+    return None
+
 def product_details_fromsoup(ld_json_tags, is_selenium=False):
     for tag in ld_json_tags:
         try:
@@ -165,8 +196,8 @@ def product_details_fromsoup(ld_json_tags, is_selenium=False):
                 for item in ld_json['@graph']:
                     if isinstance(item, dict) and item.get('@type') == 'Product':
                         return extract_product_details(item)
-            else:
-                print("No encontrado")
+            # else:
+            #     print("No encontrado")
         except json.JSONDecodeError:
             # pass
             print(f'Error en product_details_fromsoup JSONDecodeError --->  {ld_json_tags}')
@@ -175,6 +206,22 @@ def product_details_fromsoup(ld_json_tags, is_selenium=False):
     
     print('llega aca')
     return None
+
+def extract_list_details(ld_json):
+    item_list = ld_json['itemListElement']
+
+    # Crear una lista para almacenar los elementos relevantes
+    extracted_data = []
+
+    # Recorrer la lista y extraer la información relevante
+    for item in item_list:
+        position = item['position']
+        name = item['name']
+        item_url = item['item']
+        extracted_data.append({'position': position, 'name': name, 'item': item_url})
+
+    return extracted_data
+
 
 
 def extract_product_details(ld_json):
