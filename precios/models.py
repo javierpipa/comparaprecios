@@ -1,6 +1,6 @@
 from email import parser
 
-from pydoc import pager
+
 from django.db import models
 from django.utils import timezone
 from django.urls import reverse
@@ -13,6 +13,9 @@ from django_extensions.db.fields import AutoSlugField
 from django.utils.translation import gettext_lazy as _
 from django.db.models import CharField, Value, Q
 from django.db.models.functions import Concat
+
+from django.core.validators import MinLengthValidator
+
 from typing import List, Optional
 from django.utils.html import format_html
 
@@ -639,12 +642,13 @@ class MarcasSistema(models.Model):
         return super(MarcasSistema, self).save(*args, **kwargs)
 
 
-from urllib.parse import urlencode
+
 class Marcas(models.Model):
-    nombre              = models.CharField(max_length=250, unique=True, blank=False, null=False)
+    nombre              = models.CharField(max_length=250, validators=[MinLengthValidator(2)], unique=True, blank=False, null=False)
     slug                = AutoSlugField(populate_from='nombre', editable=True, unique=True, db_index=True, slugify_function=my_slugify_function)
     unificado           = models.BooleanField(default=False)
     es_marca            = models.BooleanField(default=True)
+    created             = models.DateTimeField(editable=False,default=timezone.now)
 
     @property
     def rulesCount(self) -> int:

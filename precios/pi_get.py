@@ -31,10 +31,17 @@ from django.db.models import Count, Q
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.db import IntegrityError
 import re
+import html
 import unidecode
 
 import requests
 from bs4 import BeautifulSoup
+import nltk
+nltk.download('stopwords')
+nltk.download('wordnet')
+from nltk import word_tokenize, sent_tokenize
+from nltk.corpus import stopwords
+from nltk.stem import LancasterStemmer, WordNetLemmatizer
 
 
 from precios.pi_functions import (
@@ -73,6 +80,7 @@ from precios.models import (
     TIPOPALABRA,
     Breadcrumb,
     Breadcrumb_list,
+    Unifica,
 )
 
 #### Get URL's
@@ -498,14 +506,13 @@ def obtener_talla(nombre, TALLAS):
 def obtener_marca(nombre, marca):
     ## Revisamos si la marca en la URL existe
     
+    # Si la marca no existe, busco en todas las marcas habilitadas si estuviera en el nombre
     if not Marcas.objects.filter(es_marca=True, nombre=marca).exists():
-
         # Busca marca con espacios a ambos lados
         for posible_marca in Marcas.objects.filter(es_marca=True).values_list('nombre', flat=True).all():
             if ( ' ' + posible_marca +' ' in nombre ) :
                 marca  = posible_marca
                 nombre = nombre.replace(posible_marca, '')
-                
                 return nombre, marca
             
         # Busca marca SIN espacios a ambos lados
@@ -513,16 +520,90 @@ def obtener_marca(nombre, marca):
             if (  posible_marca  in nombre ) :
                 marca  = posible_marca
                 nombre = nombre.replace(posible_marca, '')
-                
                 return nombre, marca
-    else:
+    
+    else:  # Si la marca SI existe, 
         posible_marca = Marcas.objects.filter(es_marca=True, nombre=marca).values_list('nombre', flat=True).get()
         nombre = nombre.replace(posible_marca, '')
         return nombre, marca
 
+    ## Quizas la marca esta des-habilitada
     if not Marcas.objects.filter(es_marca=True, nombre=marca).exists():
-        print('Marca no existe')
+        if Marcas.objects.filter(es_marca=False, nombre=marca).exists():
+            marca_obj = Marcas.objects.filter(es_marca=False, nombre=marca).get()
+            
+            if Unifica.objects.filter(si_marca=marca_obj, si_nombre=None, si_grados2=float(0), si_medida_cant=float(0), si_unidades=1,  automatico=False ).exists():
+                unifica_obj = Unifica.objects.filter(si_marca=marca_obj, si_nombre=None, si_grados2=float(0), si_medida_cant=float(0), si_unidades=1, automatico=False).first()
+                if unifica_obj:
+                    marca = unifica_obj.entonces_marca.nombre
+            else:
+                print(f'Marca deshabilitada Y no tiene redireccion =|{marca}| Habilito la Marca')
+                marca_obj.es_marca = True
+                marca_obj.save()
+                marca = marca_obj.nombre
+        else:
+            if marca !='' and len(marca) >= 2:
+                print(f'Marca no existe =|{marca}| creando Marca')
+                marca_obj = Marcas(
+                    nombre=marca,
+                    es_marca=True
+                )
+                marca_obj.save()
+                marca = marca
+            else:
+                marca = None
+
     return nombre, marca
+
+def separate_numbers_from_text(words):
+    """
+    Separate numbers from adjacent text in a given string.
+    Parameters:
+        text (str): The input string.
+    Returns:
+        str: The modified string with numbers separated from adjacent text.
+    """
+    return re.sub(r'(\d+)([a-zA-Z]+)', r'\1 \2', words)
+
+def to_lowercase(words):
+    """Convert all characters to lowercase from list of tokenized words"""
+    new_words = []
+    for word in words:
+        new_word = word.lower()
+        new_words.append(new_word)
+    return new_words
+
+def remove_some_chars(words):
+    chars_to_remove= '-'
+    new_words = []
+    for word in words:
+        word = word.replace(chars_to_remove,' ')
+        new_words.append(word)
+
+    return new_words
+
+def remove_stopwords(words):
+    """Remove stop words from list of tokenized words"""
+    new_words = []
+    for word in words:
+        if word not in stopwords.words('spanish'):
+            new_words.append(word)
+    return new_words
+
+def normalize(words):
+    words = to_lowercase(words)
+    words = remove_some_chars(words)
+    # words = remove_non_ascii(words)
+    
+    # words = remove_punctuation(words)
+    
+    # words = replace_numbers(words)
+    words = remove_stopwords(words)
+    return words
+
+def get_marcas_que_me_apuntan(marca_default):
+    otras_marcas_lst = Unifica.objects.filter(entonces_marca=marca_default, automatico=False).values_list('si_marca__nombre', flat=True).distinct()
+    return otras_marcas_lst
 
 ## Create Products
 ####################
@@ -564,8 +645,6 @@ def create_prods(
         nombre      = ''
         nombre_original = ''
         descripcion = ''
-        
-
 
         if url.nombre :
             nombre = url.nombre
@@ -582,30 +661,39 @@ def create_prods(
         newmarca_str = url.marca
         breadcrumbs  = url.breadcrumbs.all()
                     
-        
-        # for bred in breadcrumbs:
-        #     print(bred)
 
         #######
+        nombre = html.unescape(nombre)
         nombre = nombre.lower()
         tipo   = url.tipo 
         debug_nombre('1.- Inicio: '+ nombre, debug)
         #######
-        
+
+        nombre                  = reemplaza_palabras(nombre)
+        nombre, newmarca_str    = obtener_marca(nombre, newmarca_str)
+        nombre                  = separate_numbers_from_text(nombre)
         
         if Marcas.objects.filter(nombre=newmarca_str).exists():
             newmarca = Marcas.objects.filter(nombre=newmarca_str).get()
-            nombre = nombre.replace(newmarca_str, '')
+            # or not newmarca_str:
         else:
             articulos_marca_vacio = articulos_marca_vacio + 1
             continue
-        
-        nombre = reemplaza_palabras(nombre)
+
+        otras = get_marcas_que_me_apuntan(newmarca)
+
         nombre = replace_comma_in_degrees(nombre)
 
+        ###----------------------------
+        words = nltk.word_tokenize(nombre)
+        # print('3->', words)
+        words = normalize(words)
+        # print('4->', words)
+        nombre = ' '.join(words)
+        ###----------------------------
 
-        # nombre, newmarca, newmarca_str = getMarca(nombre,url ,campoMarcaObj, listamarcas, sin_marca, debug)
-        # debug_nombre('10.- Quirta Marca: '+newmarca_str, debug)
+        otras_inutiles, nombre = remueveYGuardaSinSplit(otras, nombre, remover=True, todos=True)
+        # print(f'otras_inutiles={otras_inutiles}')
         
         # ## 1.4 Remueve colores
         # color, nombre = remueveYGuarda(COLORES, nombre, " ", remover=True, todos=True)
@@ -770,8 +858,11 @@ def create_prods(
         if site.pk in ean_13_site_ids:
             ean_13 = url.idproducto
             if url.idproducto:
+                 
                 ean_13 = ean_13.rstrip()
                 ean_13 = ean_13.lstrip()
+                ean_13_int = int(ean_13)
+                ean_13 = str(ean_13_int)
             
         else:
             ean_13 = None

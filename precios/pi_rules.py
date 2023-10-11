@@ -511,14 +511,19 @@ def intenta_marca(marca_obj, debug, nombre=None):
 
 
     # fuz_levels = (90,89,88, )
-    fuz_levels = (49, )
+    fuz_levels = (88,70,60,50,40 )
     for fuzl in fuz_levels:
         ## Envase
-        c = check_pd(c, check_nombre=False, check_ean=False, check_grados=False, check_medida_cant=False, check_envase=True, check_unidades=False, check_talla=False,fuz_level=fuzl, debug=debug)
+        c = check_pd(c, check_nombre=False, check_ean=False, check_grados=False, check_medida_cant=False, check_envase=True, check_unidades=False, check_talla=False, fuz_level=fuzl, debug=debug)
         ## Grados
         c = check_pd(c, check_nombre=False, check_ean=False, check_grados=True, check_medida_cant=False, check_envase=False, check_unidades=False, check_talla=False, fuz_level=fuzl, debug=debug)
+        ## Medida_cant
+        c = check_pd(c, check_nombre=False, check_ean=False, check_grados=False, check_medida_cant=True, check_envase=False, check_unidades=False, check_talla=False, fuz_level=fuzl, debug=debug)
+        ## Talla
+        c = check_pd(c, check_nombre=False, check_ean=False, check_grados=False, check_medida_cant=False, check_envase=False, check_unidades=False, check_talla=True, fuz_level=fuzl, debug=debug)
+        
 
-    fuz_levels = (88, )
+    fuz_levels = (95,90,85 )
     for fuzl in fuz_levels:
         if debug:
             print("Check- envase")
@@ -533,18 +538,18 @@ def intenta_marca(marca_obj, debug, nombre=None):
                      fuz_level=fuzl, 
                      debug=debug)
         
-        # if debug:
-        #     print("Check- EAN")
-        # c = check_pd(c, 
-        #              check_nombre=False, 
-        #              check_ean=True,            ## Cierto
-        #              check_grados=False, 
-        #              check_medida_cant=False, 
-        #              check_envase=False, 
-        #              check_unidades=False,
-        #              check_talla=False,
-        #              fuz_level=fuzl, 
-        #              debug=debug)
+        if debug:
+            print("Check- EAN")
+        c = check_pd(c, 
+                     check_nombre=False, 
+                     check_ean=True,            ## Cierto
+                     check_grados=False, 
+                     check_medida_cant=False, 
+                     check_envase=False, 
+                     check_unidades=False,
+                     check_talla=False,
+                     fuz_level=fuzl, 
+                     debug=debug)
 
         if debug:
             print("Check- Grados")
@@ -558,8 +563,6 @@ def intenta_marca(marca_obj, debug, nombre=None):
                      check_talla=False,
                      fuz_level=fuzl, 
                      debug=debug)
-
-        
 
         if debug:
             print("Check- medida_cant")
