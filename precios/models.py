@@ -25,6 +25,8 @@ from django.contrib import admin
 import unidecode
 from meta.models import ModelMeta
 from datetime import datetime
+from taggit.managers import TaggableManager
+from taggit.models import TaggedItemBase
 
 
 class Hello(CMSPlugin):
@@ -701,7 +703,14 @@ class Breadcrumb_list(models.Model):
     breadcrumbs     = models.ForeignKey(Breadcrumb, on_delete=models.CASCADE, default=1)
     def __str__(self):
         return "{0}: {1} ".format( self.posicion, self.breadcrumbs)
-    
+
+class TaggedArticles(TaggedItemBase):
+    content_object = models.ForeignKey('Articulos', on_delete=models.CASCADE)
+
+class TaggedUrls(TaggedItemBase):
+    content_object = models.ForeignKey('SiteURLResults', on_delete=models.CASCADE)
+
+
 class Articulos(ModelMeta, models.Model):
     """
     Articulos
@@ -731,6 +740,9 @@ class Articulos(ModelMeta, models.Model):
     created             = models.DateTimeField("date created", editable=False,default=timezone.now)
     updated             = models.DateTimeField("last updated", auto_now=True,auto_now_add=False)
     breadcrumbs         = models.ManyToManyField(Breadcrumb_list, related_name="los_bread", blank=True)
+    tags                = TaggableManager(through=TaggedArticles)
+    
+
     
     _metadata = {
         'title': 'nombre',
@@ -1051,6 +1063,7 @@ class SiteURLResults(models.Model):
 
     reglas          = models.ManyToManyField(Unifica, related_name="las_reglas", default=None, blank=True)
     breadcrumbs     = models.ManyToManyField(Breadcrumb_list, blank=True)
+    tags            = TaggableManager(through=TaggedUrls)
 
         
     @property

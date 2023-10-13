@@ -620,6 +620,7 @@ def precios(request):
             rsupermercados  = request.POST.getlist('supermercados')
             orden           = request.POST.get('order', 'precio_por_unidad')
             page_number     = request.POST.get('page_number',1)
+            rtags           = request.POST.get('tags')
         # page_number = 1
     else:
         page_number = request.GET.get("page", 1)
@@ -635,9 +636,11 @@ def precios(request):
             runidades       = request.GET.getlist('unidades')
             rsupermercados  = request.GET.getlist('supermercados')
             orden           = request.GET.get("order", 'precio_por_unidad')
+            rtags           = request.GET.get('tags')
         else:
             orden           =  'precio_por_unidad'
             nombre          = ''
+            rtags           = None
 
     if type(orden) == 'list':
         if len(orden) == 0:
@@ -648,50 +651,55 @@ def precios(request):
     registrar_consulta(request, clase_consultada="cslta_", elemento_id=1, texto_busqueda=nombre)
 
    
-    # if nombre !='' and puede_connsultar:
+    
     if  puede_connsultar:
         momentos, supermercadoscount = getMomentos(request)
         articulos = Articulos.objects.select_related('marca').all()
         
-        if Articulos.objects.filter(ean_13__exact=nombre).exists():
-            articulos = Articulos.objects.filter(ean_13__exact=nombre)
-        else:
-            if nombre !='':
-                marca, palabras = busca_marca(nombre)  
+        if nombre !='':
+            if Articulos.objects.filter(ean_13__exact=nombre).exists():
+                articulos = Articulos.objects.filter(ean_13__exact=nombre)
             else:
-                palabras = ''
-
-            # Si encontramos una marca, la utilizamos para filtrar los artículos
-            if marca:
-                articulos = Articulos.objects.filter(marca=marca)
-                palabras_buscar = []
-                for palabra in palabras:
-                    if palabra not in marca.nombre.lower():
-                        palabras_buscar.append(palabra)
-
-            # Si no encontramos una marca, buscamos en todos los artículos
-            else:
-                articulos = Articulos.objects.all()
-                palabras_buscar = nombre.split()
                 
-            # Buscamos en campo nombre del artículo utilizando las palabras restantes
-            cuenta = 0 
-            for palabra in palabras_buscar:
-                cuenta = cuenta + 1
-                if cuenta == 1:
-                    articulos = articulos.filter(Q(nombre__istartswith=palabra))
+                marca, palabras = busca_marca(nombre)  
+                # else:
+                #     palabras = ''
+
+                # Si encontramos una marca, la utilizamos para filtrar los artículos
+                if marca:
+                    articulos = Articulos.objects.filter(marca=marca)
+                    palabras_buscar = []
+                    for palabra in palabras:
+                        if palabra not in marca.nombre.lower():
+                            palabras_buscar.append(palabra)
+
+                # Si no encontramos una marca, buscamos en todos los artículos
                 else:
-                    articulos = articulos.filter(Q(nombre__icontains=palabra))
-            articulos = articulos.distinct()
+                    articulos = Articulos.objects.all()
+                    palabras_buscar = nombre.split()
+                    
+                # Buscamos en campo nombre del artículo utilizando las palabras restantes
+                cuenta = 0 
+                for palabra in palabras_buscar:
+                    cuenta = cuenta + 1
+                    if cuenta == 1:
+                        articulos = articulos.filter(Q(nombre__istartswith=palabra))
+                    else:
+                        articulos = articulos.filter(Q(nombre__icontains=palabra))
+                articulos = articulos.distinct()
 
         # MinSuperCompara
         ofertas_count  = 0
-        print('rsupermercados=',rsupermercados)
+        # print('rsupermercados=',rsupermercados)
         if not rsupermercados:
             articulos = articulos.annotate(num_vendedores=Count('vendedores__vendidoen', filter=Q(vendedores__vendidoen__site__in=momentos, vendedores__vendidoen__precio__gt=0), distinct=True))
         else:
             articulos = articulos.annotate(num_vendedores=Count('vendedores__vendidoen', filter=Q(vendedores__vendidoen__site__in=rsupermercados, vendedores__vendidoen__precio__gt=0), distinct=True))
 
+
+        if rtags:
+            articulos = articulos.filter(tags__name=rtags)
+            # print(rtags, articulos, articulos.query)
 
         if rmarca:
             articulos = articulos.filter(marca__in=rmarca)

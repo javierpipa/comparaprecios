@@ -68,8 +68,9 @@ def build_query_string(row):
         condition_dict['lo__medida_cant'] = row['lo__medida_cant']
     if row['lo__envase'].strip() != "":
         condition_dict['lo__envase'] = f"'{row['lo__envase'].strip()}'"
-    if row['lo__talla'].strip() != "":
-        condition_dict['lo__talla'] = f"'{row['lo__talla'].strip()}'"
+    if row['lo__talla']:
+        if row['lo__talla'].strip() != "":
+            condition_dict['lo__talla'] = f"'{row['lo__talla'].strip()}'"
 
     query_str = ' & '.join([f"({key} == {value})" for key, value in condition_dict.items()])
     query_str += f" & (articulo__pk != {row['articulo__pk']})"

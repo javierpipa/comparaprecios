@@ -307,8 +307,13 @@ def url_get(browser,
 
          
         laurl.breadcrumbs.set(bread_list_arr)
-        laurl.precio        = int(precio)
         
+        ### Tags
+        laurl.tags.remove()
+        for item in ld_response_bread:
+            laurl.tags.add(str(item['name']))
+
+        laurl.precio        = int(precio)
         laurl.error404 = False
     
         
@@ -950,7 +955,15 @@ def create_prods(
 
         if breadcrumbs and site.obtiene_categorias:
             miarticulo.breadcrumbs.set(breadcrumbs)
+            
             miarticulo.save()
+
+            miarticulo.tags.remove()
+            for bread in breadcrumbs:
+                print(bread.posicion, len(breadcrumbs))
+                miarticulo.tags.add(str(bread.breadcrumbs))
+
+                
 
 
         ### Update ULR con reglas

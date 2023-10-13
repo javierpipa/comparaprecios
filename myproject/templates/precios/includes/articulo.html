@@ -21,9 +21,14 @@
         <!-- <a href='{% url "precios:detalle" row.slug %}' class="card-img-top">
             <img src="{{row.image1}}" class="imageover card-img-top" alt="{{ row.vendidoen.site }}">
         </a> -->
-        {% for tag in row.breadcrumbs.all %}                                 
-            {{ tag.breadcrumbs }} 
+        <!-- {% for tag in row.breadcrumbs.all %}                                 
+             {{ tag.breadcrumbs }}  
+        {% endfor %} -->
+
+        {% for tag in row.tags.all %}                                 
+            {{ tag.slug }} - 
         {% endfor %}
+
         <a href='{% url "precios:detalle" row.slug %}' class="card-img-top d-flex justify-content-center p-3">
             <img src="{{row.image1}}" class="imageover card-img-top" alt="{{ row.vendidoen.site }}" style="max-width: 80%;">
         </a>

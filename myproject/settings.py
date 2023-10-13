@@ -123,6 +123,8 @@ INSTALLED_APPS = [
 # JSON_LD_INDENT                  = None
 # JSON_LD_GENERATE_URL            = True
 
+## Taggit
+TAGGIT_CASE_INSENSITIVE = True
 
 # Google OAUTH
 AUTHENTICATION_BACKENDS = [
