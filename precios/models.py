@@ -197,7 +197,9 @@ class Site(ModelMeta,models.Model):
     product_category    = models.CharField(max_length=250, blank=True, null=True, help_text="Parte de URL que identifica categoria")
     product_product     = models.CharField(max_length=250, blank=True, null=True, help_text="Parte de URL que identifica un producto")
     product_palabras_evitar = models.CharField(max_length=250, blank=True, null=True, help_text="Parte de URL para no escanear como map= _q= separar por coma")
-    use_his_image       = models.BooleanField(default=True)
+    use_his_image       = models.BooleanField(default=True, help_text="Muestra imagen de la URL del sitio, si no, el articulo usa imagen de otro sitio")
+    precios_con_iva     = models.BooleanField(default=True, help_text="Hay pocos sitios que entregan sus precios SIN IVA, default = True")
+    obtiene_categorias  = models.BooleanField(default=False, help_text="Las categorias de los articulos de estos sitios. En principio usar jumbo solamente.")
 
     ### Area despacho
     desp_monto_minimo  = models.IntegerField(default=0, help_text="El mínimo para realizar una compra con despacho a domicilio es de")
@@ -690,7 +692,7 @@ class Marcas(models.Model):
         return reverse("precios:Marcas_update", args=(self.pk,))
 
 class Breadcrumb(models.Model):
-    nombre = models.CharField(max_length=50, blank=True, null=True, default='', db_index=True, unique=True)
+    nombre = models.CharField(max_length=100, blank=True, null=True, default='', db_index=True, unique=True)
     def __str__(self):
         return "{0}".format( self.nombre)
 

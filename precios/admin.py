@@ -163,6 +163,9 @@ class SiteAdmin(admin.ModelAdmin):
                 "fields": [
                     "account",
                     ("enable",
+                     "productSearchEnabled",
+                     "precios_con_iva",
+                     "obtiene_categorias",
                     "use_his_image",),
                     (
                         "corporacion",
@@ -196,7 +199,7 @@ class SiteAdmin(admin.ModelAdmin):
                     "product_url",
                     (
                     "siteSearchEnabled",
-                    "productSearchEnabled",
+                    
                     "listNeedsPgDn",
                     ),
                     "url_suffix",
@@ -385,14 +388,14 @@ class MarcasAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "nombre",
+        "es_marca",
+        "resultsCount",
         "slug",
         "created",
         "rulesCount",
-        "resultsCount",
-        "es_marca"
     )
     search_fields= ["nombre"]
-    list_filter = ('unificado','es_marca')
+    list_filter = ('es_marca',)
     inlines = [ArticulosxmarcaInline,]
 
 

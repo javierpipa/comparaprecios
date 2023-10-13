@@ -537,16 +537,16 @@ def obtener_marca(nombre, marca):
                 if unifica_obj:
                     marca = unifica_obj.entonces_marca.nombre
             else:
-                print(f'Marca deshabilitada Y no tiene redireccion =|{marca}| Habilito la Marca')
-                marca_obj.es_marca = True
-                marca_obj.save()
+                # print(f'Marca deshabilitada Y no tiene redireccion =|{marca}| Habilito la Marca')
+                # marca_obj.es_marca = True
+                # marca_obj.save()
                 marca = marca_obj.nombre
         else:
             if marca !='' and len(marca) >= 2:
                 print(f'Marca no existe =|{marca}| creando Marca')
                 marca_obj = Marcas(
                     nombre=marca,
-                    es_marca=True
+                    es_marca=False
                 )
                 marca_obj.save()
                 marca = marca
@@ -861,8 +861,21 @@ def create_prods(
                  
                 ean_13 = ean_13.rstrip()
                 ean_13 = ean_13.lstrip()
-                ean_13_int = int(ean_13)
-                ean_13 = str(ean_13_int)
+                ean_13 = ean_13.replace('[','')
+                if '-' in ean_13:
+                    ean_arr = ean_13.split('-')
+                    ean_13 = ean_arr[0]
+                if 'x' in ean_13:
+                    ean_arr = ean_13.split('x')
+                    ean_13 = ean_arr[0]
+                    if unidades == 1:
+                        unidades = int(ean_arr[1])
+                try:
+                    ean_13_int = int(ean_13)
+                    ean_13 = str(ean_13_int)
+                except ValueError as e:
+                    print('Problemas con ean_13 ', ean_13)
+                    ean_13 = None
             
         else:
             ean_13 = None
@@ -935,7 +948,7 @@ def create_prods(
             miarticulo.ean_13 = ean_13
             miarticulo.save()
 
-        if breadcrumbs:
+        if breadcrumbs and site.obtiene_categorias:
             miarticulo.breadcrumbs.set(breadcrumbs)
             miarticulo.save()
 
