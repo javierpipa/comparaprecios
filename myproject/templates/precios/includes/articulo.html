@@ -2,9 +2,13 @@
 
         <div class="card-header">
             <div class="float-start">
-                <a class="card-link  text-muted" href="{% url 'precios:brands_detail' row.marca.slug %}" >
+                <!-- <a class="card-link  text-muted" href="{% url 'precios:brands_detail' row.marca.slug %}" >
                     {{ row.marca|title }}
-                </a>
+                </a> -->
+                <a class="card-link  text-muted" href="{{ row.marca.get_absolute_url }}" >
+                    {{ row.marca|title }}
+                 </a>
+                
             </div>
             {% if user.is_active and user.is_staff %}
                 <div class="float-end">
@@ -18,15 +22,13 @@
                  endif 
             </div> -->
         </div>
-        <!-- <a href='{% url "precios:detalle" row.slug %}' class="card-img-top">
-            <img src="{{row.image1}}" class="imageover card-img-top" alt="{{ row.vendidoen.site }}">
-        </a> -->
-        <!-- {% for tag in row.breadcrumbs.all %}                                 
-             {{ tag.breadcrumbs }}  
-        {% endfor %} -->
 
-        {% for tag in row.tags.all %}                                 
-            {{ tag.slug }} - 
+
+
+        {% for tag in row.tags.all %}
+            <a class="card-link  text-muted" href="{% url 'precios:home'%}?tags={{ tag.slug }}" >
+            {{ tag }}  <br/>
+            </a>
         {% endfor %}
 
         <a href='{% url "precios:detalle" row.slug %}' class="card-img-top d-flex justify-content-center p-3">

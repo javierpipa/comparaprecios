@@ -40,9 +40,6 @@ from precios.models import (
     EstadisticasBlackList,
     Direccion,
     Horario_atencion,
-    Breadcrumb,
-    Breadcrumb_list
-
 )
 from django.contrib import admin
 # from .models import   SiteURLResults
@@ -130,15 +127,9 @@ class Horario_atencionInline(admin.TabularInline):
     extra = 0
     can_delete = True
 
-# class Breadcrumb_listInline(admin.TabularInline):
-#     model = Articulos
-#     extra = 0
-#     can_delete = True
-
 # #### FIN INLINE
 
-# class Breadcrumb_listAdmin(admin.ModelAdmin):
-#     inlines = [Breadcrumb_listInline,]
+
 
 class SiteAdmin(admin.ModelAdmin):
     list_display = (
@@ -675,8 +666,5 @@ admin.site.register(EstadisticasBlackList, EstadisticasBlackListAdmin)
 
 admin.site.register(Direccion, DireccionAdmin)
 admin.site.register(Horario_atencion)
-
-admin.site.register(Breadcrumb)
-admin.site.register(Breadcrumb_list, )
 
 admin.site.register(Hello)

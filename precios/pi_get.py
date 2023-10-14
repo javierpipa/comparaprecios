@@ -78,8 +78,6 @@ from precios.models import (
     ReemplazaPalabras,
     AllPalabras,
     TIPOPALABRA,
-    Breadcrumb,
-    Breadcrumb_list,
     Unifica,
 )
 
@@ -241,14 +239,8 @@ def url_get(browser,
 
     bread_list_arr = []
     if ld_response_bread:
-        
         for item in ld_response_bread:
-            bread, created = Breadcrumb.objects.get_or_create(nombre=item['name'])
-
-            bread_list, created = Breadcrumb_list.objects.get_or_create(posicion=item['position'], breadcrumbs=bread)
-            bread_list_arr.append(bread_list)
-            
-
+            bread_list_arr.append(item['name'])
 
     if ld_response:
         nombre              = ld_response.get("name").lstrip().lower()
@@ -306,12 +298,13 @@ def url_get(browser,
             precio = 0
 
          
-        laurl.breadcrumbs.set(bread_list_arr)
+        # laurl.breadcrumbs.set(bread_list_arr)
         
         ### Tags
         laurl.tags.remove()
-        for item in ld_response_bread:
-            laurl.tags.add(str(item['name']))
+        if ld_response_bread:
+            for item in ld_response_bread:
+                laurl.tags.add(str(item['name']))
 
         laurl.precio        = int(precio)
         laurl.error404 = False
@@ -664,7 +657,8 @@ def create_prods(
         medida_um   = url.medida_um
         medida_cant = url.medida_cant
         newmarca_str = url.marca
-        breadcrumbs  = url.breadcrumbs.all()
+        # breadcrumbs  = url.breadcrumbs.all()
+        tags        = url.tags.all()
                     
 
         #######
@@ -939,7 +933,7 @@ def create_prods(
                 ).first()
         except ObjectDoesNotExist:
             
-            miarticulo  = create_article(newmarca, nombre, medida_cant, medida_um, nombre_original, unidades, dimension, color, envase, grados, ean_13, tipo, talla, breadcrumbs)
+            miarticulo  = create_article(newmarca, nombre, medida_cant, medida_um, nombre_original, unidades, dimension, color, envase, grados, ean_13, tipo, talla, tags)
             articulos_creados = articulos_creados + 1
             
 
@@ -953,15 +947,15 @@ def create_prods(
             miarticulo.ean_13 = ean_13
             miarticulo.save()
 
-        if breadcrumbs and site.obtiene_categorias:
-            miarticulo.breadcrumbs.set(breadcrumbs)
+        
             
-            miarticulo.save()
-
+            
+        if tags and site.obtiene_categorias:
             miarticulo.tags.remove()
-            for bread in breadcrumbs:
-                print(bread.posicion, len(breadcrumbs))
-                miarticulo.tags.add(str(bread.breadcrumbs))
+            for tag in tags:
+                # print(bread.posicion, len(breadcrumbs))
+                miarticulo.tags.add(tag)
+            miarticulo.save()
 
                 
 
@@ -985,7 +979,7 @@ def create_prods(
 
     # return registros, articulos_creados, articulos_existentes
 
-def create_article(newmarca, nombre, medida_cant, medida_um, nombre_original, unidades, dimension, color, envase, grados, ean_13, tipo, talla, breadcrumbs):
+def create_article(newmarca, nombre, medida_cant, medida_um, nombre_original, unidades, dimension, color, envase, grados, ean_13, tipo, talla, tags):
     new_article = Articulos.objects.create(
             marca=newmarca,
             nombre=nombre,
@@ -1002,7 +996,7 @@ def create_article(newmarca, nombre, medida_cant, medida_um, nombre_original, un
             talla=talla
             
         )
-    new_article.breadcrumbs.set(breadcrumbs)
+    new_article.tags.set(tags)
     return new_article
 
 def get_dics():

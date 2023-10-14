@@ -652,7 +652,7 @@ def precios(request):
 
    
     
-    if  puede_connsultar:
+    if  puede_connsultar and (rtags or rmarca or nombre !=''):
         momentos, supermercadoscount = getMomentos(request)
         articulos = Articulos.objects.select_related('marca').all()
         
@@ -698,7 +698,7 @@ def precios(request):
 
 
         if rtags:
-            articulos = articulos.filter(tags__name=rtags)
+            articulos = articulos.filter(tags__slug=rtags)
             # print(rtags, articulos, articulos.query)
 
         if rmarca:

@@ -13,6 +13,7 @@ from django_extensions.db.fields import AutoSlugField
 from django.utils.translation import gettext_lazy as _
 from django.db.models import CharField, Value, Q
 from django.db.models.functions import Concat
+from django.utils.http import urlencode
 
 from django.core.validators import MinLengthValidator
 
@@ -682,30 +683,17 @@ class Marcas(models.Model):
         ordering = ("nombre",)
 
     def get_absolute_url(self):
-        # base_url = reverse('precios:home')
-        # query_string =  urlencode({'marca': self.id})
-        # return f"{base_url}?{query_string}"
-        return reverse("precios:brands_detail", args=(self.slug,))
-        
-        
-        
+        base_url = reverse('precios:home')
+        query_string =  urlencode({'marca': self.id})
+        return f"{base_url}?{query_string}"
+        # return reverse("precios:brands_detail", args=(self.slug,))
 
     def get_update_url(self):
         return reverse("precios:Marcas_update", args=(self.pk,))
 
-class Breadcrumb(models.Model):
-    nombre = models.CharField(max_length=100, blank=True, null=True, default='', db_index=True, unique=True)
-    def __str__(self):
-        return "{0}".format( self.nombre)
-
-class Breadcrumb_list(models.Model):
-    posicion        = models.IntegerField(default=0)
-    breadcrumbs     = models.ForeignKey(Breadcrumb, on_delete=models.CASCADE, default=1)
-    def __str__(self):
-        return "{0}: {1} ".format( self.posicion, self.breadcrumbs)
-
 class TaggedArticles(TaggedItemBase):
     content_object = models.ForeignKey('Articulos', on_delete=models.CASCADE)
+
 
 class TaggedUrls(TaggedItemBase):
     content_object = models.ForeignKey('SiteURLResults', on_delete=models.CASCADE)
@@ -739,7 +727,6 @@ class Articulos(ModelMeta, models.Model):
     
     created             = models.DateTimeField("date created", editable=False,default=timezone.now)
     updated             = models.DateTimeField("last updated", auto_now=True,auto_now_add=False)
-    breadcrumbs         = models.ManyToManyField(Breadcrumb_list, related_name="los_bread", blank=True)
     tags                = TaggableManager(through=TaggedArticles)
     
 
@@ -1062,7 +1049,6 @@ class SiteURLResults(models.Model):
     image           = models.URLField(max_length=600, blank=True, null=True, default='')
 
     reglas          = models.ManyToManyField(Unifica, related_name="las_reglas", default=None, blank=True)
-    breadcrumbs     = models.ManyToManyField(Breadcrumb_list, blank=True)
     tags            = TaggableManager(through=TaggedUrls)
 
         
