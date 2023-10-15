@@ -25,7 +25,7 @@ from precios.views_cedl import (
     PriceHistoryDetailView,
 )
 from precios.views import (
-    # brandProducts,
+    categorias_anidadas,
     # index, 
     precios, 
     estado, 
@@ -105,6 +105,7 @@ urlpatterns = [
     path('article/<slug>/',                             ProductDetailView.as_view() ,   name='detalle'),
     path('rescan/<slug>/',                              rescan,                         name='rescan'),
     path('precios/',                                    precios,                        name='home'),
+    # path('categorias/',                                 categorias_anidadas,            name='categorias_anidadas'),
 
     ## Supermercado
     path('estado/',                                     estado,                         name='estado'),

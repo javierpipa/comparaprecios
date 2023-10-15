@@ -42,6 +42,7 @@ from precios.models import (
     SiteMap,
     AreasDespacho,
     MomentosDespacho,
+    TaggedArticles,
 )
 
 from precios.pi_stats import (
@@ -587,6 +588,20 @@ def rescan(request, slug):
     # return detalle(request, slug)
 
 
+
+from taggit.models import Tag
+
+def obtener_etiquetas_jerarquicas():
+    # etiquetas_jerarquicas = HierarchicalTag.objects.all()
+    etiquetas_jerarquicas  = Tag.objects.all()
+    # etiquetas_jerarquicas = cache_tree_children(etiquetas_jerarquicas)
+    return etiquetas_jerarquicas
+
+def categorias_anidadas(request):
+    etiquetas_jerarquicas = obtener_etiquetas_jerarquicas()
+    
+    return render(request, 'precios/categorias.html', {'etiquetas_jerarquicas': etiquetas_jerarquicas})
+
     
 # @never_cache
 def precios(request):
@@ -690,12 +705,7 @@ def precios(request):
 
         # MinSuperCompara
         ofertas_count  = 0
-        # print('rsupermercados=',rsupermercados)
-        if not rsupermercados:
-            articulos = articulos.annotate(num_vendedores=Count('vendedores__vendidoen', filter=Q(vendedores__vendidoen__site__in=momentos, vendedores__vendidoen__precio__gt=0), distinct=True))
-        else:
-            articulos = articulos.annotate(num_vendedores=Count('vendedores__vendidoen', filter=Q(vendedores__vendidoen__site__in=rsupermercados, vendedores__vendidoen__precio__gt=0), distinct=True))
-
+        
 
         if rtags:
             articulos = articulos.filter(tags__slug=rtags)
@@ -721,6 +731,12 @@ def precios(request):
 
         if runidades:
             articulos = articulos.filter(unidades__in=runidades)
+
+        # print('rsupermercados=',rsupermercados)
+        if not rsupermercados:
+            articulos = articulos.annotate(num_vendedores=Count('vendedores__vendidoen', filter=Q(vendedores__vendidoen__site__in=momentos, vendedores__vendidoen__precio__gt=0), distinct=True))
+        else:
+            articulos = articulos.annotate(num_vendedores=Count('vendedores__vendidoen', filter=Q(vendedores__vendidoen__site__in=rsupermercados, vendedores__vendidoen__precio__gt=0), distinct=True))
 
 
         articulos_dict, articulos_count, ofertas_count = generate_articulos_dict(articulos, momentos, MinSuperCompara, orden)

@@ -28,6 +28,9 @@ from meta.models import ModelMeta
 from datetime import datetime
 from taggit.managers import TaggableManager
 from taggit.models import TaggedItemBase
+from mptt.models import MPTTModel, TreeForeignKey
+from taggit.models import Tag
+
 
 
 class Hello(CMSPlugin):
@@ -693,7 +696,13 @@ class Marcas(models.Model):
 
 class TaggedArticles(TaggedItemBase):
     content_object = models.ForeignKey('Articulos', on_delete=models.CASCADE)
+    class Meta:
+        indexes = [
+            models.Index(fields=['tag_id'], name='tag_id_idx'),  # Define un índice en la columna tag_id
+        ]
 
+# class HierarchicalTag(MPTTModel, Tag):
+#     parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
 
 class TaggedUrls(TaggedItemBase):
     content_object = models.ForeignKey('SiteURLResults', on_delete=models.CASCADE)
@@ -728,6 +737,7 @@ class Articulos(ModelMeta, models.Model):
     created             = models.DateTimeField("date created", editable=False,default=timezone.now)
     updated             = models.DateTimeField("last updated", auto_now=True,auto_now_add=False)
     tags                = TaggableManager(through=TaggedArticles)
+    # tags                = TaggableManager()
     
 
     

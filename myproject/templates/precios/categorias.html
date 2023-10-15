@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% endblock %}
+<ul>
+    {% for etiqueta in etiquetas_jerarquicas %}
+        <li>
+            {{ etiqueta }}
+            {% if etiqueta.subetiquetas %}
+                <ul>
+                    {% for subetiqueta in etiqueta.subetiquetas %}
+                        <li>
+                            {{ subetiqueta.etiqueta.name }}
+                            <!-- Puedes seguir anidando ul y li para niveles adicionales -->
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>
+
+
+
+{% block footer %}
+{% include "footer.html" %}
+{% endblock %}
+

@@ -126,6 +126,9 @@ INSTALLED_APPS = [
 ## Taggit
 TAGGIT_CASE_INSENSITIVE = True
 
+## mttp
+MPTT_ADMIN_LEVEL_INDENT = 20
+
 # Google OAUTH
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
