@@ -44,7 +44,7 @@ from precios.models import (
     MomentosDespacho,
     TaggedArticles,
 )
-
+from taggit.models import Tag
 from precios.pi_stats import (
     save_consulta_count,
     may_consulta,
@@ -589,16 +589,10 @@ def rescan(request, slug):
 
 
 
-from taggit.models import Tag
 
-def obtener_etiquetas_jerarquicas():
-    # etiquetas_jerarquicas = HierarchicalTag.objects.all()
-    etiquetas_jerarquicas  = Tag.objects.all()
-    # etiquetas_jerarquicas = cache_tree_children(etiquetas_jerarquicas)
-    return etiquetas_jerarquicas
 
 def categorias_anidadas(request):
-    etiquetas_jerarquicas = obtener_etiquetas_jerarquicas()
+    etiquetas_jerarquicas  = Tag.objects.all()
     
     return render(request, 'precios/categorias.html', {'etiquetas_jerarquicas': etiquetas_jerarquicas})
 
