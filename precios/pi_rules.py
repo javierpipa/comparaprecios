@@ -400,71 +400,7 @@ def get_value_counts_df(c, column_name):
     value_counts_uno = value_counts.loc[lambda x : x==1]
     return value_counts_uno.to_frame('counts').reset_index()
 
-
-def intenta_marca(marca_obj, debug, nombre=None):
-    num_rules_created   = int(Settings.objects.get(key='num_rules_created').value)
-    
-    reglas              = []
-
-    sites = Vendedores.objects.select_related('articulo','vendidoen')
-    sites = sites.filter(articulo__marca=marca_obj)
-    # if nombre:
-    #     sites = sites.filter(articulo__nombre=nombre)
-    sites = sites.exclude(vendidoen__precio=0)
-    sites = sites.exclude(vendidoen__error404=True)
-    sites = sites.values('vendidoen__site')
-    sites = sites.annotate(total=Count('vendidoen__site'))
-    sites = sites.order_by('-total')
-    if not sites:
-        return
-    
-    all_sites   = list(sites)
-    
-    if debug:
-        print(f'all_sites={all_sites} ')
-
-    all_sites_arr = []
-    for site in all_sites:
-        all_sites_arr.append(site['vendidoen__site'])
-
-    articles_from_all = Vendedores.objects.select_related('articulo','vendidoen')
-    articles_from_all = articles_from_all.filter(articulo__marca=marca_obj)
-    if nombre:
-        articles_from_all = articles_from_all.filter(articulo__nombre=nombre)
-    articles_from_all = articles_from_all.filter(vendidoen__site__in=all_sites_arr)
-    articles_from_all = articles_from_all.exclude(vendidoen__precio=0)
-    articles_from_all = articles_from_all.exclude(vendidoen__error404=True)
-    articles_from_all = articles_from_all.order_by('articulo__nombre', 'articulo__unidades','articulo__medida_cant','articulo__grados2')
-    articles_from_all = articles_from_all.distinct()
-    c = create_PD_From(articles_from_all)
-    if debug:
-        print(tabulate(c, headers = 'keys', tablefmt = 'double_outline'))
-
-    
-    # # Tokenizar las palabras
-    # word_tokens = [word for sentence in c['articulo__nombre'] for word in word_tokenize(sentence)]
-
-    # # Calcular la frecuencia de las palabras
-    # word_freq = FreqDist(word_tokens)
-
-    # # Encontrar la palabra más común
-    # most_common_word = word_freq.most_common(1)[0][0]
-
-
-    ## Caso grados que haya solo 1 registro
-    if debug:
-        print("######### Check Grados ###############")
-    
-    
-    # df_medida_cant_uno = get_value_counts_df(c, 'lo__medida_cant')
-    # c = check_medida_cant(c, df_medida_cant_uno, debug=debug)
-
-
-    df_grados_uno = get_value_counts_df(c, 'lo__grados2')
-    # c = check_grados_func(c, df_grados_uno, debug=debug)
-    
-
-    
+def check_grados_func(c, df_grados_uno, debug):
     if debug:
         print(f'cuantos = {len(df_grados_uno)}')
         print(tabulate(df_grados_uno, headers = 'keys', tablefmt = 'psql'))
@@ -509,9 +445,76 @@ def intenta_marca(marca_obj, debug, nombre=None):
                         c.at[cuenta2,'r_grados'] = 1
                         c.at[cuenta2,'rule'] = 'Check Grados'
                         # c = add_vendedores(c, cuenta2, cuenta3)
+    return c
+
+def get_sites(marca_obj):
+    sites = Vendedores.objects.select_related('articulo','vendidoen')
+    sites = sites.filter(articulo__marca=marca_obj)
+    sites = sites.exclude(vendidoen__precio=0)
+    sites = sites.exclude(vendidoen__error404=True)
+    sites = sites.values('vendidoen__site')
+    sites = sites.annotate(total=Count('vendidoen__site'))
+    sites = sites.order_by('-total')
+
+    return sites
+
+def get_articles_from_all(marca_obj, nombre, all_sites_arr):
+    articles_from_all = Vendedores.objects.select_related('articulo','vendidoen')
+    articles_from_all = articles_from_all.filter(articulo__marca=marca_obj)
+    if nombre:
+        articles_from_all = articles_from_all.filter(articulo__nombre=nombre)
+    articles_from_all = articles_from_all.filter(vendidoen__site__in=all_sites_arr)
+    articles_from_all = articles_from_all.exclude(vendidoen__precio=0)
+    articles_from_all = articles_from_all.exclude(vendidoen__error404=True)
+    articles_from_all = articles_from_all.order_by('articulo__nombre', 'articulo__unidades','articulo__medida_cant','articulo__grados2')
+    articles_from_all = articles_from_all.distinct()
+
+    return articles_from_all
+
+def intenta_marca(marca_obj, debug, nombre=None):
+    num_rules_created   = int(Settings.objects.get(key='num_rules_created').value)
+    reglas              = []
+    all_sites_arr       = []
+    sites               = get_sites(marca_obj)
+
+    if not sites:
+        return
+    
+    for site in list(sites):
+        all_sites_arr.append(site['vendidoen__site'])
+
+    articles_from_all = get_articles_from_all(marca_obj, nombre, all_sites_arr)
+
+    c = create_PD_From(articles_from_all)
+    if debug:
+        print(tabulate(c, headers = 'keys', tablefmt = 'double_outline'))
 
 
-    # fuz_levels = (90,89,88, )
+    # Que supermercado tiene mas articulos de la marca.    ??
+
+    
+    # # Tokenizar las palabras
+    # word_tokens = [word for sentence in c['articulo__nombre'] for word in word_tokenize(sentence)]
+
+    # # Calcular la frecuencia de las palabras
+    # word_freq = FreqDist(word_tokens)
+
+    # # Encontrar la palabra más común
+    # most_common_word = word_freq.most_common(1)[0][0]
+
+
+    ## Caso grados que haya solo 1 registro
+    if debug:
+        print("######### Check Grados ###############")
+    
+    
+    # df_medida_cant_uno = get_value_counts_df(c, 'lo__medida_cant')
+    # c = check_medida_cant(c, df_medida_cant_uno, debug=debug)
+
+
+    df_grados_uno = get_value_counts_df(c, 'lo__grados2')
+    c = check_grados_func(c, df_grados_uno, debug=debug)
+    
     fuz_levels = (88,70,60,50,40 )
     for fuzl in fuz_levels:
         ## Envase
@@ -618,11 +621,8 @@ def intenta_marca(marca_obj, debug, nombre=None):
                      debug=debug)
     
 
-    if num_rules_created > 10:
-        fuz_levels = (93,)
-    else:
-        fuz_levels = (93,)
 
+    fuz_levels = (93,)
     for fuzl in fuz_levels:
         if debug:
             print(f"Check sailers min=1 fuz={fuzl}")
@@ -632,96 +632,7 @@ def intenta_marca(marca_obj, debug, nombre=None):
             print(f"Check sailers min=2 fuz={fuzl}")
         c = check_sailers(c, 2, fuzl, debug)
 
-    
-
-    # ###### Casos especiales, donde hay 1 registro solamente
-    # ### Caso envase que haya solo 1 registro
-    # envase_list    = c.lo__envase.value_counts() 
-    # envase_uno     = envase_list.loc[lambda x : x==1]
-    # df_envase_uno  = envase_uno.to_frame('counts').reset_index()
-    # df_envases     = envase_list.to_frame('counts').reset_index()
-    
-    
-    # if debug:
-    #     print("######### Check Envases ###############")
-    #     print(tabulate(df_envases, headers = 'keys', tablefmt = 'psql'))
-
-    # for cuenta, row in df_envase_uno.iterrows():
-    #     valor       = row['lo__envase']
-    #     a           = c.loc[c['lo__envase'] == valor]
-    #     for cuenta3, row3 in df_envases.iterrows():
-    #         envase      = row3['lo__envase']
-    #         # a_quienes   = ' '.join(str(e) for e in row3['quienesvenden'])
-
-    #         fuz         = fuzz.token_sort_ratio(valor, envase)
-    #         if fuz !=100 and fuz > 80:
-    #             b   = c.loc[ (c['lo__envase']            == valor)  ] 
-
-    #             if debug:
-    #                 print(f'fuz={fuz}')
-    #                 print(tabulate(b, headers = 'keys', tablefmt = 'psql'))
-
-    #             for cuenta4, row4 in b.iterrows():
-    #                 # if not is_vendedores_in(row3['quienesvenden'], row4['quienesvenden']):
-    #                 #     print("Envases - Bien.. No esta.. agregarlo")
-
-    #                 c.at[cuenta4,'lo__envase'] = envase
-    #                 c.at[cuenta4,'r_envase'] = 1
-
-
-    ### Caso medida_cant que haya solo 1 registro
-    # if debug:
-    #     print("######### Check medida_cant ###############")
-        
-    # medida_cant_list    = c.lo__medida_cant.value_counts() 
-    # medida_cant_uno     = medida_cant_list.loc[lambda x : x==1]
-    # df_medida_cant_uno  = medida_cant_uno.to_frame('counts').reset_index()
-    # if debug:
-    #     print(tabulate(df_medida_cant_uno, headers = 'keys', tablefmt = 'psql'))
-    
-    # for cuenta, row in df_medida_cant_uno.iterrows():
-    #     valor       = row['lo__medida_cant']
-    #     a           = c.loc[c['lo__medida_cant'] == float(valor)]
-    #     for cuenta2, row2 in a.iterrows():
-    #         no_id       = row2['articulo__pk']
-    #         a_nombre    = row2['articulo__nombre']
-    #         a_grados    = row2['articulo__grados2']
-    #         a_unidades  = row2['articulo__unidades']
-    #         a_quienes   = ' '.join(str(e) for e in row2['quienesvenden'])
-
-    #         if debug:
-    #             print(tabulate(a, headers = 'keys', tablefmt = 'psql'))
-
-    #         b           = c.loc[(c['articulo__nombre']      == a_nombre) & \
-    #                             (c['articulo__grados2']     == float(a_grados)) & \
-    #                             (c['articulo__unidades']    == float(a_unidades)) & \
-    #                             (c['articulo__pk']          != no_id)  ] 
-            
-    #         for cuenta3, row3 in b.iterrows():
-    #             b_quienes = ' '.join(str(e) for e in row3['quienesvenden'])
-    #             if not is_vendedores_in(row2['quienesvenden'], row3['quienesvenden']):
-    #                 # print("Bien.. No esta.. agregarlo")
-                
-    #                 c.at[cuenta2,'lo__medida_cant'] = c.at[cuenta3,'articulo__medida_cant']
-    #                 c.at[cuenta2,'r_medida'] = 1
-
-    #                 narray = list(row3['quienesvenden'])
-    #                 arr_aquienes = a_quienes.split()
-    #                 for dato in arr_aquienes:
-    #                     narray.append(int(dato))
-    #                 c.at[cuenta2,'quienesvenden']   = narray
-
-    #             else:
-    #                 print("Si esta.. NO agregar")
-                    
-    #         if debug:
-    #             print(tabulate(b, headers = 'keys', tablefmt = 'psql'))
-    
-
-
   
-
-
     ### Caso nombre que haya solo 1 registro
     if debug:
         print("######### Check NOMBRES ###############")

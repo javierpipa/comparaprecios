@@ -602,6 +602,7 @@ def normalize(words):
 
 def get_marcas_que_me_apuntan(marca_default):
     otras_marcas_lst = Unifica.objects.filter(entonces_marca=marca_default, automatico=False).values_list('si_marca__nombre', flat=True).distinct()
+    # otras_marcas_lst = Unifica.objects.filter(entonces_marca=marca_default).values_list('si_marca__nombre', flat=True).distinct()
     return otras_marcas_lst
 
 ## Create Products
