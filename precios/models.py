@@ -737,7 +737,7 @@ class Articulos(ModelMeta, models.Model):
     created             = models.DateTimeField("date created", editable=False,default=timezone.now)
     updated             = models.DateTimeField("last updated", auto_now=True,auto_now_add=False)
     tags                = TaggableManager(through=TaggedArticles)
-    # tags                = TaggableManager()
+    priceCurrency       = models.CharField(max_length=3, default="CLP")
     
 
     
@@ -1060,6 +1060,8 @@ class SiteURLResults(models.Model):
 
     reglas          = models.ManyToManyField(Unifica, related_name="las_reglas", default=None, blank=True)
     tags            = TaggableManager(through=TaggedUrls)
+    priceCurrency   = models.CharField(max_length=3, default="CLP")
+
 
         
     @property

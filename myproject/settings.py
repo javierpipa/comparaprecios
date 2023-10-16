@@ -112,6 +112,8 @@ INSTALLED_APPS = [
     "djangocms_page_tags",
     'django_json_ld',
     'django_user_agents',
+    'currencies',
+    'django_prices_openexchangerates',
 ]
 
 # django-json-ld
@@ -123,6 +125,11 @@ INSTALLED_APPS = [
 # JSON_LD_INDENT                  = None
 # JSON_LD_GENERATE_URL            = True
 
+
+## openexchangerates
+OPENEXCHANGERATES_APP_ID='64c3009ad5614988854aa3a17e2cd101'
+OPENEXCHANGERATES_BASE_CURRENCY='CLP'
+OPENEXCHANGERATES_API_KEY='64c3009ad5614988854aa3a17e2cd101'
 ## Taggit
 TAGGIT_CASE_INSENSITIVE = True
 
@@ -297,6 +304,7 @@ TEMPLATES = [
                 'sekizai.context_processors.sekizai',
                 'cms.context_processors.cms_settings',
                 'django.template.context_processors.i18n',
+                'currencies.context_processors.currencies',
                 # 'django.core.context_processors.request',
             ],
         },

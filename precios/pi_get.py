@@ -286,6 +286,7 @@ def url_get(browser,
             descripcion         = remove_html_tags(descripcion)
 
         laurl.descripcion   = descripcion
+        laurl.priceCurrency = ld_response.get("priceCurrency")
 
         precio              = ld_response.get("price")
         if precio:
