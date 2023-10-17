@@ -659,9 +659,7 @@ def create_prods(
         medida_um   = url.medida_um
         medida_cant = url.medida_cant
         newmarca_str = url.marca
-        # breadcrumbs  = url.breadcrumbs.all()
         tags        = url.tags.all()
-                    
 
         #######
         nombre = html.unescape(nombre)
@@ -708,8 +706,6 @@ def create_prods(
         # 2.2 mueve envases
         envase, nombre = remueveYGuarda(ENVASES, nombre, " ", remover=True, todos=True)
         debug_nombre('4.- Envase: '+envase, debug)
-        
-        
 
         res = get_palabras_con_numychar(nombre)
         for palabra in res:
@@ -757,9 +753,11 @@ def create_prods(
                 busca = '.'+palabra + '.([0-9]+)'
                 retorna, nombre = pack_search(nombre,busca)
                 if retorna:
-                    cantidad = retorna
                     nombre = nombre.replace('un. ','')
                     nombre = nombre.replace('unidades ','')
+                    if unidades == 1 :
+                        unidades = retorna
+                        
                     break
 
         # 4.2 Unidades
@@ -768,8 +766,6 @@ def create_prods(
         nombre, unidades = get_unidades2(nombre, unidades)
 
         if unidades == 1:
-            unidades = 1
-
             nombre, unidades = get_unidades(nombre, UNIDADES)
             unidades = float(unidades) * float(cantidad)
             cantidad = 1
@@ -796,11 +792,7 @@ def create_prods(
 
 
         debug_nombre('9.- Quirta envase: '+envase, debug)
-        
-
-        # if nombre.endswith('rinde'):
-        #     nombre = nombre[:-5] 
-        
+                
         nombre      = nombre + ' ' +  agregar_sufijos 
         debug_nombre('11.- agrega sufijos:'+ nombre, debug)
 
@@ -815,29 +807,15 @@ def create_prods(
                 nombre = nombre[1:] 
                 nombre = nombre.rstrip()
 
-        #     nombre = nombre.rstrip()
-        #     if nombre.endswith('- x'):
-        #         nombre = nombre[:-3] 
-
-        #     nombre = nombre.rstrip()
-        #     if nombre.endswith('- un'):
-        #         nombre = nombre[:-4] 
-            
+           
         nombre = nombre.rstrip()
         if nombre.endswith('-') or nombre.endswith('.'):
             nombre = nombre[:-1] 
 
-        #     nombre = nombre.rstrip()
-        #     if nombre.endswith(' un'):
-        #         nombre = nombre[:-3] 
-
-        #     if nombre.endswith(' aya'):
-        #         nombre = nombre.replace(' aya','')                
-        #     nombre = nombre.rstrip()
         #     ## Quitamos Pack si aun lo tiene
         if nombre.startswith("pack "):
             nombre      = nombre.replace('pack ',' ')
-        #     nombre =  nombre.replace(' lata','')
+        
 
         if nombre.startswith("- "):
             nombre =  nombre.replace('- ','')
@@ -863,6 +841,9 @@ def create_prods(
                 ean_13 = ean_13.rstrip()
                 ean_13 = ean_13.lstrip()
                 ean_13 = ean_13.replace('[','')
+                ean_13 = ean_13.replace('}','')
+                if "'" in ean_13:
+                    ean_13 = ean_13.replace("'","")
                 if '-' in ean_13:
                     ean_arr = ean_13.split('-')
                     ean_13 = ean_arr[0]
@@ -943,23 +924,15 @@ def create_prods(
         if tipo:
             if tipo.strip() != "":
                 miarticulo.tipo = tipo
-                miarticulo.save()
-        
+
         if ean_13:
             miarticulo.ean_13 = ean_13
-            miarticulo.save()
 
-        
-            
-            
+        miarticulo.tags.remove()
         if tags and site.obtiene_categorias:
-            miarticulo.tags.remove()
             for tag in tags:
-                # print(bread.posicion, len(breadcrumbs))
                 miarticulo.tags.add(tag)
-            miarticulo.save()
-
-                
+        miarticulo.save()
 
 
         ### Update ULR con reglas
