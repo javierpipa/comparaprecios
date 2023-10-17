@@ -170,6 +170,24 @@
         </div>
     </div>
     <div class="card mb-4">
+        <div class="card-header">Tags </div>
+        <div class="card-body p-0">
+
+            <div class="table-responsive table-billing-history">
+                <table class="table mb-0">
+                    {% for tag in object.tags.all %}
+                    <tr>
+                        <td>{{ tag.id }}</td>
+                        <td>{{ tag }}</td>
+                    </tr>
+                    
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card mb-4">
         <div class="card-header">Reglas </div>
         <div class="card-body p-0">
 
