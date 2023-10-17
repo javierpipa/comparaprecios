@@ -31,10 +31,17 @@ from django.db.models import Count, Q
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.db import IntegrityError
 import re
+import html
 import unidecode
 
 import requests
 from bs4 import BeautifulSoup
+import nltk
+nltk.download('stopwords')
+nltk.download('wordnet')
+from nltk import word_tokenize, sent_tokenize
+from nltk.corpus import stopwords
+from nltk.stem import LancasterStemmer, WordNetLemmatizer
 
 
 from precios.pi_functions import (
@@ -71,8 +78,7 @@ from precios.models import (
     ReemplazaPalabras,
     AllPalabras,
     TIPOPALABRA,
-    Breadcrumb,
-    Breadcrumb_list,
+    Unifica,
 )
 
 #### Get URL's
@@ -233,14 +239,8 @@ def url_get(browser,
 
     bread_list_arr = []
     if ld_response_bread:
-        
         for item in ld_response_bread:
-            bread, created = Breadcrumb.objects.get_or_create(nombre=item['name'])
-
-            bread_list, created = Breadcrumb_list.objects.get_or_create(posicion=item['position'], breadcrumbs=bread)
-            bread_list_arr.append(bread_list)
-            
-
+            bread_list_arr.append(item['name'])
 
     if ld_response:
         nombre              = ld_response.get("name").lstrip().lower()
@@ -286,6 +286,7 @@ def url_get(browser,
             descripcion         = remove_html_tags(descripcion)
 
         laurl.descripcion   = descripcion
+        laurl.priceCurrency = ld_response.get("priceCurrency")
 
         precio              = ld_response.get("price")
         if precio:
@@ -297,10 +298,14 @@ def url_get(browser,
         if precio == "":
             precio = 0
 
-         
-        laurl.breadcrumbs.set(bread_list_arr)
+                
+        ### Tags
+        laurl.tags.remove()
+        if ld_response_bread:
+            for item in ld_response_bread:
+                laurl.tags.add(str(item['name']))
+
         laurl.precio        = int(precio)
-        
         laurl.error404 = False
     
         
@@ -459,7 +464,8 @@ def get_unidades2(nombre, unidades):
         r'(\d+\s*unid)',
         r'(\d+\s*uds)',
         r'(\d+)\s*x\s*',
-        r'\s*[^\S\n\t]+x\s*(\d+)'
+        r'\s*[^\S\n\t]+x\s*(\d+)',
+        r'^\d{1,2}'
     ]
     # Bucle para buscar y actualizar unidades y nombre
     for busca in busquedas:
@@ -467,12 +473,17 @@ def get_unidades2(nombre, unidades):
             retorna, nombre = pack_search(nombre, busca)
             if retorna:
                 # Elimina cualquier palabra no numérica (como "unidades", "pack", etc.)
-                retorna = re.sub(r'\D', '', retorna)
+                try:
+                    retorna = re.sub(r'\D', '', retorna)
+                except:
+                    pass
+                
                 unidades = int(retorna)
                 return nombre, unidades
             
                 # break  # Salir del bucle una vez que se encuentre una coincidencia
     return nombre, 1
+
 ## 4.05 Anotacion de tallas
 def obtener_talla(nombre, TALLAS):
     talla, nombre           = remueveYGuardaSinSplit(TALLAS, nombre, remover=True, todos=True)
@@ -498,14 +509,13 @@ def obtener_talla(nombre, TALLAS):
 def obtener_marca(nombre, marca):
     ## Revisamos si la marca en la URL existe
     
+    # Si la marca no existe, busco en todas las marcas habilitadas si estuviera en el nombre
     if not Marcas.objects.filter(es_marca=True, nombre=marca).exists():
-
         # Busca marca con espacios a ambos lados
         for posible_marca in Marcas.objects.filter(es_marca=True).values_list('nombre', flat=True).all():
             if ( ' ' + posible_marca +' ' in nombre ) :
                 marca  = posible_marca
                 nombre = nombre.replace(posible_marca, '')
-                
                 return nombre, marca
             
         # Busca marca SIN espacios a ambos lados
@@ -513,16 +523,91 @@ def obtener_marca(nombre, marca):
             if (  posible_marca  in nombre ) :
                 marca  = posible_marca
                 nombre = nombre.replace(posible_marca, '')
-                
                 return nombre, marca
-    else:
+    
+    else:  # Si la marca SI existe, 
         posible_marca = Marcas.objects.filter(es_marca=True, nombre=marca).values_list('nombre', flat=True).get()
         nombre = nombre.replace(posible_marca, '')
         return nombre, marca
 
+    ## Quizas la marca esta des-habilitada
     if not Marcas.objects.filter(es_marca=True, nombre=marca).exists():
-        print('Marca no existe')
+        if Marcas.objects.filter(es_marca=False, nombre=marca).exists():
+            marca_obj = Marcas.objects.filter(es_marca=False, nombre=marca).get()
+            
+            if Unifica.objects.filter(si_marca=marca_obj, si_nombre=None, si_grados2=float(0), si_medida_cant=float(0), si_unidades=1,  automatico=False ).exists():
+                unifica_obj = Unifica.objects.filter(si_marca=marca_obj, si_nombre=None, si_grados2=float(0), si_medida_cant=float(0), si_unidades=1, automatico=False).first()
+                if unifica_obj:
+                    marca = unifica_obj.entonces_marca.nombre
+            else:
+                # print(f'Marca deshabilitada Y no tiene redireccion =|{marca}| Habilito la Marca')
+                # marca_obj.es_marca = True
+                # marca_obj.save()
+                marca = marca_obj.nombre
+        else:
+            if marca !='' and len(marca) >= 2:
+                print(f'Marca no existe =|{marca}| creando Marca')
+                marca_obj = Marcas(
+                    nombre=marca,
+                    es_marca=False
+                )
+                marca_obj.save()
+                marca = marca
+            else:
+                marca = None
+
     return nombre, marca
+
+def separate_numbers_from_text(words):
+    """
+    Separate numbers from adjacent text in a given string.
+    Parameters:
+        text (str): The input string.
+    Returns:
+        str: The modified string with numbers separated from adjacent text.
+    """
+    return re.sub(r'(\d+)([a-zA-Z]+)', r'\1 \2', words)
+
+def to_lowercase(words):
+    """Convert all characters to lowercase from list of tokenized words"""
+    new_words = []
+    for word in words:
+        new_word = word.lower()
+        new_words.append(new_word)
+    return new_words
+
+def remove_some_chars(words):
+    chars_to_remove= '-'
+    new_words = []
+    for word in words:
+        word = word.replace(chars_to_remove,' ')
+        new_words.append(word)
+
+    return new_words
+
+def remove_stopwords(words):
+    """Remove stop words from list of tokenized words"""
+    new_words = []
+    for word in words:
+        if word not in stopwords.words('spanish'):
+            new_words.append(word)
+    return new_words
+
+def normalize(words):
+    words = to_lowercase(words)
+    words = remove_some_chars(words)
+    # words = remove_non_ascii(words)
+    
+    # words = remove_punctuation(words)
+    
+    # words = replace_numbers(words)
+    words = remove_stopwords(words)
+    return words
+
+def get_marcas_que_me_apuntan(marca_default):
+    otras_marcas_lst = Unifica.objects.filter(entonces_marca=marca_default, automatico=False).values_list('si_marca__nombre', flat=True).distinct()
+    # otras_marcas_lst = Unifica.objects.filter(entonces_marca=marca_default).values_list('si_marca__nombre', flat=True).distinct()
+    return otras_marcas_lst
 
 ## Create Products
 ####################
@@ -564,8 +649,6 @@ def create_prods(
         nombre      = ''
         nombre_original = ''
         descripcion = ''
-        
-
 
         if url.nombre :
             nombre = url.nombre
@@ -580,32 +663,40 @@ def create_prods(
         medida_um   = url.medida_um
         medida_cant = url.medida_cant
         newmarca_str = url.marca
-        breadcrumbs  = url.breadcrumbs.all()
-                    
-        
-        # for bred in breadcrumbs:
-        #     print(bred)
+        tags        = url.tags.all()
 
         #######
+        nombre = html.unescape(nombre)
         nombre = nombre.lower()
         tipo   = url.tipo 
         debug_nombre('1.- Inicio: '+ nombre, debug)
         #######
-        
+
+        nombre                  = reemplaza_palabras(nombre)
+        nombre, newmarca_str    = obtener_marca(nombre, newmarca_str)
+        nombre                  = separate_numbers_from_text(nombre)
         
         if Marcas.objects.filter(nombre=newmarca_str).exists():
             newmarca = Marcas.objects.filter(nombre=newmarca_str).get()
-            nombre = nombre.replace(newmarca_str, '')
+            # or not newmarca_str:
         else:
             articulos_marca_vacio = articulos_marca_vacio + 1
             continue
-        
-        nombre = reemplaza_palabras(nombre)
+
+        otras = get_marcas_que_me_apuntan(newmarca)
+
         nombre = replace_comma_in_degrees(nombre)
 
+        ###----------------------------
+        words = nltk.word_tokenize(nombre)
+        # print('3->', words)
+        words = normalize(words)
+        # print('4->', words)
+        nombre = ' '.join(words)
+        ###----------------------------
 
-        # nombre, newmarca, newmarca_str = getMarca(nombre,url ,campoMarcaObj, listamarcas, sin_marca, debug)
-        # debug_nombre('10.- Quirta Marca: '+newmarca_str, debug)
+        otras_inutiles, nombre = remueveYGuardaSinSplit(otras, nombre, remover=True, todos=True)
+        # print(f'otras_inutiles={otras_inutiles}')
         
         # ## 1.4 Remueve colores
         # color, nombre = remueveYGuarda(COLORES, nombre, " ", remover=True, todos=True)
@@ -619,8 +710,6 @@ def create_prods(
         # 2.2 mueve envases
         envase, nombre = remueveYGuarda(ENVASES, nombre, " ", remover=True, todos=True)
         debug_nombre('4.- Envase: '+envase, debug)
-        
-        
 
         res = get_palabras_con_numychar(nombre)
         for palabra in res:
@@ -665,22 +754,23 @@ def create_prods(
         arr_nombre = nombre.split(" ")
         for palabra in arr_nombre:
             if palabra in PACKS :
-                busca = '.'+palabra + '.([0-9]+)'
+                busca = palabra + '.([0-9]+)'
                 retorna, nombre = pack_search(nombre,busca)
                 if retorna:
-                    cantidad = retorna
                     nombre = nombre.replace('un. ','')
                     nombre = nombre.replace('unidades ','')
+                    if unidades == 1 :
+                        unidades = retorna
+
                     break
 
         # 4.2 Unidades
         
         
-        nombre, unidades = get_unidades2(nombre, unidades)
+        if unidades == 1:
+            nombre, unidades = get_unidades2(nombre, unidades)
 
         if unidades == 1:
-            unidades = 1
-
             nombre, unidades = get_unidades(nombre, UNIDADES)
             unidades = float(unidades) * float(cantidad)
             cantidad = 1
@@ -707,11 +797,7 @@ def create_prods(
 
 
         debug_nombre('9.- Quirta envase: '+envase, debug)
-        
-
-        # if nombre.endswith('rinde'):
-        #     nombre = nombre[:-5] 
-        
+                
         nombre      = nombre + ' ' +  agregar_sufijos 
         debug_nombre('11.- agrega sufijos:'+ nombre, debug)
 
@@ -726,29 +812,15 @@ def create_prods(
                 nombre = nombre[1:] 
                 nombre = nombre.rstrip()
 
-        #     nombre = nombre.rstrip()
-        #     if nombre.endswith('- x'):
-        #         nombre = nombre[:-3] 
-
-        #     nombre = nombre.rstrip()
-        #     if nombre.endswith('- un'):
-        #         nombre = nombre[:-4] 
-            
+           
         nombre = nombre.rstrip()
         if nombre.endswith('-') or nombre.endswith('.'):
             nombre = nombre[:-1] 
 
-        #     nombre = nombre.rstrip()
-        #     if nombre.endswith(' un'):
-        #         nombre = nombre[:-3] 
-
-        #     if nombre.endswith(' aya'):
-        #         nombre = nombre.replace(' aya','')                
-        #     nombre = nombre.rstrip()
         #     ## Quitamos Pack si aun lo tiene
         if nombre.startswith("pack "):
             nombre      = nombre.replace('pack ',' ')
-        #     nombre =  nombre.replace(' lata','')
+        
 
         if nombre.startswith("- "):
             nombre =  nombre.replace('- ','')
@@ -770,8 +842,27 @@ def create_prods(
         if site.pk in ean_13_site_ids:
             ean_13 = url.idproducto
             if url.idproducto:
+                 
                 ean_13 = ean_13.rstrip()
                 ean_13 = ean_13.lstrip()
+                ean_13 = ean_13.replace('[','')
+                ean_13 = ean_13.replace('}','')
+                if "'" in ean_13:
+                    ean_13 = ean_13.replace("'","")
+                if '-' in ean_13:
+                    ean_arr = ean_13.split('-')
+                    ean_13 = ean_arr[0]
+                if 'x' in ean_13:
+                    ean_arr = ean_13.split('x')
+                    ean_13 = ean_arr[0]
+                    if unidades == 1:
+                        unidades = int(ean_arr[1])
+                try:
+                    ean_13_int = int(ean_13)
+                    ean_13 = str(ean_13_int)
+                except ValueError as e:
+                    print('Problemas con ean_13 ', ean_13)
+                    ean_13 = None
             
         else:
             ean_13 = None
@@ -830,7 +921,7 @@ def create_prods(
                 ).first()
         except ObjectDoesNotExist:
             
-            miarticulo  = create_article(newmarca, nombre, medida_cant, medida_um, nombre_original, unidades, dimension, color, envase, grados, ean_13, tipo, talla, breadcrumbs)
+            miarticulo  = create_article(newmarca, nombre, medida_cant, medida_um, nombre_original, unidades, dimension, color, envase, grados, ean_13, tipo, talla, tags)
             articulos_creados = articulos_creados + 1
             
 
@@ -838,15 +929,15 @@ def create_prods(
         if tipo:
             if tipo.strip() != "":
                 miarticulo.tipo = tipo
-                miarticulo.save()
-        
+
         if ean_13:
             miarticulo.ean_13 = ean_13
-            miarticulo.save()
 
-        if breadcrumbs:
-            miarticulo.breadcrumbs.set(breadcrumbs)
-            miarticulo.save()
+        miarticulo.tags.remove()
+        if tags and site.obtiene_categorias:
+            for tag in tags:
+                miarticulo.tags.add(tag)
+        miarticulo.save()
 
 
         ### Update ULR con reglas
@@ -868,7 +959,7 @@ def create_prods(
 
     # return registros, articulos_creados, articulos_existentes
 
-def create_article(newmarca, nombre, medida_cant, medida_um, nombre_original, unidades, dimension, color, envase, grados, ean_13, tipo, talla, breadcrumbs):
+def create_article(newmarca, nombre, medida_cant, medida_um, nombre_original, unidades, dimension, color, envase, grados, ean_13, tipo, talla, tags):
     new_article = Articulos.objects.create(
             marca=newmarca,
             nombre=nombre,
@@ -885,7 +976,7 @@ def create_article(newmarca, nombre, medida_cant, medida_um, nombre_original, un
             talla=talla
             
         )
-    new_article.breadcrumbs.set(breadcrumbs)
+    new_article.tags.set(tags)
     return new_article
 
 def get_dics():
@@ -955,7 +1046,9 @@ def pack_search(en_que_texto, que_busco):
     x = re.findall(que_busco, en_que_texto, re.IGNORECASE)
     if x:
         en_que_texto = re.sub(que_busco, '', en_que_texto, flags=re.IGNORECASE)
-        return x[0], en_que_texto
+        en_que_texto = en_que_texto.strip()
+        unidades     = int(x[0])
+        return unidades, en_que_texto
     else:
         return None, en_que_texto
     

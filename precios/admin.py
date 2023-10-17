@@ -40,9 +40,6 @@ from precios.models import (
     EstadisticasBlackList,
     Direccion,
     Horario_atencion,
-    Breadcrumb,
-    Breadcrumb_list
-
 )
 from django.contrib import admin
 # from .models import   SiteURLResults
@@ -133,6 +130,7 @@ class Horario_atencionInline(admin.TabularInline):
 # #### FIN INLINE
 
 
+
 class SiteAdmin(admin.ModelAdmin):
     list_display = (
 
@@ -156,6 +154,9 @@ class SiteAdmin(admin.ModelAdmin):
                 "fields": [
                     "account",
                     ("enable",
+                     "productSearchEnabled",
+                     "precios_con_iva",
+                     "obtiene_categorias",
                     "use_his_image",),
                     (
                         "corporacion",
@@ -189,7 +190,7 @@ class SiteAdmin(admin.ModelAdmin):
                     "product_url",
                     (
                     "siteSearchEnabled",
-                    "productSearchEnabled",
+                    
                     "listNeedsPgDn",
                     ),
                     "url_suffix",
@@ -378,13 +379,14 @@ class MarcasAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "nombre",
-        "slug",
-        "rulesCount",
+        "es_marca",
         "resultsCount",
-        "es_marca"
+        "slug",
+        "created",
+        "rulesCount",
     )
     search_fields= ["nombre"]
-    list_filter = ('unificado','es_marca')
+    list_filter = ('es_marca',)
     inlines = [ArticulosxmarcaInline,]
 
 
@@ -577,6 +579,7 @@ class UnificaAdmin(admin.ModelAdmin):
                     ("si_medida_cant", "entonces_medida_cant",),
                     ("si_unidades", "entonces_unidades",),
                     ("si_envase", "entonces_envase",),
+                    ("si_talla", "entonces_talla",),
                 ]
             }
         ),
@@ -663,8 +666,5 @@ admin.site.register(EstadisticasBlackList, EstadisticasBlackListAdmin)
 
 admin.site.register(Direccion, DireccionAdmin)
 admin.site.register(Horario_atencion)
-
-admin.site.register(Breadcrumb)
-admin.site.register(Breadcrumb_list)
 
 admin.site.register(Hello)

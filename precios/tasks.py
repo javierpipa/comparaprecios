@@ -1,11 +1,10 @@
 
 from __future__ import absolute_import
-from celery import shared_task, app
+from celery import shared_task
 
 from datetime import datetime, timedelta, date
 import time
 from django.core import management
-import logging
 
 import pytz
 utc=pytz.UTC
@@ -13,34 +12,18 @@ utc=pytz.UTC
 from precios.models import (
     Settings,
     Site, 
-    Pages, 
-    Campos,
-    CamposEnSitio,
     SiteURLResults,
-    SELECTOR,
-    DONDESEUSA,
     PAGECRAWLER,
-    Marcas, 
-    Articulos,
-    Vendedores,
-    MarcasSistema,
-    Unifica
 )
+
 # from precios.pi_emails import send_email_account_daily
 # , send_email_account_daily
 from members.models import (
-    Member,
-    Lista, 
-    DetalleLista,
-    Plan,
-    ContenidoPlan,
     Periodo,
-    MemberStats
 )
+
 #### Jupiter
 # DJANGO_PROJECT="myproject" jupyter notebook
-
-
 # python3 -m  celery  --app=myproject beat &
 # python3 -m  celery  --app=myproject flower &
 # python3 -m  celery --app=myproject worker -Q core_calc  -n worker1.%h &
@@ -49,18 +32,8 @@ from members.models import (
 # python3 -m  celery --app=myproject worker -Q core_selenium2 -n worker4.%h -E
 
 
-
-# celery --app=scrap beat
-# celery --app=scrap flower
-
-# celery --app=scrap worker -Q core_calc  -n worker1.%h
-# celery --app=scrap worker -Q core_front -n worker2.%h
-# celery --app=scrap worker -Q core_selenium -n worker3.%h
-
-
 from .pi_functions import (
     checkIfProcessRunning,
-    # GetAllSiteMap,
     
 )
 
@@ -107,22 +80,6 @@ def check_periods(request):
 
 
 @shared_task(queue='core_calc',bind=True)
-def DeleteProds(request):
-    # Marcas.objects.all().delete()   ## Intentando no borrar
-    # DetalleLista.objects.all().delete() ### NO borrar
-    # Articulos.objects.all().delete()
-    
-    Vendedores.objects.all().delete()
-    Unifica.objects.all().update(contador=0)
-    # Unifica.objects.filter(automatico=True).delete()
-    
-
-
-    print("Articulos y Vendedores eliminados. unnificas en 0")
-    print('===========================================')
-
-
-@shared_task(queue='core_calc',bind=True)
 def CreateRules(request):
 
     management.call_command('createRules')
@@ -142,13 +99,6 @@ def CreateProds(request):
 
    
 
-#########
-
- # ## 1.1 rermueve palabras duplicadas
-    # nombre = nombre.split()
-    # nombre = (" ".join(sorted(set(nombre), key=nombre.index)))
-
-
 ########## Cities ###########
 @shared_task(queue='core_calc',bind=True)
 def updateCities(request):
@@ -161,7 +111,7 @@ def getSiteMaps(request):
     sites = Site.objects.filter(siteSearch='sitemap', enable=True).all()
     for site in sites:
         management.call_command('getSiteMap', site.id)
-    # GetAllSiteMap()
+
 
 @shared_task(queue='core_calc',bind=True)
 def getURLFromMaps(request):
@@ -177,18 +127,18 @@ def getURLS(self, siteid):
 
     management.call_command('getSiteURL', siteid)
 
-
 @shared_task(queue='core_calc',bind=True)
 def getSiteURLS(request):
     funncionnando = checkIfProcessRunning("geckodriver", True)
 
     sites = Site.objects.filter(siteSearch='crawler', enable=True).order_by('last_scan')
-
     
     for site in sites:
         getURLS.apply_async(args=(site.id,), expires=1600)
+########## FIN getSiteURLS ###########
 
-########## FIN  getSiteURLS ###########
+
+########## Del404URLS ###########
 @shared_task(queue='core_calc',bind=True)
 def Del404URLS(request):
     
@@ -197,10 +147,7 @@ def Del404URLS(request):
     for site in sites:
         sitio = Site.objects.get(pk=site.id)
         urls = SiteURLResults.objects.filter(site=sitio, error404=True)
-        # urls.count()
         urls.delete()
-        
-
 
 
 ###### BEAUTIFUL #############################

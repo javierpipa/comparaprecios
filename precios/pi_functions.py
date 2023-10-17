@@ -475,7 +475,15 @@ def saveUrlData(campoensitio, laurl, valor):
 
     if campoensitio.campo.campoQueGraba == 'idproducto':
         valor                   = valor.lower()
-        laurl.idproducto        = valor.lstrip()
+        valor                   = valor.rstrip()
+        valor                   = valor.lstrip()
+        try:
+            valor_int = int(valor)
+            valor = str(valor_int)
+        except:
+            pass
+        
+        laurl.idproducto        = valor
 
     if campoensitio.campo.campoQueGraba == 'image':
         laurl.image         = valor

@@ -1,19 +1,18 @@
-from email import parser
-
-from pydoc import pager
 from django.db import models
 from django.utils import timezone
 from django.urls import reverse
 
-from dj_shop_cart.cart import CartItem
 from decimal import Decimal
 
 
 from django_extensions.db.fields import AutoSlugField
 from django.utils.translation import gettext_lazy as _
-from django.db.models import CharField, Value, Q
-from django.db.models.functions import Concat
-from typing import List, Optional
+from django.db.models import CharField
+from django.utils.http import urlencode
+
+from django.core.validators import MinLengthValidator
+
+from typing import List
 from django.utils.html import format_html
 
 
@@ -21,8 +20,8 @@ from cms.models.pluginmodel import CMSPlugin
 from django.contrib import admin
 import unidecode
 from meta.models import ModelMeta
-from datetime import datetime
-
+from taggit.managers import TaggableManager
+from taggit.models import TaggedItemBase
 
 class Hello(CMSPlugin):
     guest_name = models.CharField(max_length=50, default='Guest')
@@ -194,7 +193,9 @@ class Site(ModelMeta,models.Model):
     product_category    = models.CharField(max_length=250, blank=True, null=True, help_text="Parte de URL que identifica categoria")
     product_product     = models.CharField(max_length=250, blank=True, null=True, help_text="Parte de URL que identifica un producto")
     product_palabras_evitar = models.CharField(max_length=250, blank=True, null=True, help_text="Parte de URL para no escanear como map= _q= separar por coma")
-    use_his_image       = models.BooleanField(default=True)
+    use_his_image       = models.BooleanField(default=True, help_text="Muestra imagen de la URL del sitio, si no, el articulo usa imagen de otro sitio")
+    precios_con_iva     = models.BooleanField(default=True, help_text="Hay pocos sitios que entregan sus precios SIN IVA, default = True")
+    obtiene_categorias  = models.BooleanField(default=False, help_text="Las categorias de los articulos de estos sitios. En principio usar jumbo solamente.")
 
     ### Area despacho
     desp_monto_minimo  = models.IntegerField(default=0, help_text="El mínimo para realizar una compra con despacho a domicilio es de")
@@ -639,12 +640,13 @@ class MarcasSistema(models.Model):
         return super(MarcasSistema, self).save(*args, **kwargs)
 
 
-from urllib.parse import urlencode
+
 class Marcas(models.Model):
-    nombre              = models.CharField(max_length=250, unique=True, blank=False, null=False)
+    nombre              = models.CharField(max_length=250, validators=[MinLengthValidator(2)], unique=True, blank=False, null=False)
     slug                = AutoSlugField(populate_from='nombre', editable=True, unique=True, db_index=True, slugify_function=my_slugify_function)
     unificado           = models.BooleanField(default=False)
     es_marca            = models.BooleanField(default=True)
+    created             = models.DateTimeField(editable=False,default=timezone.now)
 
     @property
     def rulesCount(self) -> int:
@@ -674,28 +676,26 @@ class Marcas(models.Model):
         ordering = ("nombre",)
 
     def get_absolute_url(self):
-        # base_url = reverse('precios:home')
-        # query_string =  urlencode({'marca': self.id})
-        # return f"{base_url}?{query_string}"
-        return reverse("precios:brands_detail", args=(self.slug,))
-        
-        
-        
+        base_url = reverse('precios:home')
+        query_string =  urlencode({'marca': self.id})
+        return f"{base_url}?{query_string}"
+        # return reverse("precios:brands_detail", args=(self.slug,))
 
     def get_update_url(self):
         return reverse("precios:Marcas_update", args=(self.pk,))
 
-class Breadcrumb(models.Model):
-    nombre = models.CharField(max_length=50, blank=True, null=True, default='', db_index=True, unique=True)
-    def __str__(self):
-        return "{0}".format( self.nombre)
+class TaggedArticles(TaggedItemBase):
+    content_object = models.ForeignKey('Articulos', on_delete=models.CASCADE)
+    class Meta:
+        indexes = [
+            models.Index(fields=['tag_id'], name='tag_id_idx'),  # Define un índice en la columna tag_id
+        ]
 
-class Breadcrumb_list(models.Model):
-    posicion        = models.IntegerField(default=0)
-    breadcrumbs     = models.ForeignKey(Breadcrumb, on_delete=models.CASCADE, default=1)
-    def __str__(self):
-        return "{0}: {1} ".format( self.posicion, self.breadcrumbs)
-    
+
+class TaggedUrls(TaggedItemBase):
+    content_object = models.ForeignKey('SiteURLResults', on_delete=models.CASCADE)
+
+
 class Articulos(ModelMeta, models.Model):
     """
     Articulos
@@ -724,7 +724,10 @@ class Articulos(ModelMeta, models.Model):
     
     created             = models.DateTimeField("date created", editable=False,default=timezone.now)
     updated             = models.DateTimeField("last updated", auto_now=True,auto_now_add=False)
-    breadcrumbs         = models.ManyToManyField(Breadcrumb_list, related_name="los_bread", blank=True)
+    tags                = TaggableManager(through=TaggedArticles)
+    priceCurrency       = models.CharField(max_length=3, default="CLP")
+    
+
     
     _metadata = {
         'title': 'nombre',
@@ -1044,7 +1047,9 @@ class SiteURLResults(models.Model):
     image           = models.URLField(max_length=600, blank=True, null=True, default='')
 
     reglas          = models.ManyToManyField(Unifica, related_name="las_reglas", default=None, blank=True)
-    breadcrumbs     = models.ManyToManyField(Breadcrumb_list, blank=True)
+    tags            = TaggableManager(through=TaggedUrls)
+    priceCurrency   = models.CharField(max_length=3, default="CLP")
+
 
         
     @property

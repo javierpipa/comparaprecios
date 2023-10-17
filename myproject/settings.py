@@ -112,6 +112,8 @@ INSTALLED_APPS = [
     "djangocms_page_tags",
     'django_json_ld',
     'django_user_agents',
+    'currencies',
+    'django_prices_openexchangerates',
 ]
 
 # django-json-ld
@@ -123,6 +125,16 @@ INSTALLED_APPS = [
 # JSON_LD_INDENT                  = None
 # JSON_LD_GENERATE_URL            = True
 
+
+## openexchangerates
+OPENEXCHANGERATES_BASE_CURRENCY='CLP'
+OPENEXCHANGERATES_API_KEY = config('OPENEXCHANGERATES_API_KEY', default='valor_predeterminado')
+OPENEXCHANGERATES_APP_ID  = config('OPENEXCHANGERATES_APP_ID', default='valor_predeterminado')
+## Taggit
+TAGGIT_CASE_INSENSITIVE = True
+
+## mttp
+MPTT_ADMIN_LEVEL_INDENT = 20
 
 # Google OAUTH
 AUTHENTICATION_BACKENDS = [
@@ -292,6 +304,7 @@ TEMPLATES = [
                 'sekizai.context_processors.sekizai',
                 'cms.context_processors.cms_settings',
                 'django.template.context_processors.i18n',
+                'currencies.context_processors.currencies',
                 # 'django.core.context_processors.request',
             ],
         },

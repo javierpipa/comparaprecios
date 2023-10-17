@@ -46,7 +46,10 @@ def check_sailers(c, minimo, fuz_level=70, debug=False):
 
     for _, row in c.iterrows():
         if len(row['quienesvenden']) <= minimo:
+            
             query_str = build_query_string(row)
+
+            # print(len(row['quienesvenden']) , minimo, query_str)
             df_matches = c.query(query_str)
                         
             if len(df_matches) > 0:
@@ -60,7 +63,8 @@ def check_sailers(c, minimo, fuz_level=70, debug=False):
 
 
 def build_query_string(row):
-    condition_dict = {'lo__unidades': row['lo__unidades'], 'articulo__pk': row['articulo__pk']}
+    # condition_dict = {'lo__unidades': row['lo__unidades'], 'articulo__pk': row['articulo__pk']}
+    condition_dict = {'lo__unidades': row['lo__unidades']}
     
     if row['lo__grados2'] != 0:
         condition_dict['lo__grados2'] = row['lo__grados2']
@@ -68,8 +72,9 @@ def build_query_string(row):
         condition_dict['lo__medida_cant'] = row['lo__medida_cant']
     if row['lo__envase'].strip() != "":
         condition_dict['lo__envase'] = f"'{row['lo__envase'].strip()}'"
-    if row['lo__talla'].strip() != "":
-        condition_dict['lo__talla'] = f"'{row['lo__talla'].strip()}'"
+    if row['lo__talla']:
+        if row['lo__talla'].strip() != "":
+            condition_dict['lo__talla'] = f"'{row['lo__talla'].strip()}'"
 
     query_str = ' & '.join([f"({key} == {value})" for key, value in condition_dict.items()])
     query_str += f" & (articulo__pk != {row['articulo__pk']})"
@@ -104,11 +109,11 @@ def check_pd(c,
         este_r_medida       = row0['r_medida']
         este_r_talla        = row0['r_talla']
 
-        if debug:        
-            print(f'==================================')
-            print(f'este_nombre={este_nombre} este_grados={este_grados} este_medida_cant={este_medida_cant} arr_quienes_vender={arr_quienes_vender} este_ean={este_ean_13} este_envase={este_envase}')
-            print(f'==================================')
-        if check_ean:
+        # if debug:        
+        #     print(f'==================================')
+        #     print(f'este_nombre={este_nombre} este_grados={este_grados} este_medida_cant={este_medida_cant} arr_quienes_vender={arr_quienes_vender} este_ean={este_ean_13} este_envase={este_envase}')
+        #     print(f'==================================')
+        if check_ean and este_ean_13 !='':
             df_matches = c.loc[
                 (c['lo__ean_13']        == este_ean_13) & 
                 (c['articulo__pk']      != este_pk)
@@ -123,81 +128,76 @@ def check_pd(c,
                 otro_ean_13         = row02['lo__ean_13']
                 otro_talla          = row02['lo__talla']
                 # print('1')
-                if row02['r_nombre'] == 0 :
-                    # print('2')
-                    if row0['r_nombre'] == 0:
+                if row02['r_nombre'] == 0 and  row0['r_nombre'] == 0:
                         # print('3')
-                        if  not is_vendedores_in(arr_quienes_vender, row02['quienesvenden']):
-                            # print('4 Inicio')
-                            if debug:        
-                                print('SUPERIOR')
-                                print(tabulate(df_matches, headers = 'keys', tablefmt = 'psql'))
+                    if  not is_vendedores_in(arr_quienes_vender, row02['quienesvenden']):
+                        # print('4 Inicio')
+                        if debug:        
+                            print('SUPERIOR')
+                            print(tabulate(df_matches, headers = 'keys', tablefmt = 'psql'))
+                        
+
+                        ### Cual esta mal ??
+                        ##### revisa grados
+                        if este_grados == 0 and otro_grados == 0: 
+                            ### Ambos grados iguales, no se corrige
+                            pass
+                        elif este_grados == 0 and otro_grados != 0: 
+                            c.at[cuenta0,'r_grados'] = 1
+                            c.at[cuenta0,'lo__grados2']  = otro_grados
+                            c.at[cuenta0,'rule'] = 'ean grados 1'
+                        # elif este_grados != 0 and otro_grados == 0: 
+                        #     c.at[cuenta02,'r_grados'] = 1
+                        #     c.at[cuenta02,'lo__grados2']  = este_grados
+                        #     c.at[cuenta02,'rule'] = 'ean grados 2'
+                        
+                        if este_envase == '' and otro_envase == '':
+                            ### Ambos grados iguales, no se corrige
+                            pass
+                        elif este_envase == '' and otro_envase != '':
+                            c.at[cuenta0,'lo__envase']  = otro_envase
+                            c.at[cuenta0,'r_envase'] = 1
+                            c.at[cuenta0,'rule'] = 'ean envase 1'
+                        # elif este_envase != '' and otro_envase == '':
+                        #     c.at[cuenta02,'lo__envase']  = este_envase
+                        #     c.at[cuenta02,'r_envase'] = 1
+                        #     c.at[cuenta02,'rule'] = 'ean envase 2'
+                        
+                        if este_medida_cant < otro_medida_cant :
                             
+                            c.at[cuenta0,'lo__medida_cant']  = otro_medida_cant
+                            c.at[cuenta0,'r_medida'] = 1
+                            c.at[cuenta0,'rule'] = 'ean medida_cant 2'
 
-                            ### Cual esta mal ??
-                            ##### revisa grados
-                            if este_grados == 0 and otro_grados == 0: 
-                                ### Ambos grados iguales, no se corrige
-                                pass
-                            elif este_grados == 0 and otro_grados != 0: 
-                                c.at[cuenta0,'r_grados'] = 1
-                                c.at[cuenta0,'lo__grados2']  = otro_grados
-                                c.at[cuenta0,'rule'] = 'ean grados 1'
-                            elif este_grados != 0 and otro_grados == 0: 
-                                c.at[cuenta02,'r_grados'] = 1
-                                c.at[cuenta02,'lo__grados2']  = este_grados
-                                c.at[cuenta02,'rule'] = 'ean grados 2'
-                            
-                            if este_envase == '' and otro_envase == '':
-                                ### Ambos grados iguales, no se corrige
-                                pass
-                            elif este_envase == '' and otro_envase != '':
-                                c.at[cuenta0,'lo__envase']  = otro_envase
-                                c.at[cuenta0,'r_envase'] = 1
-                                c.at[cuenta0,'rule'] = 'ean envase 1'
-                            elif este_envase != '' and otro_envase == '':
-                                c.at[cuenta02,'lo__envase']  = este_envase
-                                c.at[cuenta02,'r_envase'] = 1
-                                c.at[cuenta02,'rule'] = 'ean envase 2'
-                            
-                            if este_medida_cant > otro_medida_cant :
-                                c.at[cuenta02,'lo__medida_cant']  = este_medida_cant
-                                c.at[cuenta02,'r_medida'] = 1
-                                c.at[cuenta02,'rule'] = 'ean medida_cant 1'
-                            else:
-                                c.at[cuenta0,'lo__medida_cant']  = otro_medida_cant
-                                c.at[cuenta0,'r_medida'] = 1
-                                c.at[cuenta0,'rule'] = 'ean medida_cant 2'
+                        # if este_unidades != otro_unidades :
+                        #     c.at[cuenta02,'lo__unidades']  = este_unidades    
 
-                            if este_unidades != otro_unidades :
-                                c.at[cuenta02,'lo__unidades']  = este_unidades    
+                        if este_talla == '' and otro_talla != '':
+                            c.at[cuenta0,'lo__talla']  = otro_talla
+                            c.at[cuenta0,'r_talla'] = 1
+                            c.at[cuenta0,'rule'] = 'ean talla 1'
+                        # if este_talla != '' and otro_talla == '':
+                        #     c.at[cuenta02,'lo__talla']  = este_talla
+                        #     c.at[cuenta02,'r_talla'] = 1
+                        #     c.at[cuenta02,'rule'] = 'ean talla 2'
 
-                            if este_talla == '' and otro_talla != '':
-                                c.at[cuenta0,'lo__talla']  = otro_talla
-                                c.at[cuenta0,'r_talla'] = 1
-                                c.at[cuenta0,'rule'] = 'ean talla 1'
-                            elif este_talla != '' and otro_talla == '':
-                                c.at[cuenta02,'lo__talla']  = este_talla
-                                c.at[cuenta02,'r_talla'] = 1
-                                c.at[cuenta02,'rule'] = 'ean talla 2'
+                        if len(otro_nombre) > 5:
+                            c.at[cuenta0,'lo__nombre']  = otro_nombre
+                            c.at[cuenta0,'r_nombre'] = 1
+                            c.at[cuenta0,'rule'] = 'ean nombre'
 
-                            if len(este_nombre) > 5:
-                                c.at[cuenta02,'lo__nombre']  = este_nombre
-                                c.at[cuenta02,'r_nombre'] = 1
-                                c.at[cuenta02,'rule'] = 'ean nombre'
-
-                            c.at[cuenta02,'r_ean'] = 1
-                            if c.at[cuenta02,'rule'] == '' :
-                                c.at[cuenta02,'rule'] = 'check_ean'
-                            
-                            c = add_vendedores(c, cuenta0, cuenta02)
-                            # print('4 Fin')
-                            if debug:        
-                                df_matches = c.loc[
-                                    (c['lo__ean_13']        == este_ean_13) 
-                                ]
-                                print('inferior')
-                                print(tabulate(df_matches, headers = 'keys', tablefmt = 'psql'))
+                        c.at[cuenta02,'r_ean'] = 1
+                        if c.at[cuenta02,'rule'] == '' :
+                            c.at[cuenta02,'rule'] = 'check_ean'
+                        
+                        c = add_vendedores(c, cuenta0, cuenta02)
+                        # print('4 Fin')
+                        if debug:        
+                            df_matches = c.loc[
+                                (c['lo__ean_13']        == este_ean_13) 
+                            ]
+                            print('inferior')
+                            print(tabulate(df_matches, headers = 'keys', tablefmt = 'psql'))
         else:  
             df_matches = c.loc[
                 (c['articulo__pk']      != este_pk)
@@ -272,7 +272,6 @@ def check_pd(c,
            
             fuz         = fuzz.token_sort_ratio(este_nombre, otro_nombre)
             fuz_precio  = fuzz.token_sort_ratio(este_get_price, otro_get_price)
-            # print('fuz', fuz)
 
             if fuz > fuz_level and not is_vendedores_in(arr_quienes_vender, arr_otro_vender):     ### Hay proximidad de nombre y no ha sido copiado
                 if debug:
@@ -282,12 +281,10 @@ def check_pd(c,
                     c.at[cuenta0,'lo__grados2'] = otro_grados
                     c.at[cuenta0,'r_grados'] = 1
                     c.at[cuenta0,'rule'] = 'pd_grados'
-                    # c = add_vendedores(c, cuenta0, cuenta02)
                 if check_envase:
                     c.at[cuenta0,'lo__envase'] = otro_envase
                     c.at[cuenta0,'r_envase'] = 1
                     c.at[cuenta0,'rule'] = 'pd_envase'
-                    # c = add_vendedores(c, cuenta0, cuenta02)
                 if check_medida_cant:
                     c.at[cuenta0,'lo__medida_cant'] = otro_medida_cant
                     c.at[cuenta0,'r_medida'] = 1
@@ -345,6 +342,7 @@ def find_best_match(row, df_matches, fuz_level):
     for _, row_match in df_matches.iterrows():
         if not is_vendedores_in(row['quienesvenden'], row_match['quienesvenden']):
             fuz = fuzz.token_sort_ratio(row['lo__nombre'], row_match['lo__nombre'])
+            
             if fuz > best_fuz and fuz > fuz_level:
                 best_fuz = fuz
                 best_match = row_match
@@ -399,71 +397,7 @@ def get_value_counts_df(c, column_name):
     value_counts_uno = value_counts.loc[lambda x : x==1]
     return value_counts_uno.to_frame('counts').reset_index()
 
-
-def intenta_marca(marca_obj, debug, nombre=None):
-    num_rules_created   = int(Settings.objects.get(key='num_rules_created').value)
-    
-    reglas              = []
-
-    sites = Vendedores.objects.select_related('articulo','vendidoen')
-    sites = sites.filter(articulo__marca=marca_obj)
-    # if nombre:
-    #     sites = sites.filter(articulo__nombre=nombre)
-    sites = sites.exclude(vendidoen__precio=0)
-    sites = sites.exclude(vendidoen__error404=True)
-    sites = sites.values('vendidoen__site')
-    sites = sites.annotate(total=Count('vendidoen__site'))
-    sites = sites.order_by('-total')
-    if not sites:
-        return
-    
-    all_sites   = list(sites)
-    
-    if debug:
-        print(f'all_sites={all_sites} ')
-
-    all_sites_arr = []
-    for site in all_sites:
-        all_sites_arr.append(site['vendidoen__site'])
-
-    articles_from_all = Vendedores.objects.select_related('articulo','vendidoen')
-    articles_from_all = articles_from_all.filter(articulo__marca=marca_obj)
-    if nombre:
-        articles_from_all = articles_from_all.filter(articulo__nombre=nombre)
-    articles_from_all = articles_from_all.filter(vendidoen__site__in=all_sites_arr)
-    articles_from_all = articles_from_all.exclude(vendidoen__precio=0)
-    articles_from_all = articles_from_all.exclude(vendidoen__error404=True)
-    articles_from_all = articles_from_all.order_by('articulo__nombre', 'articulo__unidades','articulo__medida_cant','articulo__grados2')
-    articles_from_all = articles_from_all.distinct()
-    c = create_PD_From(articles_from_all)
-    if debug:
-        print(tabulate(c, headers = 'keys', tablefmt = 'double_outline'))
-
-    
-    # # Tokenizar las palabras
-    # word_tokens = [word for sentence in c['articulo__nombre'] for word in word_tokenize(sentence)]
-
-    # # Calcular la frecuencia de las palabras
-    # word_freq = FreqDist(word_tokens)
-
-    # # Encontrar la palabra más común
-    # most_common_word = word_freq.most_common(1)[0][0]
-
-
-    ## Caso grados que haya solo 1 registro
-    if debug:
-        print("######### Check Grados ###############")
-    
-    
-    # df_medida_cant_uno = get_value_counts_df(c, 'lo__medida_cant')
-    # c = check_medida_cant(c, df_medida_cant_uno, debug=debug)
-
-
-    df_grados_uno = get_value_counts_df(c, 'lo__grados2')
-    # c = check_grados_func(c, df_grados_uno, debug=debug)
-    
-
-    
+def check_grados_func(c, df_grados_uno, debug):
     if debug:
         print(f'cuantos = {len(df_grados_uno)}')
         print(tabulate(df_grados_uno, headers = 'keys', tablefmt = 'psql'))
@@ -508,17 +442,89 @@ def intenta_marca(marca_obj, debug, nombre=None):
                         c.at[cuenta2,'r_grados'] = 1
                         c.at[cuenta2,'rule'] = 'Check Grados'
                         # c = add_vendedores(c, cuenta2, cuenta3)
+    return c
+
+def get_sites(marca_obj):
+    sites = Vendedores.objects.select_related('articulo','vendidoen')
+    sites = sites.filter(articulo__marca=marca_obj)
+    sites = sites.exclude(vendidoen__precio=0)
+    sites = sites.exclude(vendidoen__error404=True)
+    sites = sites.values('vendidoen__site')
+    sites = sites.annotate(total=Count('vendidoen__site'))
+    sites = sites.order_by('-total')
+
+    return sites
+
+def get_articles_from_all(marca_obj, nombre, all_sites_arr):
+    articles_from_all = Vendedores.objects.select_related('articulo','vendidoen')
+    articles_from_all = articles_from_all.filter(articulo__marca=marca_obj)
+    if nombre:
+        articles_from_all = articles_from_all.filter(articulo__nombre=nombre)
+    articles_from_all = articles_from_all.filter(vendidoen__site__in=all_sites_arr)
+    articles_from_all = articles_from_all.exclude(vendidoen__precio=0)
+    articles_from_all = articles_from_all.exclude(vendidoen__error404=True)
+    articles_from_all = articles_from_all.order_by('articulo__nombre', 'articulo__unidades','articulo__medida_cant','articulo__grados2')
+    articles_from_all = articles_from_all.distinct()
+
+    return articles_from_all
+
+def intenta_marca(marca_obj, debug, nombre=None):
+    num_rules_created   = int(Settings.objects.get(key='num_rules_created').value)
+    reglas              = []
+    all_sites_arr       = []
+    sites               = get_sites(marca_obj)
+
+    if not sites:
+        return
+    
+    for site in list(sites):
+        all_sites_arr.append(site['vendidoen__site'])
+
+    articles_from_all = get_articles_from_all(marca_obj, nombre, all_sites_arr)
+
+    c = create_PD_From(articles_from_all)
+    if debug:
+        print(tabulate(c, headers = 'keys', tablefmt = 'double_outline'))
 
 
-    # fuz_levels = (90,89,88, )
-    fuz_levels = (49, )
+    # Que supermercado tiene mas articulos de la marca.    ??
+
+
+    # # Tokenizar las palabras
+    # word_tokens = [word for sentence in c['articulo__nombre'] for word in word_tokenize(sentence)]
+
+    # # Calcular la frecuencia de las palabras
+    # word_freq = FreqDist(word_tokens)
+
+    # # Encontrar la palabra más común
+    # most_common_word = word_freq.most_common(1)[0][0]
+
+
+    ## Caso grados que haya solo 1 registro
+    if debug:
+        print("######### Check Grados ###############")
+    
+    
+    # df_medida_cant_uno = get_value_counts_df(c, 'lo__medida_cant')
+    # c = check_medida_cant(c, df_medida_cant_uno, debug=debug)
+
+
+    df_grados_uno = get_value_counts_df(c, 'lo__grados2')
+    c = check_grados_func(c, df_grados_uno, debug=debug)
+    
+    fuz_levels = (88,70,60,50,40 )
     for fuzl in fuz_levels:
         ## Envase
-        c = check_pd(c, check_nombre=False, check_ean=False, check_grados=False, check_medida_cant=False, check_envase=True, check_unidades=False, check_talla=False,fuz_level=fuzl, debug=debug)
+        c = check_pd(c, check_nombre=False, check_ean=False, check_grados=False, check_medida_cant=False, check_envase=True, check_unidades=False, check_talla=False, fuz_level=fuzl, debug=debug)
         ## Grados
         c = check_pd(c, check_nombre=False, check_ean=False, check_grados=True, check_medida_cant=False, check_envase=False, check_unidades=False, check_talla=False, fuz_level=fuzl, debug=debug)
+        ## Medida_cant
+        c = check_pd(c, check_nombre=False, check_ean=False, check_grados=False, check_medida_cant=True, check_envase=False, check_unidades=False, check_talla=False, fuz_level=fuzl, debug=debug)
+        ## Talla
+        c = check_pd(c, check_nombre=False, check_ean=False, check_grados=False, check_medida_cant=False, check_envase=False, check_unidades=False, check_talla=True, fuz_level=fuzl, debug=debug)
+        
 
-    fuz_levels = (88, )
+    fuz_levels = (95,90,85 )
     for fuzl in fuz_levels:
         if debug:
             print("Check- envase")
@@ -533,18 +539,18 @@ def intenta_marca(marca_obj, debug, nombre=None):
                      fuz_level=fuzl, 
                      debug=debug)
         
-        # if debug:
-        #     print("Check- EAN")
-        # c = check_pd(c, 
-        #              check_nombre=False, 
-        #              check_ean=True,            ## Cierto
-        #              check_grados=False, 
-        #              check_medida_cant=False, 
-        #              check_envase=False, 
-        #              check_unidades=False,
-        #              check_talla=False,
-        #              fuz_level=fuzl, 
-        #              debug=debug)
+        if debug:
+            print("Check- EAN")
+        c = check_pd(c, 
+                     check_nombre=False, 
+                     check_ean=True,            ## Cierto
+                     check_grados=False, 
+                     check_medida_cant=False, 
+                     check_envase=False, 
+                     check_unidades=False,
+                     check_talla=False,
+                     fuz_level=fuzl, 
+                     debug=debug)
 
         if debug:
             print("Check- Grados")
@@ -558,8 +564,6 @@ def intenta_marca(marca_obj, debug, nombre=None):
                      check_talla=False,
                      fuz_level=fuzl, 
                      debug=debug)
-
-        
 
         if debug:
             print("Check- medida_cant")
@@ -614,11 +618,8 @@ def intenta_marca(marca_obj, debug, nombre=None):
                      debug=debug)
     
 
-    if num_rules_created > 10:
-        fuz_levels = (93,)
-    else:
-        fuz_levels = (93,)
 
+    fuz_levels = (93,80,70, 60)
     for fuzl in fuz_levels:
         if debug:
             print(f"Check sailers min=1 fuz={fuzl}")
@@ -628,96 +629,7 @@ def intenta_marca(marca_obj, debug, nombre=None):
             print(f"Check sailers min=2 fuz={fuzl}")
         c = check_sailers(c, 2, fuzl, debug)
 
-    
-
-    # ###### Casos especiales, donde hay 1 registro solamente
-    # ### Caso envase que haya solo 1 registro
-    # envase_list    = c.lo__envase.value_counts() 
-    # envase_uno     = envase_list.loc[lambda x : x==1]
-    # df_envase_uno  = envase_uno.to_frame('counts').reset_index()
-    # df_envases     = envase_list.to_frame('counts').reset_index()
-    
-    
-    # if debug:
-    #     print("######### Check Envases ###############")
-    #     print(tabulate(df_envases, headers = 'keys', tablefmt = 'psql'))
-
-    # for cuenta, row in df_envase_uno.iterrows():
-    #     valor       = row['lo__envase']
-    #     a           = c.loc[c['lo__envase'] == valor]
-    #     for cuenta3, row3 in df_envases.iterrows():
-    #         envase      = row3['lo__envase']
-    #         # a_quienes   = ' '.join(str(e) for e in row3['quienesvenden'])
-
-    #         fuz         = fuzz.token_sort_ratio(valor, envase)
-    #         if fuz !=100 and fuz > 80:
-    #             b   = c.loc[ (c['lo__envase']            == valor)  ] 
-
-    #             if debug:
-    #                 print(f'fuz={fuz}')
-    #                 print(tabulate(b, headers = 'keys', tablefmt = 'psql'))
-
-    #             for cuenta4, row4 in b.iterrows():
-    #                 # if not is_vendedores_in(row3['quienesvenden'], row4['quienesvenden']):
-    #                 #     print("Envases - Bien.. No esta.. agregarlo")
-
-    #                 c.at[cuenta4,'lo__envase'] = envase
-    #                 c.at[cuenta4,'r_envase'] = 1
-
-
-    ### Caso medida_cant que haya solo 1 registro
-    # if debug:
-    #     print("######### Check medida_cant ###############")
-        
-    # medida_cant_list    = c.lo__medida_cant.value_counts() 
-    # medida_cant_uno     = medida_cant_list.loc[lambda x : x==1]
-    # df_medida_cant_uno  = medida_cant_uno.to_frame('counts').reset_index()
-    # if debug:
-    #     print(tabulate(df_medida_cant_uno, headers = 'keys', tablefmt = 'psql'))
-    
-    # for cuenta, row in df_medida_cant_uno.iterrows():
-    #     valor       = row['lo__medida_cant']
-    #     a           = c.loc[c['lo__medida_cant'] == float(valor)]
-    #     for cuenta2, row2 in a.iterrows():
-    #         no_id       = row2['articulo__pk']
-    #         a_nombre    = row2['articulo__nombre']
-    #         a_grados    = row2['articulo__grados2']
-    #         a_unidades  = row2['articulo__unidades']
-    #         a_quienes   = ' '.join(str(e) for e in row2['quienesvenden'])
-
-    #         if debug:
-    #             print(tabulate(a, headers = 'keys', tablefmt = 'psql'))
-
-    #         b           = c.loc[(c['articulo__nombre']      == a_nombre) & \
-    #                             (c['articulo__grados2']     == float(a_grados)) & \
-    #                             (c['articulo__unidades']    == float(a_unidades)) & \
-    #                             (c['articulo__pk']          != no_id)  ] 
-            
-    #         for cuenta3, row3 in b.iterrows():
-    #             b_quienes = ' '.join(str(e) for e in row3['quienesvenden'])
-    #             if not is_vendedores_in(row2['quienesvenden'], row3['quienesvenden']):
-    #                 # print("Bien.. No esta.. agregarlo")
-                
-    #                 c.at[cuenta2,'lo__medida_cant'] = c.at[cuenta3,'articulo__medida_cant']
-    #                 c.at[cuenta2,'r_medida'] = 1
-
-    #                 narray = list(row3['quienesvenden'])
-    #                 arr_aquienes = a_quienes.split()
-    #                 for dato in arr_aquienes:
-    #                     narray.append(int(dato))
-    #                 c.at[cuenta2,'quienesvenden']   = narray
-
-    #             else:
-    #                 print("Si esta.. NO agregar")
-                    
-    #         if debug:
-    #             print(tabulate(b, headers = 'keys', tablefmt = 'psql'))
-    
-
-
   
-
-
     ### Caso nombre que haya solo 1 registro
     if debug:
         print("######### Check NOMBRES ###############")
@@ -804,12 +716,8 @@ def intenta_marca(marca_obj, debug, nombre=None):
     if debug:
         imprime_reglas(reglas)
     
-    # sin_reglas = 0
-    # for cuenta2, row2 in c.iterrows():
-    #     if row2['r_grados'] == 0 and row2['r_medida'] == 0 and row2['r_nombre'] == 0 and row2['r_envase'] == 0:
-    #         sin_reglas = sin_reglas + 1
     if len(reglas) > 0:
-        print(f"{marca_obj.slug} articulos a {len(c)} art. Con reglas={len(reglas)}")
+        print(f"{marca_obj.slug} con {len(c)} articulos. Nuevas reglas={len(reglas)}")
         
     if debug:
         print(tabulate(c, headers = 'keys', tablefmt = 'psql'))
