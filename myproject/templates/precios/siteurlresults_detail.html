@@ -175,10 +175,18 @@
 
             <div class="table-responsive table-billing-history">
                 <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th class="border-gray-200" scope="col">ID </th>
+                            <th class="border-gray-200" scope="col">Nombre</th>
+                            <th class="border-gray-200" scope="col">Slug</th>
+                        </tr>
+                    </thead>
                     {% for tag in object.tags.all %}
                     <tr>
                         <td>{{ tag.id }}</td>
                         <td>{{ tag }}</td>
+                        <td>{{ tag.slug }}</td>
                     </tr>
                     
                     {% endfor %}
