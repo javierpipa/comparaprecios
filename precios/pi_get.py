@@ -464,7 +464,8 @@ def get_unidades2(nombre, unidades):
         r'(\d+\s*unid)',
         r'(\d+\s*uds)',
         r'(\d+)\s*x\s*',
-        r'\s*[^\S\n\t]+x\s*(\d+)'
+        r'\s*[^\S\n\t]+x\s*(\d+)',
+        r'^\d{1,2}'
     ]
     # Bucle para buscar y actualizar unidades y nombre
     for busca in busquedas:
@@ -472,7 +473,11 @@ def get_unidades2(nombre, unidades):
             retorna, nombre = pack_search(nombre, busca)
             if retorna:
                 # Elimina cualquier palabra no numérica (como "unidades", "pack", etc.)
-                retorna = re.sub(r'\D', '', retorna)
+                try:
+                    retorna = re.sub(r'\D', '', retorna)
+                except:
+                    pass
+                
                 unidades = int(retorna)
                 return nombre, unidades
             
@@ -749,7 +754,7 @@ def create_prods(
         arr_nombre = nombre.split(" ")
         for palabra in arr_nombre:
             if palabra in PACKS :
-                busca = '.'+palabra + '.([0-9]+)'
+                busca = palabra + '.([0-9]+)'
                 retorna, nombre = pack_search(nombre,busca)
                 if retorna:
                     nombre = nombre.replace('un. ','')
@@ -762,7 +767,8 @@ def create_prods(
         # 4.2 Unidades
         
         
-        nombre, unidades = get_unidades2(nombre, unidades)
+        if unidades == 1:
+            nombre, unidades = get_unidades2(nombre, unidades)
 
         if unidades == 1:
             nombre, unidades = get_unidades(nombre, UNIDADES)
@@ -1040,7 +1046,9 @@ def pack_search(en_que_texto, que_busco):
     x = re.findall(que_busco, en_que_texto, re.IGNORECASE)
     if x:
         en_que_texto = re.sub(que_busco, '', en_que_texto, flags=re.IGNORECASE)
-        return x[0], en_que_texto
+        en_que_texto = en_que_texto.strip()
+        unidades     = int(x[0])
+        return unidades, en_que_texto
     else:
         return None, en_que_texto
     
