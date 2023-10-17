@@ -982,25 +982,13 @@ def create_article(newmarca, nombre, medida_cant, medida_um, nombre_original, un
 def get_dics():
    
     PALABRAS_INUTILES = AllPalabras.objects.filter(tipo=TIPOPALABRA.INUTIL).values_list('palabra',flat=True).all()
-    
     SUJIFOS_NOMBRE = AllPalabras.objects.filter(tipo=TIPOPALABRA.SUJIFO_NOMBRE).values_list('palabra',flat=True).all()
     ean_13_site_ids = list(Site.objects.filter(es_ean13=True).values_list('id', flat=True))
-
-        
     UMEDIDAS = AllPalabras.objects.filter(tipo=TIPOPALABRA.UMEDIDA).values_list('palabra',flat=True).all()
-
-    ###     genera columna unidades
     UNIDADES = AllPalabras.objects.filter(tipo=TIPOPALABRA.UNIDAD).values_list('palabra',flat=True).all()
-    ## Packs y sets
-    # PACKS      = list(Settings.objects.get(key='PACKS').valor_data)
     PACKS = AllPalabras.objects.filter(tipo=TIPOPALABRA.PACKS).values_list('palabra',flat=True).all()
-    # 'verde' ,'negro',
-    # TALLAS      = list(Settings.objects.get(key='TALLAS').valor_data)
     TALLAS = AllPalabras.objects.filter(tipo=TIPOPALABRA.TALLA).values_list('palabra',flat=True).all()
-    # TALLAS   = ('xg/xxg', 'xg', 'xxg', 'xl', 'talla s-xl','talla xl', 'talla s', 'talla m', 'talla xs', 'talla xxg', 'talla xxl', 'talla unica', 'talla ch/m','talla s/m','talla g', 'talla 4', 'talla 6','talla 8','talla 10','tallas: s-m-l') 
-    # COLORES = ('cromo','bronce','bicolor','roja','incolora','celeste',  'lila','amarilla','amarillo', 'naranjo', 'rojo', 'gris','cyan', 'beige', 'azul', 'rosada','rosado', 'rosa', 'roza', 'turquesa', 'morado', 'white', 'pink', 'turq', 'blank','silver')
     COLORES = AllPalabras.objects.filter(tipo=TIPOPALABRA.COLOR).values_list('palabra',flat=True).all()
-    # ENVASES = ('caja,', 'caja', 'tarro',  'tarro,', 'botella', 'botella,', 'botellin', 'bolsa','bolsa,', 'lata,', 'lata', 'latas','latas,', 'tetra', 'botellon','botellón', 'frasco', 'otellín', 'pote', 'pote,','barril','tetrapak', 'bandeja','sobre', 'malla', 'bidon', 'doypack', 'squeeze','retornable', 'squeze', 'envase flexible', ' pet ', 'pouch')
     ENVASES = AllPalabras.objects.filter(tipo=TIPOPALABRA.ENVASE).values_list('palabra',flat=True).all()
     marcas = SiteURLResults.objects.exclude(marca__exact='', precio=0 ).distinct().all()
     listamarcas = Marcas.objects.values_list('nombre',flat=True).all()
