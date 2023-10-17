@@ -303,7 +303,7 @@ def url_get(browser,
         laurl.tags.clear()
         if ld_response_bread:
             for item in ld_response_bread:
-                print(f'Largo={len(ld_response_bread)} posicion={item['position']}')
+                print(f"Largo={len(ld_response_bread)} posicion={item['position']}")
                 laurl.tags.add(str(item['name']))
 
         laurl.precio        = int(precio)
