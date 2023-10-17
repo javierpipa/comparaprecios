@@ -1,23 +1,18 @@
-from email import parser
-
-
 from django.db import models
 from django.utils import timezone
 from django.urls import reverse
 
-from dj_shop_cart.cart import CartItem
 from decimal import Decimal
 
 
 from django_extensions.db.fields import AutoSlugField
 from django.utils.translation import gettext_lazy as _
-from django.db.models import CharField, Value, Q
-from django.db.models.functions import Concat
+from django.db.models import CharField
 from django.utils.http import urlencode
 
 from django.core.validators import MinLengthValidator
 
-from typing import List, Optional
+from typing import List
 from django.utils.html import format_html
 
 
@@ -25,13 +20,8 @@ from cms.models.pluginmodel import CMSPlugin
 from django.contrib import admin
 import unidecode
 from meta.models import ModelMeta
-from datetime import datetime
 from taggit.managers import TaggableManager
 from taggit.models import TaggedItemBase
-from mptt.models import MPTTModel, TreeForeignKey
-from taggit.models import Tag
-
-
 
 class Hello(CMSPlugin):
     guest_name = models.CharField(max_length=50, default='Guest')
@@ -701,8 +691,6 @@ class TaggedArticles(TaggedItemBase):
             models.Index(fields=['tag_id'], name='tag_id_idx'),  # Define un índice en la columna tag_id
         ]
 
-# class HierarchicalTag(MPTTModel, Tag):
-#     parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
 
 class TaggedUrls(TaggedItemBase):
     content_object = models.ForeignKey('SiteURLResults', on_delete=models.CASCADE)
