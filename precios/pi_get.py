@@ -298,9 +298,7 @@ def url_get(browser,
         if precio == "":
             precio = 0
 
-         
-        # laurl.breadcrumbs.set(bread_list_arr)
-        
+                
         ### Tags
         laurl.tags.remove()
         if ld_response_bread:
@@ -480,6 +478,7 @@ def get_unidades2(nombre, unidades):
             
                 # break  # Salir del bucle una vez que se encuentre una coincidencia
     return nombre, 1
+
 ## 4.05 Anotacion de tallas
 def obtener_talla(nombre, TALLAS):
     talla, nombre           = remueveYGuardaSinSplit(TALLAS, nombre, remover=True, todos=True)
@@ -757,7 +756,7 @@ def create_prods(
                     nombre = nombre.replace('unidades ','')
                     if unidades == 1 :
                         unidades = retorna
-                        
+
                     break
 
         # 4.2 Unidades
