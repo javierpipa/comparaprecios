@@ -933,7 +933,7 @@ def create_prods(
         if ean_13:
             miarticulo.ean_13 = ean_13
 
-        miarticulo.tags.remove()
+        miarticulo.tags.clear()
         if tags and site.obtiene_categorias:
             for tag in tags:
                 miarticulo.tags.add(tag)
