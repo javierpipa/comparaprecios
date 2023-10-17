@@ -165,11 +165,15 @@
 
 <!-- </div>     -->
 
-
-
-
-
 {% block pagination %}
+  {% include "paginacion.html" with paginator=articulos_dict.paginator page_obj=articulos_dict clean_params=context.clean_params%}
+{% endblock %}  
+
+
+
+{% block pagination2 %}
+    {% if clean_params %}{{ clean_params }}&{% endif %}
+
     {% if articulos_dict.paginator.num_pages %}
         <hr>
     {% endif%}

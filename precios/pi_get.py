@@ -477,7 +477,7 @@ def get_unidades2(nombre, unidades):
                     retorna = re.sub(r'\D', '', retorna)
                 except:
                     pass
-                
+
                 unidades = int(retorna)
                 return nombre, unidades
             
@@ -1047,7 +1047,12 @@ def pack_search(en_que_texto, que_busco):
     if x:
         en_que_texto = re.sub(que_busco, '', en_que_texto, flags=re.IGNORECASE)
         en_que_texto = en_que_texto.strip()
-        unidades     = int(x[0])
+        unidades     = x[0]
+        try:
+            unidades = re.sub(r'\D', '', unidades)
+        except:
+            pass
+        unidades     = int(unidades)
         return unidades, en_que_texto
     else:
         return None, en_que_texto

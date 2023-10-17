@@ -658,7 +658,13 @@ def precios(request):
     nombre = nombre.rstrip().lower()
 
     registrar_consulta(request, clase_consultada="cslta_", elemento_id=1, texto_busqueda=nombre)
-
+    
+    params = request.GET.copy()
+    if 'page' in params:
+        del params['page']
+        
+    context['clean_params'] = params.urlencode()
+    print(f'params.urlencode()={params.urlencode()}')
    
     
     if  puede_connsultar and (rtags or rmarca or nombre !=''):
