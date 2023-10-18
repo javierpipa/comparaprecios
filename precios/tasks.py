@@ -14,6 +14,7 @@ from precios.models import (
     Site, 
     SiteURLResults,
     PAGECRAWLER,
+    Marcas,
 )
 
 # from precios.pi_emails import send_email_account_daily
@@ -81,13 +82,16 @@ def check_periods(request):
 
 @shared_task(queue='core_calc',bind=True)
 def CreateRules(request):
-
     management.call_command('createRules')
 
-@shared_task(queue='core_calc',bind=True)
-def CreateProds(request):
-    
 
+######### createProds ################
+@shared_task(queue='core_calc',bind=True)
+def CreateProds(request, site_id, posicion):
+    management.call_command('createProds', site_id, posicion)
+
+@shared_task(queue='core_calc',bind=True)
+def CreateProdsAll(request):
     sites = Site.objects.filter(enable=True)
     sites = sorted(sites, key=lambda a: a.urlCount, reverse=True)
     posicion = 0
@@ -95,9 +99,24 @@ def CreateProds(request):
         posicion = posicion + 1
         print(site.siteName)
         print('===========================================')
-        management.call_command('createProds', site.id, posicion)
+        CreateProds.apply_async(args=(site.id,posicion), expires=1600)
 
-   
+######### FIN createProds ################
+
+################## Rules  ################
+#    
+# @shared_task(queue='core_calc',bind=True)
+# def RulesMarcas(request, marcaid):
+#     management.call_command('rulesMarca', marcaid)
+
+
+# @shared_task(queue='core_calc',bind=True)
+# def RulesMarcasAll(request):
+#     marcas = Marcas.objects.filter(es_marca=True)
+#     for marca in marcas:
+#         RulesMarcas.apply_async(args=(marca.id,), expires=1600)
+
+################## Fin Rules  #############
 
 ########## Cities ###########
 @shared_task(queue='core_calc',bind=True)

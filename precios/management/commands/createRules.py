@@ -1,32 +1,20 @@
 from django.core.management.base import BaseCommand
-import pandas as pd
-import numpy as np
-import unidecode
-from django.db.models import F, Sum, Count, Q
 from precios.models import SiteURLResults, Articulos, Unifica, Marcas, Vendedores, MarcasSistema, Site, Settings, AllPalabras, ReemplazaPalabras
 from django.core import management
-from precios.pi_get import obtener_grados
+
 
 from precios.pi_functions import (
-    
     setMessage, 
-    # buscar_articulos_con_y_sin_grados,
-    # get_num_url_in_sites_per_brand,
-    # get_articles_from_site,
-    # get_url_from_site_mul,
-    # get_url_from_site,
-
 )   
 from precios.pi_rules import (
     intenta_marca,
     createRule, 
-    imprime_reglas,
-    generate_rules,
-    create_PD_From,
 )
 from precios.pi_get import reemplaza_palabras        
-
-from fuzzywuzzy import fuzz, process
+from precios.tasks import (
+    CreateProdsAll,
+    
+)
 
 
 
@@ -35,7 +23,10 @@ class Command(BaseCommand):
 
     def __init__(self):
         super().__init__()
-
+    
+    # def CreateMarcasRules(self):
+    #     result = RulesMarcasAll.apply_async()
+    #     result.get()
 
     def create_articles(self, marcaid):
         if marcaid:
@@ -47,14 +38,17 @@ class Command(BaseCommand):
 
         else:
             # Articulos.objects.all().delete()
-            sites = Site.objects.filter(enable=True)
-            sites = sorted(sites, key=lambda a: a.urlCount, reverse=True)
-            posicion = 0
-            for site in sites:
-                posicion = posicion + 1
-                print(site.siteName)
-                print('===========================================')
-                management.call_command('createProds', site.id, posicion)
+            # CreateProdsAll()
+            result = CreateProdsAll.apply_async()
+            result.get()
+            # sites = Site.objects.filter(enable=True)
+            # sites = sorted(sites, key=lambda a: a.urlCount, reverse=True)
+            # posicion = 0
+            # for site in sites:
+            #     posicion = posicion + 1
+            #     print(site.siteName)
+            #     print('===========================================')
+            #     management.call_command('createProds', site.id, posicion)
 
     def rules_marcas(self, marcaid):
         ### Articulos debe estar lleno !!!
@@ -125,7 +119,9 @@ class Command(BaseCommand):
 
         for url in urls:
             url.reglas.clear()
+    
 
+    
     def add_arguments(self, parser):
         parser.add_argument('--marcaid', type=int, help='Marca id', default=None)
         parser.add_argument('--crear', type=bool, help='Solo crar articulos', default=False)
@@ -163,9 +159,10 @@ class Command(BaseCommand):
         else:
             marcas = Marcas.objects.filter(es_marca=True)
 
+        
         for marca in marcas:
-            intenta_marca(marca, False)
-    
+            intenta_marca(marca, False, None)
+        
 
         setMessage('Eliminando articulos')
         ######################################### INICIO      ###################
@@ -189,6 +186,8 @@ class Command(BaseCommand):
         ## 1eras reglas
         setMessage('Generando articulos 1/1')
         self.create_articles(marcaid)
+
+        
 
 
         setMessage('Elimina reglas automaticas sin uso')

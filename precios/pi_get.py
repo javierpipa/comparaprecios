@@ -459,7 +459,7 @@ def replace_comma_in_degrees(text):
 
 def get_unidades2(nombre, unidades):
     # Lista de patrones de búsqueda
-
+    nombre = nombre.strip()
     busquedas = [
         r'(\d+)\s*(?:packs?|unidades?|pack)\s*x',
         r'(\d+\s*unidades)',
@@ -468,7 +468,8 @@ def get_unidades2(nombre, unidades):
         r'(\d+\s*uds)',
         r'(\d+)\s*x\s*',
         r'\s*[^\S\n\t]+x\s*(\d+)',
-        r'^\d{1,2}'
+        r'^\d{1,2}',
+        r'(\d+)$'
     ]
     # Bucle para buscar y actualizar unidades y nombre
     for busca in busquedas:
@@ -483,8 +484,7 @@ def get_unidades2(nombre, unidades):
 
                 unidades = int(retorna)
                 return nombre, unidades
-            
-                # break  # Salir del bucle una vez que se encuentre una coincidencia
+                
     return nombre, 1
 
 ## 4.05 Anotacion de tallas
