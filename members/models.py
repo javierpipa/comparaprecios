@@ -209,13 +209,12 @@ class MemberStats(models.Model):
         return str(self.objeto)
 
 
-
 class Lista(models.Model):
     member          = models.ForeignKey(Member, on_delete=models.CASCADE, default=1)
     nombre_lista    = models.CharField(max_length=250, blank=True, null=True, help_text='Nombre de su lista')
     created         = models.DateTimeField(editable=False,default=timezone.now)
     updated         = models.DateTimeField(auto_now=True,auto_now_add=False)
-    
+    public          = models.BooleanField(default=False, help_text='Lista pública')
 
     def __str__(self) -> str:
         return self.nombre_lista
@@ -231,7 +230,6 @@ class Lista(models.Model):
         unique_together = [['member', 'nombre_lista']]
         
 
-
 class DetalleLista(models.Model):
     lista           = models.ForeignKey(Lista, on_delete=models.CASCADE, default=1)
     articulo        = models.ForeignKey(to='precios.Articulos', on_delete=models.CASCADE, blank=True, null=True, db_constraint=False)
@@ -243,5 +241,3 @@ class DetalleLista(models.Model):
     class Meta:
         verbose_name = 'Detalles de Lista'
         verbose_name_plural = 'Detalles de Listas'
-        # ordering = ("lista","articulo")
-        # unique_together = [['lista', 'articulo']]

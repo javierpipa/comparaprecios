@@ -110,15 +110,32 @@
                 <form  method="post" id="savelist">
                     {% csrf_token %}
                     <div class="modal-body">
+                      <fieldset>
+                        
+                        
                         <div class="row">
                             <div class="col-6">
                                 <div class="mb-3">
-                                    <label class="form-label">Nombre</label>
+                                    <label class="form-label" for="nombre_lista">Nombre</label>
                                     <input id="nombre_lista" name="nombre_lista" type="text" class="form-control" value="">
                                 </div>
                             </div>
-                            
                         </div>
+                        
+                        <div class="row">
+                            <div class="col-6">
+                              <div class="mb-3">
+                                  <label class="form-label" for="public">Lista pública</label>
+                                  {% if user.is_active and user.is_staff %}
+                                    <input id="public" name="public" type="checkbox" class="form-check-input" value="">
+                                  {% else %}
+                                    <input id="public" name="public" type="checkbox" class="form-check-input" value="" autocomplete="off" disabled>
+                                  {% endif %}
+                              </div>
+                            </div>
+                        </div>
+                        
+                      </fieldset>
                         
                     </div>
                     <div class="modal-footer">

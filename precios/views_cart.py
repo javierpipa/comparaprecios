@@ -556,7 +556,12 @@ def emptycart(request):
 @require_POST
 def save_cart(request):
     cart = Cart.new(request)
-    nombre_lista=request.POST["nombre_lista"]
+    nombre_lista    =request.POST["nombre_lista"]
+    public_var      =request.POST.get("public")
+    if public_var == 'false':
+        public = False
+    else:
+        public = True
 
     user            = request.user
     member          = Member.objects.get(user=user)
@@ -566,6 +571,8 @@ def save_cart(request):
             member=member,
             nombre_lista=nombre_lista,
             )
+        lista.public = public
+        lista.save()
         DetalleLista.objects.filter(lista = lista).delete()
         for item in cart:
             articulo = Articulos.objects.get(pk=item.product_pk)

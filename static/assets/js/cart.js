@@ -551,12 +551,14 @@
 
             $(document).on('click', '#save_list', function() {
                 var nombre_lista = $("#nombre_lista").val();
-                
+                var public = $("#public").is(":checked");
+               
                 var jqxhr =  $.ajax({
                     url: url_save_cart,
                     type: "POST",
                     data: {
                         'nombre_lista': nombre_lista,
+                        'public': public,
                         'csrfmiddlewaretoken': csrf_token,
                     }})
 
