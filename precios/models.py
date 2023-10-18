@@ -1042,7 +1042,6 @@ class SiteURLResults(models.Model):
     proveedor       = models.CharField(max_length=30, blank=True, null=True, default='')
     stock           = models.CharField(max_length=20, blank=True, null=True,default='')
     precioref       = models.IntegerField(default=0)
-    # unidades        = models.CharField(max_length=20, blank=True, null=True,default='')
     unidades        = models.FloatField(default=1)
     image           = models.URLField(max_length=600, blank=True, null=True, default='')
 
@@ -1157,23 +1156,12 @@ class SiteURLResults(models.Model):
                 print('SiteURLResults: limpia marca pues no existe')
                 self.marca = ''
 
-        # ## confirmo marca por ean
-        # if self.site.es_ean13:
-        #     if Articulos.objects.filter(ean_13 = self.idproducto, marca__es_marca = True).exists():
-        #         arts = Articulos.objects.filter(ean_13 = self.idproducto, marca__es_marca = True).values_list('marca__nombre', flat=True)
-        #         for art in arts:
-        #             if art != self.marca:
-        #                 print('reemplaza aca 2')
-        #                 self.marca = art
-
-
         super(SiteURLResults, self).save(*args, **kwargs)
         if not existe_historico:
             if self.precio !=0:
                 PriceHistory.objects.update_or_create(
                         FromResult=self,
                         Oldprecio=self.precio,
-                        # OldDate=self.updated
                     )
 
 
