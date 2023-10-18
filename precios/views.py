@@ -64,7 +64,8 @@ from precios.pi_get import (
     set_browser,
     set_beautifulBrowser,
     create_prods,
-    get_dics
+    get_dics,
+    reemplaza_palabras
 )   
 
 # @cache_page(60 * 5)   ## 5 minutos
@@ -656,6 +657,9 @@ def precios(request):
             orden   = 'precio_por_unidad'
 
     nombre = nombre.rstrip().lower()
+    
+    ## Reemplaza palabras. Ejemplo: Si busca pañales debe buscar pañal
+    nombre = reemplaza_palabras(nombre)
 
     registrar_consulta(request, clase_consultada="cslta_", elemento_id=1, texto_busqueda=nombre)
     
