@@ -593,8 +593,9 @@
                     $(this).hide();
                     
                 })
-                .fail(function() {
-                    sayToast('Error .','bad');
+                .fail(function(jqXHR) {
+                    var error_message = jqXHR.responseJSON ? jqXHR.responseJSON.error : 'Error desconocido.';
+                    sayToast(error_message, 'bad');
                     $("#spnniinner1").delay(400).fadeOut();
                 })
             });
