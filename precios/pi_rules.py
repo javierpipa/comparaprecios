@@ -163,11 +163,11 @@ def check_pd(c,
                         #     c.at[cuenta02,'r_envase'] = 1
                         #     c.at[cuenta02,'rule'] = 'ean envase 2'
                         
-                        if este_medida_cant < otro_medida_cant :
+                        # if este_medida_cant < otro_medida_cant :
                             
-                            c.at[cuenta0,'lo__medida_cant']  = otro_medida_cant
-                            c.at[cuenta0,'r_medida'] = 1
-                            c.at[cuenta0,'rule'] = 'ean medida_cant 2'
+                        #     c.at[cuenta0,'lo__medida_cant']  = otro_medida_cant
+                        #     c.at[cuenta0,'r_medida'] = 1
+                        #     c.at[cuenta0,'rule'] = 'ean medida_cant 2'
 
                         # if este_unidades != otro_unidades :
                         #     c.at[cuenta02,'lo__unidades']  = este_unidades    
@@ -280,19 +280,22 @@ def check_pd(c,
                 if check_grados:
                     c.at[cuenta0,'lo__grados2'] = otro_grados
                     c.at[cuenta0,'r_grados'] = 1
-                    c.at[cuenta0,'rule'] = 'pd_grados'
+                    # c.at[cuenta0,'rule'] = 'pd_grados'
+                    c.at[cuenta0,'rule'] = c.at[cuenta0,'rule'] + 'pd_grados'
                 if check_envase:
                     c.at[cuenta0,'lo__envase'] = otro_envase
                     c.at[cuenta0,'r_envase'] = 1
-                    c.at[cuenta0,'rule'] = 'pd_envase'
+                    # c.at[cuenta0,'rule'] = 'pd_envase'
+                    c.at[cuenta0,'rule'] = c.at[cuenta0,'rule'] + 'pd_envase'
                 if check_medida_cant:
                     c.at[cuenta0,'lo__medida_cant'] = otro_medida_cant
                     c.at[cuenta0,'r_medida'] = 1
-                    c.at[cuenta0,'rule'] = 'pd_medida_cant'
+                    c.at[cuenta0,'rule'] = c.at[cuenta0,'rule'] + 'pd_medida_cant'
                 if check_talla:
                     c.at[cuenta0,'lo__talla'] = otro_talla
                     c.at[cuenta0,'r_talla'] = 1
-                    c.at[cuenta0,'rule'] = 'pd_talla'
+                    # c.at[cuenta0,'rule'] = 'pd_talla'
+                    c.at[cuenta0,'rule'] = c.at[cuenta0,'rule'] + 'pd_talla'
                 if check_unidades:
                     pass
 
@@ -300,7 +303,8 @@ def check_pd(c,
                     # if fuz_precio > fuz_level:
                     c.at[cuenta0,'r_nombre'] = 1
                     c.at[cuenta0,'lo__nombre'] = otro_nombre
-                    c.at[cuenta0,'rule'] = 'pd_nombre'
+                    # c.at[cuenta0,'rule'] = 'pd_nombre'
+                    c.at[cuenta0,'rule'] = c.at[cuenta0,'rule'] + 'pd_nombre'
                     c = add_vendedores(c, cuenta0, cuenta02)
             
                 
