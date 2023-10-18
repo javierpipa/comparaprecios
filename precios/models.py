@@ -930,7 +930,7 @@ class Unifica(models.Model):
 
     contador                = models.IntegerField(default=0)
     automatico              = models.BooleanField(default=False)
-    tipo                    = models.CharField(max_length=50, null=True, blank=True)
+    tipo                    = models.CharField(max_length=250, null=True, blank=True)
     
 
     # created                 = models.DateTimeField(auto_now_add=True)
