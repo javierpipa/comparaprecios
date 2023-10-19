@@ -20,10 +20,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         marcaid     = options["marcaid"]
-        marca       = Marcas.objects.filter(id=marcaid).first()
+        # marca       = Marcas.objects.filter(id=marcaid).first()
         
         setMessage(f'Generando REGLAS {marca}')
-        intenta_marca(marca, False)
+        intenta_marca(marcaid, False)
 
         setMessage('')
     
