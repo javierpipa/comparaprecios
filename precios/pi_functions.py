@@ -253,7 +253,6 @@ def getMomentos(request):
         momentos = momentos.filter(areaDespacho__comuna__in=comunas)
 
     if request.session.get('region_id'):
-        # comunas  = Cities.objects.filter(region__in=request.session['region_id'])
         comunas  = Cities.objects.filter(region=request.session['region_id'])
         momentos = momentos.filter(areaDespacho__comuna__in=comunas)
 
@@ -266,7 +265,6 @@ def getMomentos(request):
     momentos = momentos.distinct()
     supermercadoscount =  momentos.count()
 
-    # print(f"getMomentos: sites={momentos} country_id={request.session.get('country_id')} region_id={request.session['region_id']} comuna={request.session['comuna_id']}")
         
     return momentos, supermercadoscount
 
