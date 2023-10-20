@@ -864,7 +864,7 @@ def create_prods(
                     ean_13_int = int(ean_13)
                     ean_13 = str(ean_13_int)
                 except ValueError as e:
-                    print('Problemas con ean_13 ', ean_13)
+                    # print('Problemas con ean_13 ', ean_13)
                     ean_13 = None
             
         else:
@@ -955,7 +955,7 @@ def create_prods(
 
         if  registros % 1000 == 0:
             try:
-                print(f'{site.siteName} articulos_marca_vacio={articulos_marca_vacio} reglas={reglas_creados} registros= {registros} creados = {articulos_creados} existentes= {articulos_existentes}  vacios={articulos_nombre_vacio}  Tasa={(articulos_existentes/articulos_creados)  * 100}')
+                print(f'{site.siteName} articulos_marca_vacio={articulos_marca_vacio} registros= {registros} creados = {articulos_creados} existentes= {articulos_existentes}  vacios={articulos_nombre_vacio}  Tasa={(articulos_existentes/articulos_creados)  * 100}')
             except:
                 print("error al generar informe cada 1000")
                 pass

@@ -472,9 +472,9 @@ def get_articles_from_all(marca_obj, nombre, all_sites_arr):
 
     return articles_from_all
 
-def intenta_marca(marcaid, debug, nombre=None):
+def intenta_marca(marca_id, debug, nombre=None):
     num_rules_created   = int(Settings.objects.get(key='num_rules_created').value)
-    marca_obj           = Marcas.objects.get(id=marcaid)
+    marca_obj           = Marcas.objects.get(id=marca_id)
     reglas              = []
     all_sites_arr       = []
     sites               = get_sites(marca_obj)

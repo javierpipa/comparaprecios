@@ -44,7 +44,7 @@ from precios.pi_functions import (
 # python3 -m  celery --app=myproject worker -Q core_selenium2 -n worker4.%h -E
 
 @shared_task(queue='core_calc')
-def elimina_relacion_reglas(self):
+def elimina_relacion_reglas(marca_id):
     setMessage('Eliminando relacion con reglas')
     urls = SiteURLResults.objects.all()
 
@@ -69,9 +69,12 @@ def limpiar_y_borrar_inicial():
     Vendedores.objects.all().delete()
     Articulos.objects.all().delete()
 
+@shared_task(queue='core_calc')
+def hace_nada():
+    pass
 
 @shared_task(queue='core_calc')
-def rules_marcas( marcaid):
+def rules_marcas(marcaid2, marcaid):
     ### Articulos debe estar lleno !!!
         
     ### de todas las reglas no automaticas
@@ -136,14 +139,17 @@ def rules_marcas( marcaid):
     print(f'TOTAL num_articulos_cambio_marca = {num_articulos_cambio_marca}')
 
 @shared_task(queue='core_calc')
-def generar_una_regla(self,marca_id):
-    intenta_marca(marca_id, False, None)
+def generar_una_regla(marca_id, marca_id2 ):
+    # print(f'marca_id={marca_id} marca_id2={marca_id2}')
+    intenta_marca(marca_id2, False, None)
 
 
 
 @shared_task(queue='core_calc')
-def limpiar_y_borrar_normal(self,marcaid):
+def limpiar_y_borrar_normal(*args):
+# def limpiar_y_borrar_normal(marcaid, *args):
     setMessage('Eliminando articulos')
+    marcaid = None
     ######################################### INICIO      ###################
     if marcaid:
         marcaObj = Marcas.objects.filter(id=marcaid).get()
@@ -156,12 +162,13 @@ def limpiar_y_borrar_normal(self,marcaid):
 
         setMessage('Eliminando vendedores')
         Vendedores.objects.all().delete()
+        setMessage('')
     
     ######################################### FIN INICIO  ###################
 
 
 @shared_task(queue='core_calc')
-def limpiar_final(self, marcaid):
+def limpiar_final(marcaid, *args):
     setMessage('Elimina reglas automaticas sin uso')
     Unifica.objects.filter(automatico=True, contador=0).delete()  ### Borra reglas sin uso
 
@@ -241,8 +248,8 @@ def CreateRules(request):
 
 ######### createProds ################
 @shared_task(queue='core_calc')
-def CreateProds(request, site_id):
-    management.call_command('createProds', site_id, 2)
+def CreateProds( site_id, site_id2):
+    management.call_command('createProds', site_id2, 2)
 
 ######### FIN createProds ################
 
