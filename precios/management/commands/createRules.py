@@ -43,8 +43,8 @@ class Command(BaseCommand):
             pipeline = chain(
                 limpiar_y_borrar_inicial.s(),
                 elimina_relacion_reglas.s(),
-                rules_marcas.s(marcaid),
-                group_tasks_marcas,
+                # rules_marcas.s(marcaid),
+                # group_tasks_marcas,
                 limpiar_y_borrar_normal.s(),
                 group_tasks_sites,
                 limpiar_final.s(marcaid),

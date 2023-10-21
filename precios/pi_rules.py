@@ -17,6 +17,9 @@ from tabulate import tabulate
 from nltk.tokenize import word_tokenize
 from nltk.probability import FreqDist
 
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import linear_kernel
+
 def is_vendedores_in(a_quienes, b_quienes, debug=False):
     # Verificar si alguna de las listas está vacía
     if not a_quienes or not b_quienes:
@@ -68,10 +71,13 @@ def build_query_string(row):
     
     if row['lo__grados2'] != 0:
         condition_dict['lo__grados2'] = row['lo__grados2']
+
     if row['lo__medida_cant'] != 0:
         condition_dict['lo__medida_cant'] = row['lo__medida_cant']
+
     if row['lo__envase'].strip() != "":
         condition_dict['lo__envase'] = f"'{row['lo__envase'].strip()}'"
+
     if row['lo__talla']:
         if row['lo__talla'].strip() != "":
             condition_dict['lo__talla'] = f"'{row['lo__talla'].strip()}'"
@@ -109,10 +115,6 @@ def check_pd(c,
         este_r_medida       = row0['r_medida']
         este_r_talla        = row0['r_talla']
 
-        # if debug:        
-        #     print(f'==================================')
-        #     print(f'este_nombre={este_nombre} este_grados={este_grados} este_medida_cant={este_medida_cant} arr_quienes_vender={arr_quienes_vender} este_ean={este_ean_13} este_envase={este_envase}')
-        #     print(f'==================================')
         if check_ean and este_ean_13 !='':
             df_matches = c.loc[
                 (c['lo__ean_13']        == este_ean_13) & 
@@ -354,40 +356,20 @@ def find_best_match(row, df_matches, fuz_level):
     return best_match
 
 def update_dataframe(c, row, best_match):
-    c.at[row.name, 'lo__nombre'] = best_match['lo__nombre']
-    c.at[row.name, 'lo__grados2'] = best_match['lo__grados2']
+    c.at[row.name, 'lo__nombre']        = best_match['lo__nombre']
+    c.at[row.name, 'lo__grados2']       = best_match['lo__grados2']
+    c.at[row.name, 'lo__envase']        = best_match['lo__envase']
+    c.at[row.name, 'lo__medida_cant']   = best_match['lo__medida_cant']
+    c.at[row.name, 'lo__talla']         = best_match['lo__talla']
+
     c.at[row.name, 'r_nombre'] = 1
     c.at[row.name, 'r_grados'] = 1
     c.at[row.name, 'rule'] = 'check_sailers 1'
 
-    if row['lo__envase'].strip() == "":
-        c.at[row.name, 'lo__envase'] = best_match['lo__envase']
-        c.at[row.name, 'rule'] = 'check_sailers envase'
-        c.at[row.name, 'r_envase'] = 1
-
-    if row['lo__medida_cant'] == 0:
-        c.at[row.name, 'lo__medida_cant'] = best_match['lo__medida_cant']
-        c.at[row.name, 'rule'] = 'check_sailers medida_cant'
-        
+       
     return c
 
 
-# def update_record(c, current_index, best_match, reason):
-#     print("Dentro de update_record:", c.columns)
-#     """
-#     Actualiza el registro en c en el índice current_index con los valores de best_match.
-#     """
-#     c.at[current_index, 'lo__nombre'] = best_match['lo__nombre']
-#     c.at[current_index, 'lo__grados2'] = best_match['lo__grados2']
-#     c.at[current_index, 'lo__medida_cant'] = best_match['lo__medida_cant']
-#     c.at[current_index, 'r_grados'] = 1
-#     c.at[current_index, 'r_nombre'] = 1
-#     c.at[current_index, 'rule'] = reason
-    
-#     # Nota: La función add_vendedores debería estar definida antes de llamar a esta función
-#     c = add_vendedores(c, current_index, best_match.name)
-    
-#     return c
 
 def get_value_counts_df(c, column_name):
     """
@@ -400,6 +382,82 @@ def get_value_counts_df(c, column_name):
     value_counts = c[column_name].value_counts()
     value_counts_uno = value_counts.loc[lambda x : x==1]
     return value_counts_uno.to_frame('counts').reset_index()
+
+# Función para encontrar el mejor nombre basado en la similitud del coseno
+def find_best_name(similarities, index, names):
+    max_sim = 0
+    best_name = ''
+    for i in range(len(similarities)):
+        if i != index:
+            sim = similarities[i]
+            if sim > max_sim:
+                max_sim = sim
+                best_name = names[i]
+    return best_name
+
+# Función para encontrar los prefijos más frecuentes
+def prefixes_to_remove(names):
+    prefix_count = {}
+    for name in names:
+        prefix = name.split(' ')[0]
+        if prefix in prefix_count:
+            prefix_count[prefix] += 1
+        else:
+            prefix_count[prefix] = 1
+    frequent_prefixes = [k for k, v in prefix_count.items() if v > 1]
+    return frequent_prefixes
+
+# Función para remover prefijos
+def remove_prefixes(df, column_name, prefixes):
+    df[column_name] = df[column_name].apply(lambda x: ' '.join(word for word in x.split() if word not in prefixes))
+
+def lkernel(c):
+    # Obtener prefijos para remover
+    frequent_prefixes = prefixes_to_remove(c['lo__nombre'])
+    # print(frequent_prefixes)
+    # return c
+
+    # Remover prefijos del DataFrame
+    remove_prefixes(c, 'lo__nombre', frequent_prefixes)
+
+    # Encontrar el prefijo más largo (o el primero en caso de empate)
+    if frequent_prefixes:
+        longest_prefix = max(frequent_prefixes, key=len)
+        # Agregar el prefijo más largo a los nombres
+        c['lo__nombre'] = longest_prefix + " " + c['lo__nombre']
+
+        # Calcular la matriz TF-IDF
+        tfidf_vectorizer = TfidfVectorizer()
+        try:
+            tfidf_matrix = tfidf_vectorizer.fit_transform(c['lo__nombre'])
+
+            # Calcular la similitud del coseno entre cada par de elementos
+            cosine_similarities = linear_kernel(tfidf_matrix, tfidf_matrix)
+
+            # Encontrar y corregir el mejor nombre para cada grupo de productos similares
+            threshold = 0.6  # Este es el umbral que encontraste útil
+            for i in range(len(c)):
+                for j in range(i + 1, len(c)):
+                    if cosine_similarities[i][j] > threshold:
+                        # arr_quienes_vender  = c.loc[c.index == i, 'quienesvenden']
+                        # arr_otro_vender     = c.loc[c.index == j, 'quienesvenden']
+                        # print(f'arr_quienes_vender={arr_quienes_vender}  arr_otro_vender={arr_otro_vender}')
+                        # if not is_vendedores_in(arr_quienes_vender, arr_otro_vender):
+                        best_name = find_best_name(cosine_similarities[i], i, list(c['lo__nombre']))
+                        if best_name:
+                            c.loc[c.index == j, 'lo__nombre'] = best_name
+                            c.loc[c.index == j, 'rule'] = 'lkernel'
+                            c = add_vendedores(c, j, i)
+        except Exception as e:
+            print(str(e))
+
+    else:
+        # print("frequent_prefixes está vacía")
+        longest_prefix = None  # O asignar un valor predeterminado
+
+
+    return c
+
 
 def check_grados_func(c, df_grados_uno, debug):
     if debug:
@@ -448,6 +506,7 @@ def check_grados_func(c, df_grados_uno, debug):
                         # c = add_vendedores(c, cuenta2, cuenta3)
     return c
 
+
 def get_sites(marca_obj):
     sites = Vendedores.objects.select_related('articulo','vendidoen')
     sites = sites.filter(articulo__marca=marca_obj)
@@ -491,33 +550,23 @@ def intenta_marca(marca_id, debug, nombre=None):
     if debug:
         print(tabulate(c, headers = 'keys', tablefmt = 'double_outline'))
 
-
-    # Que supermercado tiene mas articulos de la marca.    ??
-
-
-    # # Tokenizar las palabras
-    # word_tokens = [word for sentence in c['articulo__nombre'] for word in word_tokenize(sentence)]
-
-    # # Calcular la frecuencia de las palabras
-    # word_freq = FreqDist(word_tokens)
-
-    # # Encontrar la palabra más común
-    # most_common_word = word_freq.most_common(1)[0][0]
-
-
-    ## Caso grados que haya solo 1 registro
-    if debug:
-        print("######### Check Grados ###############")
-    
     
     # df_medida_cant_uno = get_value_counts_df(c, 'lo__medida_cant')
     # c = check_medida_cant(c, df_medida_cant_uno, debug=debug)
 
+    
+
+    
+
+    ## Caso grados que haya solo 1 registro
+    if debug:
+        print("######### Check Grados ###############")
 
     df_grados_uno = get_value_counts_df(c, 'lo__grados2')
     c = check_grados_func(c, df_grados_uno, debug=debug)
     
-    fuz_levels = (88,70,60,50,40 )
+    
+    fuz_levels = (95,93 )
     for fuzl in fuz_levels:
         ## Envase
         c = check_pd(c, check_nombre=False, check_ean=False, check_grados=False, check_medida_cant=False, check_envase=True, check_unidades=False, check_talla=False, fuz_level=fuzl, debug=debug)
@@ -529,7 +578,7 @@ def intenta_marca(marca_id, debug, nombre=None):
         c = check_pd(c, check_nombre=False, check_ean=False, check_grados=False, check_medida_cant=False, check_envase=False, check_unidades=False, check_talla=True, fuz_level=fuzl, debug=debug)
         
 
-    fuz_levels = (95,90,85 )
+    fuz_levels = (95,93 )
     for fuzl in fuz_levels:
         if debug:
             print("Check- envase")
@@ -544,18 +593,18 @@ def intenta_marca(marca_id, debug, nombre=None):
                      fuz_level=fuzl, 
                      debug=debug)
         
-        if debug:
-            print("Check- EAN")
-        c = check_pd(c, 
-                     check_nombre=False, 
-                     check_ean=True,            ## Cierto
-                     check_grados=False, 
-                     check_medida_cant=False, 
-                     check_envase=False, 
-                     check_unidades=False,
-                     check_talla=False,
-                     fuz_level=fuzl, 
-                     debug=debug)
+        # if debug:
+        #     print("Check- EAN")
+        # c = check_pd(c, 
+        #              check_nombre=False, 
+        #              check_ean=True,            ## Cierto
+        #              check_grados=False, 
+        #              check_medida_cant=False, 
+        #              check_envase=False, 
+        #              check_unidades=False,
+        #              check_talla=False,
+        #              fuz_level=fuzl, 
+        #              debug=debug)
 
         if debug:
             print("Check- Grados")
@@ -623,8 +672,41 @@ def intenta_marca(marca_id, debug, nombre=None):
                      debug=debug)
     
 
+    # grouped_general = c.groupby([
+    #     'lo__medida_cant',
+    #     'lo__grados2',
+    #     'lo__envase',
+    #     'lo__talla'
+    # ])
+    # list_of_processed_groups = []
+    # for name, group in grouped_general:
+    #     processed_group = lkernel(group)
+    #     list_of_processed_groups.append(processed_group)
 
-    fuz_levels = (93,80,70, 60)
+    # c = pd.concat(list_of_processed_groups, ignore_index=True)
+
+
+    
+    if c.size <= 50:
+        print(f'*** {marca_obj.slug}  c.size={c.size}')
+        grouped_estricto = c.groupby([
+            'lo__medida_cant', 
+            'lo__unidades', 
+            'lo__grados2', 
+            'lo__envase', 
+            'lo__talla'
+        ])
+        list_of_processed_groups = []
+
+        for name, group in grouped_estricto:
+            # print('***** lkernel group name', name)
+            processed_group = lkernel(group)
+            list_of_processed_groups.append(processed_group)
+
+        c = pd.concat(list_of_processed_groups, ignore_index=True)
+
+
+    fuz_levels = (93,90)
     for fuzl in fuz_levels:
         if debug:
             print(f"Check sailers min=1 fuz={fuzl}")
@@ -634,7 +716,11 @@ def intenta_marca(marca_id, debug, nombre=None):
             print(f"Check sailers min=2 fuz={fuzl}")
         c = check_sailers(c, 2, fuzl, debug)
 
-  
+    
+    
+    if debug:
+        print(tabulate(c, headers = 'keys', tablefmt = 'double_outline'))
+
     ### Caso nombre que haya solo 1 registro
     if debug:
         print("######### Check NOMBRES ###############")
@@ -652,7 +738,6 @@ def intenta_marca(marca_id, debug, nombre=None):
                 print(tabulate(a, headers = 'keys', tablefmt = 'psql'))
 
             este_nombre         = row2['lo__nombre']
-            este_pk             = row2['articulo__pk']
             a_grados            = row2['lo__grados2']
             a_unidades          = row2['lo__unidades']
             a_medida_cant       = row2['lo__medida_cant']
@@ -691,6 +776,8 @@ def intenta_marca(marca_id, debug, nombre=None):
                     add_vendedores(c, cuenta2, cuenta3)
 
     
+
+    ### Genera lista de reglas
     # for nombre in nombres:
     for cuenta0, row0 in c.iterrows():
         if      row0['articulo__nombre']        != row0['lo__nombre'] \
@@ -781,9 +868,9 @@ def create_PD_From(recordset):
     df_articulos['rule']                    = ''
     df_articulos['get_price']               = 0
     df_articulos['lo__nombre']              = ''
-    df_articulos['lo__medida_cant']         = 0
+    df_articulos['lo__medida_cant']         = float(0)
     df_articulos['lo__unidades']            = 0
-    df_articulos['lo__grados2']             = 0
+    df_articulos['lo__grados2']             = float(0)
     df_articulos['lo__envase']              = ''
     df_articulos['lo__talla']               = ''
     df_articulos['lo__ean_13']              = ''
@@ -809,16 +896,23 @@ def create_PD_From(recordset):
             df_articulos.at[cuenta,'articulo__envase']      = ''
 
 
-        df_articulos.at[cuenta,'lo__nombre']            = art.nombre
-        df_articulos.at[cuenta,'lo__medida_cant']       = art.medida_cant
+        df_articulos.at[cuenta,'lo__nombre']            = art.nombre.strip()
+        df_articulos.at[cuenta,'lo__medida_cant']       = float(art.medida_cant)
         df_articulos.at[cuenta,'lo__unidades']          = art.unidades
-        df_articulos.at[cuenta,'lo__grados2']           = art.grados2
+        df_articulos.at[cuenta,'lo__grados2']           = float(art.grados2)
         if art.envase:
             df_articulos.at[cuenta,'lo__envase']            = art.envase.strip()
         else:
             df_articulos.at[cuenta,'lo__envase']            = ''
-        df_articulos.at[cuenta,'lo__talla']            = art.talla
-        df_articulos.at[cuenta,'lo__ean_13']           = art.ean_13
+        if art.talla:
+            df_articulos.at[cuenta,'lo__talla']            = art.talla.strip()
+        else:
+            df_articulos.at[cuenta,'lo__talla']            = ''
+
+        if art.ean_13:
+            df_articulos.at[cuenta,'lo__ean_13']           = art.ean_13.strip()
+        else:
+            df_articulos.at[cuenta,'lo__ean_13']           = ''
 
 
     return df_articulos

@@ -75,6 +75,11 @@
                     {% if row.talla %}
                         <span class="badge bg-danger">{{ row.talla }}</span>
                     {% endif %}
+                    {% if row.dimension %}
+                        
+                        <span class="badge bg-warning">{{ row.dimension }}</span>
+                        
+                    {% endif %}
                 </p>
                 {%if row.ean_13 %}
                     <h6 class="card-subtitle mb-2 text-muted mt-2 mb-2"> <!-- Añadido mt-2 mb-2 -->

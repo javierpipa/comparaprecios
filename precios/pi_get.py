@@ -442,11 +442,19 @@ def normaliza_talla(talla):
     return talla
 
 def extract_and_remove_weight_range_updated(text):
-    match = re.search(r'(\d+([.,]\d+)?\s*[-–a]\s*\d+([.,]\d+)?)\s*kg', text, re.IGNORECASE)
-    if match:
-        weight_range = match.group(0)
-        new_text = re.sub(re.escape(weight_range), '', text)
-        return weight_range, new_text.strip()
+    busquedas = [
+        r'(\d+([.,]\d+)?\s*[-–a]\s*\d+([.,]\d+)?)\s*kg',
+        r'(\d+([.,]\d+)?\s*[-–a]\s*\d+([.,]\d+)?)\s*cm',
+        r'(\d+([.,]\d+)?\s*[-–x]\s*\d+([.,]\d+)?)\s*kg',
+        r'(\d+([.,]\d+)?\s*[-–x]\s*\d+([.,]\d+)?)\s*cm',
+    ]
+    for busca in busquedas:
+        match = re.search(busca, text, re.IGNORECASE)
+        if match:
+            weight_range = match.group(0)
+            new_text = re.sub(re.escape(weight_range), '', text)
+            return weight_range, new_text.strip()
+    
     return '', text
 
 def replace_comma_in_degrees(text):
@@ -488,24 +496,29 @@ def get_unidades2(nombre, unidades):
     return nombre, 1
 
 ## 4.05 Anotacion de tallas
-def obtener_talla(nombre, TALLAS):
+def obtener_talla(nombre, TALLAS, busquedas):
     talla, nombre           = remueveYGuardaSinSplit(TALLAS, nombre, remover=True, todos=True)
+    
+    ###----------------------------
+    words = nltk.word_tokenize(nombre)
+    # print('3->', words)
+
     if talla == '':
-        busquedas = [
-            ' xxg',
-            ' xg',
-            ' rn',
-            ' xg',
-            ' prematuro'
-        ]
         for busca in busquedas:
             if talla == '':  # Si ya hemos encontrado talla, no necesitamos seguir buscando
-                if busca in nombre:
-                    talla = 'talla' + busca
-                    nombre = nombre.replace(busca,'')
-                    break
+                for word in words:
+                    if busca == word:
+                        talla = 'talla ' + busca
+                        # word = word.replace(busca,'')
+                        words[words.index(word)] = word.replace(busca, '')
+                        # print(f'Encuentra talla |{talla}| buscaba|{busca}| word queda en {word}')
+                        break
     if talla:
-        talla = normaliza_talla(talla)
+        talla = normaliza_talla(talla)    
+    
+    nombre = ' '.join(words)
+    ###----------------------------
+    # print(f'--- y el nombre queda como |{nombre}|')
 
     return talla, nombre
 
@@ -644,7 +657,7 @@ def create_prods(
     for url in urls:
         registros = registros + 1
         cantidad    = 1
-        grados      = ''
+        grados      = None
         talla       = ''
         color       = ""
         dimension   = ''
@@ -686,7 +699,7 @@ def create_prods(
             articulos_marca_vacio = articulos_marca_vacio + 1
             continue
 
-        otras = get_marcas_que_me_apuntan(newmarca)
+        otras_marcas = get_marcas_que_me_apuntan(newmarca)
 
         nombre = replace_comma_in_degrees(nombre)
 
@@ -698,7 +711,7 @@ def create_prods(
         nombre = ' '.join(words)
         ###----------------------------
 
-        otras_inutiles, nombre = remueveYGuardaSinSplit(otras, nombre, remover=True, todos=True)
+        otras_inutiles, nombre = remueveYGuardaSinSplit(otras_marcas, nombre, remover=True, todos=True)
         # print(f'otras_inutiles={otras_inutiles}')
         
         # ## 1.4 Remueve colores
@@ -741,14 +754,27 @@ def create_prods(
         debug_nombre('5.- Quitar sufijos: '+agregar_sufijos, debug)
 
         ## 4.05 Anotacion de tallas
-        talla, nombre = remueveYGuardaSinSplit(TALLAS, nombre, remover=True, todos=True)
+        # talla, nombre = remueveYGuardaSinSplit(TALLAS, nombre, remover=True, todos=True)
+        busquedas = [
+            'xxg',
+            'xg',
+            'rn',
+            'xg',
+            'prematuro',
+            'g',
+            'm',
+            'p',
+        ]
+        talla, nombre = obtener_talla(nombre, TALLAS, busquedas)
         # debug_nombre('6.- Quitar Tallas: '+talla, debug)
 
-        # 4.2 Unidad de medida
+        # 4.2 dimension
         dimension, nombre = extract_and_remove_weight_range_updated(nombre)
 
+        # 4.2 Unidad de medida
         if medida_cant == 0:
-            nombre, medida_cant, medida_um, dimension = get_unidadMedida(nombre, UMEDIDAS)
+            # nombre, medida_cant, medida_um, dimension = get_unidadMedida(nombre, UMEDIDAS)
+            nombre, medida_cant, medida_um = get_unidadMedida(nombre, UMEDIDAS)
         
 
         ## Packs y Sets
@@ -842,63 +868,74 @@ def create_prods(
 
         debug_nombre('20.- FINAL: '+ nombre, debug)
 
-        if site.pk in ean_13_site_ids:
+        if site.pk in ean_13_site_ids and url.idproducto:
             ean_13 = url.idproducto
-            if url.idproducto:
-                 
-                ean_13 = ean_13.rstrip()
-                ean_13 = ean_13.lstrip()
-                ean_13 = ean_13.replace('[','')
-                ean_13 = ean_13.replace('}','')
-                if "'" in ean_13:
-                    ean_13 = ean_13.replace("'","")
-                if '-' in ean_13:
-                    ean_arr = ean_13.split('-')
-                    ean_13 = ean_arr[0]
-                if 'x' in ean_13:
-                    ean_arr = ean_13.split('x')
-                    ean_13 = ean_arr[0]
-                    if unidades == 1:
-                        unidades = int(ean_arr[1])
-                try:
-                    ean_13_int = int(ean_13)
-                    ean_13 = str(ean_13_int)
-                except ValueError as e:
-                    # print('Problemas con ean_13 ', ean_13)
+            ean_13 = ean_13.rstrip()
+            ean_13 = ean_13.lstrip()
+            ean_13 = ean_13.replace('[','')
+            ean_13 = ean_13.replace('}','')
+            if "'" in ean_13:
+                ean_13 = ean_13.replace("'","")
+            if '-' in ean_13:
+                ean_arr = ean_13.split('-')
+                ean_13 = ean_arr[0]
+            if 'x' in ean_13:
+                ean_arr = ean_13.split('x')
+                ean_13 = ean_arr[0]
+                if unidades == 1:
+                    unidades = int(ean_arr[1])
+            try:
+                ean_13_int = int(ean_13)
+                ean_13 = str(ean_13_int)
+                if len(ean_13) <= 7:
                     ean_13 = None
+            except ValueError as e:
+                # print('Problemas con ean_13 ', ean_13)
+                ean_13 = None
             
         else:
             ean_13 = None
         
+        ###########################################################
         ## 2do cambio hecho, se hace reemplazo de frases o palabras
+        ###########################################################
         nombre = reemplaza_palabras(nombre)
-        ## Nuevamente se buscan tallas:
-        
+       
 
         if medida_cant == 0:
-            nombre, medida_cant, medida_um, dimension = get_unidadMedida(nombre, UMEDIDAS)
+            nombre, medida_cant, medida_um = get_unidadMedida(nombre, UMEDIDAS)
 
-        talla, nombre = obtener_talla(nombre, TALLAS)
+        ## Nuevamente se buscan tallas:
+        if talla == '':
+            busquedas = [
+                'xxg',
+                'xg',
+                'rn',
+                'xg',
+                'prematuro',
+                'g',
+                'm',
+                'p',
+            ]
+            talla, nombre = obtener_talla(nombre, TALLAS, busquedas)
 
-        if grados == '':
+        if not grados:
             nombre,  grados = obtener_grados(nombre)
         # if unidades == 1:
         #     retorna, nombre = pack_search(nombre, '^\d{1,2}')
+
+        ### Elimino marca que esta dentro del nombre    
+        nombre      = nombre.replace(newmarca.nombre, '')
+        nombre      = nombre.replace('  ', ' ')
+        nombre      = nombre.strip()
+        if not grados:
+            grados = float(0)
 
         ### Revisiones
         reglas      = []
         reglas, newmarca, nombre, grados, medida_cant, unidades, envase, talla = unificacion(newmarca, nombre, grados, medida_cant, unidades, envase, talla, debug, 3, reglas)
 
-        ### Elimino marca que esta dentro del nombre    
-        nombre = nombre.replace(newmarca.nombre, '')
-
         #### Grabacion
-        ### Hacer get
-
-        if not grados:
-            grados = 0
-        
-        nombre = nombre.replace('  ', ' ')
 
         try:
             miarticulo  = Articulos.objects.get(
@@ -1279,7 +1316,7 @@ def get_unidadMedida( en_que_texto, UMEDIDAS):
     
     arr_nombre = en_que_texto.split(" ")
 
-    dimension = ""
+    # dimension = ""
     um_text = ""
     um_cant = ""
     palabra = 1
@@ -1329,25 +1366,26 @@ def get_unidadMedida( en_que_texto, UMEDIDAS):
                         print(um_cant)
                         ## Podria ser:   1/4 o nada
             if len(paso) == 5:
-                if paso[2] == "X" or paso[2] == "x":
-                    # print("es dimension")
-                    um_cant = ""
-                    um_text = ""
-                    dimension = paso[1]+paso[2]+paso[3]+paso[4]
+                # if paso[2] == "X" or paso[2] == "x":
+                #     # print("es dimension")
+                #     um_cant = ""
+                #     um_text = ""
+                #     dimension = paso[1]+paso[2]+paso[3]+paso[4]
+                #     retira = paso[1]+paso[2]+paso[3]+paso[4]
+                # else:
+
+                # print("paso 5")
+                # for uni in paso:
+                #     print(uni)
+                if um_text in UMEDIDAS:
+                    um_text = paso[4]
+                    # um_cant = paso[1]+paso[2]+paso[3]
+                    um_cant = paso[1]+paso[3]
+                    # retira = um_cant  + '' + um_text
                     retira = paso[1]+paso[2]+paso[3]+paso[4]
                 else:
-                    # print("paso 5")
-                    # for uni in paso:
-                    #     print(uni)
-                    if um_text in UMEDIDAS:
-                        um_text = paso[4]
-                        # um_cant = paso[1]+paso[2]+paso[3]
-                        um_cant = paso[1]+paso[3]
-                        # retira = um_cant  + '' + um_text
-                        retira = paso[1]+paso[2]+paso[3]+paso[4]
-                    else:
-                        um_cant = ""
-                        um_text = ""
+                    um_cant = ""
+                    um_text = ""
                 break
 
         palabra = palabra + 1
@@ -1360,15 +1398,16 @@ def get_unidadMedida( en_que_texto, UMEDIDAS):
     um_text = normalizeUM(um_text)
     um_cant, um_text = normalizeCANTyUM(um_cant, um_text, True)
     
-    if um_cant > 0 :
-        medida = str(um_cant) + ' ' + um_text
-    else:
-        medida =  um_text
+    # if um_cant > 0 :
+    #     medida = str(um_cant) + ' ' + um_text
+    # else:
+    #     medida =  um_text
     en_que_texto =  en_que_texto.replace(retira,'')
 
     en_que_texto = en_que_texto.lstrip()
 
-    return en_que_texto, um_cant, um_text, dimension
+    return en_que_texto, um_cant, um_text
+# , dimension
 
 
 def getStringAndNumbers( donde):

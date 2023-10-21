@@ -96,7 +96,7 @@ class Estadistica_Consulta(models.Model):
         return "{0}: {1}".format(self.clase_consultada, self.elemento_id)
         
 class EstadisticasBlackList(models.Model):
-    agente = models.CharField(max_length=200, unique=True)
+    agente = models.CharField(max_length=250, unique=True)
     no_contabilizar = models.BooleanField(default=False)
 
     class Meta:
@@ -720,8 +720,9 @@ class Articulos(ModelMeta, models.Model):
         'medida_cant',
         'unidades',
         'envase',
-        'grados2'], editable=False, unique=True, db_index=True)
-    
+        'grados2',
+        'talla'], editable=False, unique=True, db_index=True)
+
     created             = models.DateTimeField("date created", editable=False,default=timezone.now)
     updated             = models.DateTimeField("last updated", auto_now=True,auto_now_add=False)
     tags                = TaggableManager(through=TaggedArticles)
