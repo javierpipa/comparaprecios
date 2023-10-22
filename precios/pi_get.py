@@ -761,9 +761,6 @@ def create_prods(
             'rn',
             'xg',
             'prematuro',
-            'g',
-            'm',
-            'p',
         ]
         talla, nombre = obtener_talla(nombre, TALLAS, busquedas)
         # debug_nombre('6.- Quitar Tallas: '+talla, debug)

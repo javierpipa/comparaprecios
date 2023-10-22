@@ -687,8 +687,8 @@ def intenta_marca(marca_id, debug, nombre=None):
 
 
     
-    if c.size <= 50:
-        print(f'*** {marca_obj.slug}  c.size={c.size}')
+    if c.shape[0] <= 50:
+        print(f'*** {marca_obj.slug}  c.size={c.shape[0]}')
         grouped_estricto = c.groupby([
             'lo__medida_cant', 
             'lo__unidades', 

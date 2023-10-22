@@ -43,6 +43,7 @@ from precios.models import (
     AreasDespacho,
     MomentosDespacho,
     TaggedArticles,
+    Unifica,
 )
 from taggit.models import Tag
 from precios.pi_stats import (
@@ -68,9 +69,6 @@ from precios.pi_get import (
     reemplaza_palabras
 )   
 
-# @cache_page(60 * 5)   ## 5 minutos
-
-
 def export_as_json(modeladmin, request, queryset):
     response = HttpResponse(content_type="application/json")
     response['Content-Disposition'] = 'attachment; filename={}.json'.format(modeladmin.model.__name__)
@@ -80,6 +78,7 @@ def export_as_json(modeladmin, request, queryset):
 def busca_marca(nombre):
     palabras = nombre.split()
 
+    
     # Buscamos todas las combinaciones posibles de palabras
     combinaciones_palabras = []
     for i in range(1, len(palabras) + 1):
@@ -88,13 +87,19 @@ def busca_marca(nombre):
     # Buscamos si alguna combinación de palabras es una marca
     marca = None
     for combinacion in combinaciones_palabras:
+        
         nombre_marca = " ".join(combinacion)
-        if Marcas.objects.filter(nombre__icontains=nombre_marca, es_marca=True).exists():
-            marcas = Marcas.objects.filter(nombre__icontains=nombre_marca)
-            for mm_marca in marcas:
-                if mm_marca.nombre in nombre:
-                    marca = mm_marca
-                    break
+        if Marcas.objects.filter(nombre=nombre_marca).exists():
+            posible_marca = Marcas.objects.filter(nombre=nombre_marca).get()
+            if posible_marca.es_marca:
+               return posible_marca, palabras
+            else:
+                
+                if Unifica.objects.filter(si_marca=posible_marca, si_nombre=None, si_grados2=float(0), si_medida_cant=float(0), si_unidades=1,  automatico=False ).exists():
+                    unifica_obj = Unifica.objects.filter(si_marca=posible_marca, si_nombre=None, si_grados2=float(0), si_medida_cant=float(0), si_unidades=1, automatico=False).first()
+                    if unifica_obj:
+                        marca = unifica_obj.entonces_marca
+                        return marca, palabras
 
     return marca, palabras
 
