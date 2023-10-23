@@ -210,6 +210,7 @@ def check_pd(c,
                         (c['lo__medida_cant']   == este_medida_cant) & 
                         (c['lo__unidades']      == este_unidades) &
                         (c['lo__envase']        == este_envase) &
+                        (c['lo__talla']         == este_talla) &
                         (c['lo__grados2']       != 0) 
                     ]
                 else:
@@ -222,6 +223,7 @@ def check_pd(c,
                         (c['lo__medida_cant']   == este_medida_cant) & 
                         (c['lo__unidades']      == este_unidades) &
                         (c['lo__grados2']       == este_grados) &
+                        (c['lo__talla']         == este_talla) &
                         (c['lo__envase']       != '') 
                     ]
                     # print('En Envase', len(df_matches))
@@ -233,6 +235,7 @@ def check_pd(c,
                         (c['lo__unidades']      == este_unidades) &
                         (c['lo__envase']        == este_envase) &
                         (c['lo__grados2']       == este_grados) &
+                        (c['lo__talla']         == este_talla) &
                         (c['lo__medida_cant']   != 0) 
                     ]
                 else:
@@ -257,7 +260,8 @@ def check_pd(c,
                         (c['lo__medida_cant']   == este_medida_cant) & 
                         (c['lo__unidades']      == este_unidades) &
                         (c['lo__grados2']       == este_grados) &
-                        (c['lo__envase']        == este_envase) 
+                        (c['lo__envase']        == este_envase) &
+                        (c['lo__talla']         == este_talla) 
                     ]
                 else:
                     continue
@@ -306,10 +310,7 @@ def check_pd(c,
                     c.at[cuenta0,'r_nombre'] = 1
                     c.at[cuenta0,'lo__nombre'] = otro_nombre
                     c.at[cuenta0,'rule'] = 'pd_nombre'
-                    # c.at[cuenta0,'rule'] = c.at[cuenta0,'rule'] + 'pd_nombre'
                     c = add_vendedores(c, cuenta0, cuenta02)
-            
-                
 
     return c
 
@@ -337,7 +338,7 @@ def imprime_reglas(rules):
     for rule in rules:
         contador = contador + 1
         
-        print(f"#{contador}:{rule['tipo']},{rule['fuz']},nombre={rule['si_nombre']},grados={rule['si_grados']},si_m_cant={rule['si_medida_cant']},si_env={rule['si_envase']},si_und={rule['si_unidades']} si_talla={rule['si_talla']}  '--', etc_nombre={rule['entonces_nombre']},etc_grados={rule['entonces_grados']},etc_m_cant={rule['entonces_medida_cant']}, etc_envase={rule['entonces_envase']} ,etc_und={rule['entonces_unidades']}, etc_talla={rule['entonces_talla']}")
+        print(f"#{contador}:{rule['tipo']},{rule['fuz']},nombre=|{rule['si_nombre']}|,grados={rule['si_grados']},si_m_cant={rule['si_medida_cant']},si_env={rule['si_envase']},si_und={rule['si_unidades']} si_talla={rule['si_talla']}  '--', etc_nombre=|{rule['entonces_nombre']}|,etc_grados={rule['entonces_grados']},etc_m_cant={rule['entonces_medida_cant']}, etc_envase={rule['entonces_envase']} ,etc_und={rule['entonces_unidades']}, etc_talla={rule['entonces_talla']}")
         
     print("--------fin    reglas -----------")
 
@@ -424,7 +425,9 @@ def lkernel(c):
     if frequent_prefixes:
         longest_prefix = max(frequent_prefixes, key=len)
         # Agregar el prefijo más largo a los nombres
+        longest_prefix = longest_prefix.strip(" ")
         c['lo__nombre'] = longest_prefix + " " + c['lo__nombre']
+        
 
         # Calcular la matriz TF-IDF
         tfidf_vectorizer = TfidfVectorizer()
@@ -515,6 +518,7 @@ def get_sites(marca_obj):
     sites = sites.values('vendidoen__site')
     sites = sites.annotate(total=Count('vendidoen__site'))
     sites = sites.order_by('-total')
+    # print(sites.query)
 
     return sites
 
@@ -537,6 +541,7 @@ def intenta_marca(marca_id, debug, nombre=None):
     reglas              = []
     all_sites_arr       = []
     sites               = get_sites(marca_obj)
+    
 
     if not sites:
         return
@@ -578,7 +583,7 @@ def intenta_marca(marca_id, debug, nombre=None):
         c = check_pd(c, check_nombre=False, check_ean=False, check_grados=False, check_medida_cant=False, check_envase=False, check_unidades=False, check_talla=True, fuz_level=fuzl, debug=debug)
         
 
-    fuz_levels = (95,93 )
+    fuz_levels = (95,90 )
     for fuzl in fuz_levels:
         if debug:
             print("Check- envase")
@@ -687,23 +692,23 @@ def intenta_marca(marca_id, debug, nombre=None):
 
 
     
-    if c.shape[0] <= 50:
-        print(f'*** {marca_obj.slug}  c.size={c.shape[0]}')
-        grouped_estricto = c.groupby([
-            'lo__medida_cant', 
-            'lo__unidades', 
-            'lo__grados2', 
-            'lo__envase', 
-            'lo__talla'
-        ])
-        list_of_processed_groups = []
+    # if c.shape[0] <= 50:
+    # print(f'*** {marca_obj.slug}  c.size={c.shape[0]}')
+    # grouped_estricto = c.groupby([
+    #     'lo__medida_cant', 
+    #     'lo__unidades', 
+    #     'lo__grados2', 
+    #     'lo__envase', 
+    #     'lo__talla'
+    # ])
+    # list_of_processed_groups = []
 
-        for name, group in grouped_estricto:
-            # print('***** lkernel group name', name)
-            processed_group = lkernel(group)
-            list_of_processed_groups.append(processed_group)
+    # for name, group in grouped_estricto:
+    #     # print('***** lkernel group name', name)
+    #     processed_group = lkernel(group)
+    #     list_of_processed_groups.append(processed_group)
 
-        c = pd.concat(list_of_processed_groups, ignore_index=True)
+    # c = pd.concat(list_of_processed_groups, ignore_index=True)
 
 
     fuz_levels = (93,90)
@@ -716,7 +721,16 @@ def intenta_marca(marca_id, debug, nombre=None):
             print(f"Check sailers min=2 fuz={fuzl}")
         c = check_sailers(c, 2, fuzl, debug)
 
-    
+    c = check_pd(c, 
+        check_nombre=True,         ## Cierto .. debe ser al final
+        check_ean=False, 
+        check_grados=False, 
+        check_medida_cant=False, 
+        check_envase=False,  
+        check_unidades=False,
+        check_talla=False,
+        fuz_level=47, 
+        debug=debug)
     
     if debug:
         print(tabulate(c, headers = 'keys', tablefmt = 'double_outline'))
@@ -891,26 +905,26 @@ def create_PD_From(recordset):
         df_articulos.at[cuenta,'get_price']             = art.get_price
         df_articulos.at[cuenta,'quienesvenden']         = art.quienesvenden()
         if art.envase:
-            df_articulos.at[cuenta,'articulo__envase']      = art.envase.strip()
+            df_articulos.at[cuenta,'articulo__envase']      = art.envase.strip(" ")
         else:
             df_articulos.at[cuenta,'articulo__envase']      = ''
 
 
-        df_articulos.at[cuenta,'lo__nombre']            = art.nombre.strip()
+        df_articulos.at[cuenta,'lo__nombre']            = art.nombre.strip(" ")
         df_articulos.at[cuenta,'lo__medida_cant']       = float(art.medida_cant)
         df_articulos.at[cuenta,'lo__unidades']          = art.unidades
         df_articulos.at[cuenta,'lo__grados2']           = float(art.grados2)
         if art.envase:
-            df_articulos.at[cuenta,'lo__envase']            = art.envase.strip()
+            df_articulos.at[cuenta,'lo__envase']            = art.envase.strip(" ")
         else:
             df_articulos.at[cuenta,'lo__envase']            = ''
         if art.talla:
-            df_articulos.at[cuenta,'lo__talla']            = art.talla.strip()
+            df_articulos.at[cuenta,'lo__talla']            = art.talla.strip(" ")
         else:
             df_articulos.at[cuenta,'lo__talla']            = ''
 
         if art.ean_13:
-            df_articulos.at[cuenta,'lo__ean_13']           = art.ean_13.strip()
+            df_articulos.at[cuenta,'lo__ean_13']           = art.ean_13.strip(" ")
         else:
             df_articulos.at[cuenta,'lo__ean_13']           = ''
 

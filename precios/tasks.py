@@ -147,7 +147,6 @@ def generar_una_regla(marca_id, marca_id2 ):
 
 @shared_task(queue='core_calc')
 def limpiar_y_borrar_normal(*args):
-# def limpiar_y_borrar_normal(marcaid, *args):
     setMessage('Eliminando articulos')
     marcaid = None
     ######################################### INICIO      ###################
@@ -248,8 +247,12 @@ def CreateRules(request):
 
 ######### createProds ################
 @shared_task(queue='core_calc')
-def CreateProds( site_id, site_id2):
+def CreateProds( site_id, site_id2, marcaid=None):
+    # if marcaid:
+    #     management.call_command('createProds', site_id2, 2, f'--marcaid={marcaid}')
+    # else:
     management.call_command('createProds', site_id2, 2)
+        
 
 ######### FIN createProds ################
 

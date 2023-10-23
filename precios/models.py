@@ -647,6 +647,10 @@ class Marcas(models.Model):
     unificado           = models.BooleanField(default=False)
     es_marca            = models.BooleanField(default=True)
     created             = models.DateTimeField(editable=False,default=timezone.now)
+    # grados              = models.BooleanField(default=False)
+    # talla               = models.BooleanField(default=False)
+
+    
 
     @property
     def rulesCount(self) -> int:

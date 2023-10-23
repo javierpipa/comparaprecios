@@ -23,16 +23,23 @@ class Command(BaseCommand):
         marcaid     = options["marcaid"]
         print(marcaid)
 
-        # sites = Site.objects.filter(enable=True).order_by('-id')[0:5]
-        sites = Site.objects.filter(enable=True).order_by('-id')
-        sites = sorted(sites, key=lambda a: a.urlCount, reverse=True)
-        tasks_for_sites = [CreateProds.s(site.id) for site in sites]
-        group_tasks_sites = group(tasks_for_sites)
+        
         
         if marcaid:
+            sites = Site.objects.filter(enable=True).order_by('-id')
+            sites = sorted(sites, key=lambda a: a.urlCount, reverse=True)
+            tasks_for_sites = [CreateProds.s(site.id, marcaid) for site in sites]
+            group_tasks_sites = group(tasks_for_sites)
+
+
+
             marcas = Marcas.objects.filter(id=marcaid)
         else:
-            # marcas = Marcas.objects.filter(es_marca=True)[0:100]
+            sites = Site.objects.filter(enable=True).order_by('-id')
+            sites = sorted(sites, key=lambda a: a.urlCount, reverse=True)
+            tasks_for_sites = [CreateProds.s(site.id) for site in sites]
+            group_tasks_sites = group(tasks_for_sites)
+
             marcas = Marcas.objects.filter(es_marca=True)
 
         tasks_for_marcas = [generar_una_regla.s(marca.id) for marca in marcas]
