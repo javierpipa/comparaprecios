@@ -551,12 +551,14 @@
 
             $(document).on('click', '#save_list', function() {
                 var nombre_lista = $("#nombre_lista").val();
-                
+                var public = $("#public").is(":checked");
+               
                 var jqxhr =  $.ajax({
                     url: url_save_cart,
                     type: "POST",
                     data: {
                         'nombre_lista': nombre_lista,
+                        'public': public,
                         'csrfmiddlewaretoken': csrf_token,
                     }})
 
@@ -591,8 +593,9 @@
                     $(this).hide();
                     
                 })
-                .fail(function() {
-                    sayToast('Error .','bad');
+                .fail(function(jqXHR) {
+                    var error_message = jqXHR.responseJSON ? jqXHR.responseJSON.error : 'Error desconocido.';
+                    sayToast(error_message, 'bad');
                     $("#spnniinner1").delay(400).fadeOut();
                 })
             });

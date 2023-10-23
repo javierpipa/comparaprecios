@@ -96,7 +96,7 @@ class Estadistica_Consulta(models.Model):
         return "{0}: {1}".format(self.clase_consultada, self.elemento_id)
         
 class EstadisticasBlackList(models.Model):
-    agente = models.CharField(max_length=200, unique=True)
+    agente = models.CharField(max_length=250, unique=True)
     no_contabilizar = models.BooleanField(default=False)
 
     class Meta:
@@ -647,6 +647,10 @@ class Marcas(models.Model):
     unificado           = models.BooleanField(default=False)
     es_marca            = models.BooleanField(default=True)
     created             = models.DateTimeField(editable=False,default=timezone.now)
+    # grados              = models.BooleanField(default=False)
+    # talla               = models.BooleanField(default=False)
+
+    
 
     @property
     def rulesCount(self) -> int:
@@ -720,8 +724,9 @@ class Articulos(ModelMeta, models.Model):
         'medida_cant',
         'unidades',
         'envase',
-        'grados2'], editable=False, unique=True, db_index=True)
-    
+        'grados2',
+        'talla'], editable=False, unique=True, db_index=True)
+
     created             = models.DateTimeField("date created", editable=False,default=timezone.now)
     updated             = models.DateTimeField("last updated", auto_now=True,auto_now_add=False)
     tags                = TaggableManager(through=TaggedArticles)
@@ -930,7 +935,7 @@ class Unifica(models.Model):
 
     contador                = models.IntegerField(default=0)
     automatico              = models.BooleanField(default=False)
-    tipo                    = models.CharField(max_length=50, null=True, blank=True)
+    tipo                    = models.CharField(max_length=250, null=True, blank=True)
     
 
     # created                 = models.DateTimeField(auto_now_add=True)
@@ -1042,7 +1047,6 @@ class SiteURLResults(models.Model):
     proveedor       = models.CharField(max_length=30, blank=True, null=True, default='')
     stock           = models.CharField(max_length=20, blank=True, null=True,default='')
     precioref       = models.IntegerField(default=0)
-    # unidades        = models.CharField(max_length=20, blank=True, null=True,default='')
     unidades        = models.FloatField(default=1)
     image           = models.URLField(max_length=600, blank=True, null=True, default='')
 
@@ -1157,23 +1161,12 @@ class SiteURLResults(models.Model):
                 print('SiteURLResults: limpia marca pues no existe')
                 self.marca = ''
 
-        # ## confirmo marca por ean
-        # if self.site.es_ean13:
-        #     if Articulos.objects.filter(ean_13 = self.idproducto, marca__es_marca = True).exists():
-        #         arts = Articulos.objects.filter(ean_13 = self.idproducto, marca__es_marca = True).values_list('marca__nombre', flat=True)
-        #         for art in arts:
-        #             if art != self.marca:
-        #                 print('reemplaza aca 2')
-        #                 self.marca = art
-
-
         super(SiteURLResults, self).save(*args, **kwargs)
         if not existe_historico:
             if self.precio !=0:
                 PriceHistory.objects.update_or_create(
                         FromResult=self,
                         Oldprecio=self.precio,
-                        # OldDate=self.updated
                     )
 
 

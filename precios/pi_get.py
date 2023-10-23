@@ -5,7 +5,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.core.utils import ChromeType
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service as ChromeService
-from itertools import combinations
+from django.db import transaction
 
 
 import chromedriver_autoinstaller
@@ -300,10 +300,13 @@ def url_get(browser,
 
                 
         ### Tags
-        laurl.tags.remove()
+        laurl.tags.clear()
         if ld_response_bread:
             for item in ld_response_bread:
-                laurl.tags.add(str(item['name']))
+                
+                if len(ld_response_bread) == int(item['position']):
+                    print(f"Largo={len(ld_response_bread)} posicion={item['position']}")
+                    laurl.tags.add(str(item['name']))
 
         laurl.precio        = int(precio)
         laurl.error404 = False
@@ -439,11 +442,21 @@ def normaliza_talla(talla):
     return talla
 
 def extract_and_remove_weight_range_updated(text):
-    match = re.search(r'(\d+([.,]\d+)?\s*[-–a]\s*\d+([.,]\d+)?)\s*kg', text, re.IGNORECASE)
-    if match:
-        weight_range = match.group(0)
-        new_text = re.sub(re.escape(weight_range), '', text)
-        return weight_range, new_text.strip()
+    busquedas = [
+        r'(\d+([.,]\d+)?\s*[-–a]\s*\d+([.,]\d+)?)\s*kg',
+        r'(\d+([.,]\d+)?\s*[-–a]\s*\d+([.,]\d+)?)\s*cm',
+        r'(\d+([.,]\d+)?\s*[-–x]\s*\d+([.,]\d+)?)\s*kg',
+        r'(\d+([.,]\d+)?\s*[-–x]\s*\d+([.,]\d+)?)\s*cm',
+        r'(hasta\s*\d+([.,]\d+)?)\s*kg',
+        r'(\d+([.,]\d+)?\s*cm\s*x\s*\d+([.,]\d+)?)\s*cm',
+    ]
+    for busca in busquedas:
+        match = re.search(busca, text, re.IGNORECASE)
+        if match:
+            weight_range = match.group(0)
+            new_text = re.sub(re.escape(weight_range), '', text)
+            return weight_range, new_text.strip()
+    
     return '', text
 
 def replace_comma_in_degrees(text):
@@ -456,16 +469,18 @@ def replace_comma_in_degrees(text):
 
 def get_unidades2(nombre, unidades):
     # Lista de patrones de búsqueda
-
+    nombre = nombre.strip()
     busquedas = [
         r'(\d+)\s*(?:packs?|unidades?|pack)\s*x',
         r'(\d+\s*unidades)',
         r'(\d+\s*unidad)',
         r'(\d+\s*unid)',
         r'(\d+\s*uds)',
+        r'(\d+\s*un)',
         r'(\d+)\s*x\s*',
         r'\s*[^\S\n\t]+x\s*(\d+)',
-        r'^\d{1,2}'
+        r'^\d{1,2}',
+        r'(\d+)$'
     ]
     # Bucle para buscar y actualizar unidades y nombre
     for busca in busquedas:
@@ -477,32 +492,36 @@ def get_unidades2(nombre, unidades):
                     retorna = re.sub(r'\D', '', retorna)
                 except:
                     pass
-                
+
                 unidades = int(retorna)
                 return nombre, unidades
-            
-                # break  # Salir del bucle una vez que se encuentre una coincidencia
+                
     return nombre, 1
 
 ## 4.05 Anotacion de tallas
-def obtener_talla(nombre, TALLAS):
+def obtener_talla(nombre, TALLAS, busquedas):
     talla, nombre           = remueveYGuardaSinSplit(TALLAS, nombre, remover=True, todos=True)
+    
+    ###----------------------------
+    words = nltk.word_tokenize(nombre)
+    # print('3->', words)
+
     if talla == '':
-        busquedas = [
-            ' xxg',
-            ' xg',
-            ' rn',
-            ' xg',
-            ' prematuro'
-        ]
         for busca in busquedas:
             if talla == '':  # Si ya hemos encontrado talla, no necesitamos seguir buscando
-                if busca in nombre:
-                    talla = 'talla' + busca
-                    nombre = nombre.replace(busca,'')
-                    break
+                for word in words:
+                    if busca == word:
+                        talla = 'talla ' + busca
+                        # word = word.replace(busca,'')
+                        words[words.index(word)] = word.replace(busca, '')
+                        # print(f'Encuentra talla |{talla}| buscaba|{busca}| word queda en {word}')
+                        break
     if talla:
-        talla = normaliza_talla(talla)
+        talla = normaliza_talla(talla)    
+    
+    nombre = ' '.join(words)
+    ###----------------------------
+    # print(f'--- y el nombre queda como |{nombre}|')
 
     return talla, nombre
 
@@ -589,7 +608,9 @@ def remove_stopwords(words):
     """Remove stop words from list of tokenized words"""
     new_words = []
     for word in words:
-        if word not in stopwords.words('spanish'):
+        if word == 'sin':
+            new_words.append(word)
+        elif word not in stopwords.words('spanish') :
             new_words.append(word)
     return new_words
 
@@ -641,7 +662,7 @@ def create_prods(
     for url in urls:
         registros = registros + 1
         cantidad    = 1
-        grados      = ''
+        grados      = None
         talla       = ''
         color       = ""
         dimension   = ''
@@ -683,34 +704,7 @@ def create_prods(
             articulos_marca_vacio = articulos_marca_vacio + 1
             continue
 
-        otras = get_marcas_que_me_apuntan(newmarca)
-
-        nombre = replace_comma_in_degrees(nombre)
-
-        ###----------------------------
-        words = nltk.word_tokenize(nombre)
-        # print('3->', words)
-        words = normalize(words)
-        # print('4->', words)
-        nombre = ' '.join(words)
-        ###----------------------------
-
-        otras_inutiles, nombre = remueveYGuardaSinSplit(otras, nombre, remover=True, todos=True)
-        # print(f'otras_inutiles={otras_inutiles}')
-        
-        # ## 1.4 Remueve colores
-        # color, nombre = remueveYGuarda(COLORES, nombre, " ", remover=True, todos=True)
-        # color = color.replace(',', '')
-        
-        # # 1.5 rremueve todos los ', 1 Un'
-        inutiles, nombre = remueveYGuardaSinSplit(PALABRAS_INUTILES, nombre, remover=True, todos=True)
-        debug_nombre('3.- Inutiles: '+inutiles, debug)
-        
-
-        # 2.2 mueve envases
-        envase, nombre = remueveYGuarda(ENVASES, nombre, " ", remover=True, todos=True)
-        debug_nombre('4.- Envase: '+envase, debug)
-
+        #### Separa numeros de textos ##########################
         res = get_palabras_con_numychar(nombre)
         for palabra in res:
             palas = re.split('([A-Za-z]+[\d@]+[\w@]*|[\d@]+[A-Za-z]+[\w@]*)', palabra.strip())
@@ -726,6 +720,43 @@ def create_prods(
                         reemplaza_con = reemplaza_con + pa 
 
             nombre = nombre.replace(palabra, reemplaza_con) 
+        #### Separa numeros de textos ##########################
+
+        otras_marcas = get_marcas_que_me_apuntan(newmarca)
+
+        nombre = replace_comma_in_degrees(nombre)
+        
+        # 4.2 dimension
+        dimension, nombre = extract_and_remove_weight_range_updated(nombre)
+
+        ###----------------------------
+        words = nltk.word_tokenize(nombre)
+        # print('3->', words)
+        words = normalize(words)
+        # print('4->', words)
+        nombre = ' '.join(words)
+        ###----------------------------
+
+        otras_inutiles, nombre = remueveYGuardaSinSplit(otras_marcas, nombre, remover=True, todos=True)
+        # print(f'otras_inutiles={otras_inutiles}')
+        
+        # ## 1.4 Remueve colores
+        # color, nombre = remueveYGuarda(COLORES, nombre, " ", remover=True, todos=True)
+        # color = color.replace(',', '')
+        
+        # # 1.5 rremueve todos los ', 1 Un'
+        inutiles, nombre = remueveYGuardaSinSplit(PALABRAS_INUTILES, nombre, remover=True, todos=True)
+        debug_nombre('3.- Inutiles: '+inutiles, debug)
+        
+        ## Quito precio entre parentesis
+        nombre = re.sub(r'\(\$.*? c/u\)', '', nombre).strip()
+
+
+        # 2.2 mueve envases
+        envase, nombre = remueveYGuarda(ENVASES, nombre, " ", remover=True, todos=True)
+        debug_nombre('4.- Envase: '+envase, debug)
+
+
             
 
         nombre,  grados = obtener_grados(nombre)
@@ -735,17 +766,22 @@ def create_prods(
         
         ## 4 Retiro de sufijos como 'Aprox' 
         agregar_sufijos, nombre = remueveYGuarda(SUJIFOS_NOMBRE, nombre, " ", remover=True, todos=True)
+        
         debug_nombre('5.- Quitar sufijos: '+agregar_sufijos, debug)
 
         ## 4.05 Anotacion de tallas
-        talla, nombre = remueveYGuardaSinSplit(TALLAS, nombre, remover=True, todos=True)
+        # talla, nombre = remueveYGuardaSinSplit(TALLAS, nombre, remover=True, todos=True)
+        busquedas = ['xxg','xg', 'rn', 'xg', 'prematuro', 's-m']
+        talla, nombre = obtener_talla(nombre, TALLAS, busquedas)
         # debug_nombre('6.- Quitar Tallas: '+talla, debug)
 
-        # 4.2 Unidad de medida
-        dimension, nombre = extract_and_remove_weight_range_updated(nombre)
+        # # 4.2 dimension
+        # dimension, nombre = extract_and_remove_weight_range_updated(nombre)
 
+        # 4.2 Unidad de medida
         if medida_cant == 0:
-            nombre, medida_cant, medida_um, dimension = get_unidadMedida(nombre, UMEDIDAS)
+            # nombre, medida_cant, medida_um, dimension = get_unidadMedida(nombre, UMEDIDAS)
+            nombre, medida_cant, medida_um = get_unidadMedida(nombre, UMEDIDAS)
         
 
         ## Packs y Sets
@@ -803,17 +839,23 @@ def create_prods(
 
 
         
-        nombre = nombre.rstrip()
+        
+        nombre = nombre.strip(" ")
         if len(nombre)  > 1:
             if nombre[-1] == ','  or nombre[-1] == '-'  or nombre[-1] == '.' or nombre[-2] == ' y' or nombre[-1] == '+' or nombre[-1] == '–' or nombre[-2] == ' x':
                 nombre = nombre[:-1] 
+                nombre = nombre.strip(" ")
         
-            if nombre.startswith(":") or nombre.startswith("!") or nombre.startswith("+") or nombre.startswith(" "):
+            if nombre.startswith(":") or nombre.startswith("!") or nombre.startswith("+") or nombre.startswith(" ") :
                 nombre = nombre[1:] 
-                nombre = nombre.rstrip()
+                nombre = nombre.strip(" ")
+
+            if nombre.startswith("x ") :
+                nombre = nombre[2:] 
+                nombre = nombre.strip(" ")
 
            
-        nombre = nombre.rstrip()
+        nombre = nombre.strip(" ")
         if nombre.endswith('-') or nombre.endswith('.'):
             nombre = nombre[:-1] 
 
@@ -839,86 +881,102 @@ def create_prods(
 
         debug_nombre('20.- FINAL: '+ nombre, debug)
 
-        if site.pk in ean_13_site_ids:
+        if site.pk in ean_13_site_ids and url.idproducto:
             ean_13 = url.idproducto
-            if url.idproducto:
-                 
-                ean_13 = ean_13.rstrip()
-                ean_13 = ean_13.lstrip()
-                ean_13 = ean_13.replace('[','')
-                ean_13 = ean_13.replace('}','')
-                if "'" in ean_13:
-                    ean_13 = ean_13.replace("'","")
-                if '-' in ean_13:
-                    ean_arr = ean_13.split('-')
-                    ean_13 = ean_arr[0]
-                if 'x' in ean_13:
-                    ean_arr = ean_13.split('x')
-                    ean_13 = ean_arr[0]
-                    if unidades == 1:
-                        unidades = int(ean_arr[1])
-                try:
-                    ean_13_int = int(ean_13)
-                    ean_13 = str(ean_13_int)
-                except ValueError as e:
-                    print('Problemas con ean_13 ', ean_13)
+            ean_13 = ean_13.rstrip()
+            ean_13 = ean_13.lstrip()
+            ean_13 = ean_13.replace('[','')
+            ean_13 = ean_13.replace('}','')
+            if "'" in ean_13:
+                ean_13 = ean_13.replace("'","")
+            if '-' in ean_13:
+                ean_arr = ean_13.split('-')
+                ean_13 = ean_arr[0]
+            if 'x' in ean_13:
+                ean_arr = ean_13.split('x')
+                ean_13 = ean_arr[0]
+                if unidades == 1:
+                    unidades = int(ean_arr[1])
+            try:
+                ean_13_int = int(ean_13)
+                ean_13 = str(ean_13_int)
+                if len(ean_13) <= 7:
                     ean_13 = None
+            except ValueError as e:
+                # print('Problemas con ean_13 ', ean_13)
+                ean_13 = None
             
         else:
             ean_13 = None
         
+        ###########################################################
         ## 2do cambio hecho, se hace reemplazo de frases o palabras
+        ###########################################################
         nombre = reemplaza_palabras(nombre)
-        ## Nuevamente se buscan tallas:
-        
+       
 
         if medida_cant == 0:
-            nombre, medida_cant, medida_um, dimension = get_unidadMedida(nombre, UMEDIDAS)
+            nombre, medida_cant, medida_um = get_unidadMedida(nombre, UMEDIDAS)
 
-        talla, nombre = obtener_talla(nombre, TALLAS)
+        ## Nuevamente se buscan tallas:
+        if talla == '':
+            busquedas = [
+                'xxg',
+                'xg',
+                'rn',
+                'xg',
+                'prematuro',
+                'g',
+                'm',
+                'p',
+            ]
+            talla, nombre = obtener_talla(nombre, TALLAS, busquedas)
 
-        if grados == '':
+        if not grados:
             nombre,  grados = obtener_grados(nombre)
-        # if unidades == 1:
-        #     retorna, nombre = pack_search(nombre, '^\d{1,2}')
+
+        if unidades == 1:
+            retorna, nombre = pack_search(nombre, '\d+$')
+            if retorna:
+                unidades = int(retorna)
+
+        ### Elimino marca que esta dentro del nombre    
+        nombre      = nombre.replace(newmarca.nombre, '')
+        nombre      = nombre.replace('  ', ' ')
+        nombre      = nombre.strip()
+        if not grados:
+            grados = float(0)
 
         ### Revisiones
         reglas      = []
         reglas, newmarca, nombre, grados, medida_cant, unidades, envase, talla = unificacion(newmarca, nombre, grados, medida_cant, unidades, envase, talla, debug, 3, reglas)
 
-        ### Elimino marca que esta dentro del nombre    
-        nombre = nombre.replace(newmarca.nombre, '')
-
         #### Grabacion
-        ### Hacer get
-
-        if not grados:
-            grados = 0
-        
-        nombre = nombre.replace('  ', ' ')
 
         try:
-            miarticulo  = Articulos.objects.get(
-                marca=newmarca,
-                nombre=nombre,
-                medida_cant=medida_cant, 
-                grados2=grados,
-                unidades=unidades,
-                envase=envase,
-                talla=talla
-            )
-            articulos_existentes = articulos_existentes  + 1
-        except MultipleObjectsReturned:
-            print(f'MultipleObjectsReturned  newmarca={newmarca}, nombre={nombre}  medida_cant={medida_cant} grados={grados} unidades={unidades}')
-            miarticulo  = Articulos.objects.filter(
+            with transaction.atomic():
+                miarticulo  = Articulos.objects.select_for_update().get(
                     marca=newmarca,
                     nombre=nombre,
                     medida_cant=medida_cant, 
                     grados2=grados,
                     unidades=unidades,
                     envase=envase,
-                    talla=talla,
-                ).first()
+                    talla=talla
+                )
+            articulos_existentes = articulos_existentes  + 1
+        except MultipleObjectsReturned:
+            print(f'MultipleObjectsReturned  newmarca={newmarca}, nombre={nombre}  medida_cant={medida_cant} grados={grados} unidades={unidades}')
+            with transaction.atomic():
+                miarticulo  = Articulos.objects.select_for_update().filter(
+                        marca=newmarca,
+                        nombre=nombre,
+                        medida_cant=medida_cant, 
+                        grados2=grados,
+                        unidades=unidades,
+                        envase=envase,
+                        talla=talla,
+                    ).first()
         except ObjectDoesNotExist:
             
             miarticulo  = create_article(newmarca, nombre, medida_cant, medida_um, nombre_original, unidades, dimension, color, envase, grados, ean_13, tipo, talla, tags)
@@ -933,10 +991,11 @@ def create_prods(
         if ean_13:
             miarticulo.ean_13 = ean_13
 
-        miarticulo.tags.remove()
-        if tags and site.obtiene_categorias:
-            for tag in tags:
-                miarticulo.tags.add(tag)
+        if site.obtiene_categorias:
+            miarticulo.tags.clear()
+            if tags :
+                for tag in tags:
+                    miarticulo.tags.add(tag)
         miarticulo.save()
 
 
@@ -951,7 +1010,7 @@ def create_prods(
 
         if  registros % 1000 == 0:
             try:
-                print(f'{site.siteName} articulos_marca_vacio={articulos_marca_vacio} reglas={reglas_creados} registros= {registros} creados = {articulos_creados} existentes= {articulos_existentes}  vacios={articulos_nombre_vacio}  Tasa={(articulos_existentes/articulos_creados)  * 100}')
+                print(f'{site.siteName} articulos_marca_vacio={articulos_marca_vacio} registros= {registros} creados = {articulos_creados} existentes= {articulos_existentes}  vacios={articulos_nombre_vacio}  Tasa={(articulos_existentes/articulos_creados)  * 100}')
             except:
                 print("error al generar informe cada 1000")
                 pass
@@ -981,27 +1040,15 @@ def create_article(newmarca, nombre, medida_cant, medida_um, nombre_original, un
 
 def get_dics():
    
-    PALABRAS_INUTILES = AllPalabras.objects.filter(tipo=TIPOPALABRA.INUTIL).values_list('palabra',flat=True).all()
-    
-    SUJIFOS_NOMBRE = AllPalabras.objects.filter(tipo=TIPOPALABRA.SUJIFO_NOMBRE).values_list('palabra',flat=True).all()
+    PALABRAS_INUTILES = AllPalabras.objects.filter(tipo=TIPOPALABRA.INUTIL).order_by('-palabra').values_list('palabra',flat=True).all()
+    SUJIFOS_NOMBRE = AllPalabras.objects.filter(tipo=TIPOPALABRA.SUJIFO_NOMBRE).order_by('-palabra').values_list('palabra',flat=True).all()
     ean_13_site_ids = list(Site.objects.filter(es_ean13=True).values_list('id', flat=True))
-
-        
-    UMEDIDAS = AllPalabras.objects.filter(tipo=TIPOPALABRA.UMEDIDA).values_list('palabra',flat=True).all()
-
-    ###     genera columna unidades
-    UNIDADES = AllPalabras.objects.filter(tipo=TIPOPALABRA.UNIDAD).values_list('palabra',flat=True).all()
-    ## Packs y sets
-    # PACKS      = list(Settings.objects.get(key='PACKS').valor_data)
-    PACKS = AllPalabras.objects.filter(tipo=TIPOPALABRA.PACKS).values_list('palabra',flat=True).all()
-    # 'verde' ,'negro',
-    # TALLAS      = list(Settings.objects.get(key='TALLAS').valor_data)
-    TALLAS = AllPalabras.objects.filter(tipo=TIPOPALABRA.TALLA).values_list('palabra',flat=True).all()
-    # TALLAS   = ('xg/xxg', 'xg', 'xxg', 'xl', 'talla s-xl','talla xl', 'talla s', 'talla m', 'talla xs', 'talla xxg', 'talla xxl', 'talla unica', 'talla ch/m','talla s/m','talla g', 'talla 4', 'talla 6','talla 8','talla 10','tallas: s-m-l') 
-    # COLORES = ('cromo','bronce','bicolor','roja','incolora','celeste',  'lila','amarilla','amarillo', 'naranjo', 'rojo', 'gris','cyan', 'beige', 'azul', 'rosada','rosado', 'rosa', 'roza', 'turquesa', 'morado', 'white', 'pink', 'turq', 'blank','silver')
-    COLORES = AllPalabras.objects.filter(tipo=TIPOPALABRA.COLOR).values_list('palabra',flat=True).all()
-    # ENVASES = ('caja,', 'caja', 'tarro',  'tarro,', 'botella', 'botella,', 'botellin', 'bolsa','bolsa,', 'lata,', 'lata', 'latas','latas,', 'tetra', 'botellon','botellón', 'frasco', 'otellín', 'pote', 'pote,','barril','tetrapak', 'bandeja','sobre', 'malla', 'bidon', 'doypack', 'squeeze','retornable', 'squeze', 'envase flexible', ' pet ', 'pouch')
-    ENVASES = AllPalabras.objects.filter(tipo=TIPOPALABRA.ENVASE).values_list('palabra',flat=True).all()
+    UMEDIDAS = AllPalabras.objects.filter(tipo=TIPOPALABRA.UMEDIDA).order_by('-palabra').values_list('palabra',flat=True).all()
+    UNIDADES = AllPalabras.objects.filter(tipo=TIPOPALABRA.UNIDAD).order_by('-palabra').values_list('palabra',flat=True).all()
+    PACKS = AllPalabras.objects.filter(tipo=TIPOPALABRA.PACKS).order_by('-palabra').values_list('palabra',flat=True).all()
+    TALLAS = AllPalabras.objects.filter(tipo=TIPOPALABRA.TALLA).order_by('-palabra').values_list('palabra',flat=True).all()
+    COLORES = AllPalabras.objects.filter(tipo=TIPOPALABRA.COLOR).order_by('-palabra').values_list('palabra',flat=True).all()
+    ENVASES = AllPalabras.objects.filter(tipo=TIPOPALABRA.ENVASE).order_by('-palabra').values_list('palabra',flat=True).all()
     marcas = SiteURLResults.objects.exclude(marca__exact='', precio=0 ).distinct().all()
     listamarcas = Marcas.objects.values_list('nombre',flat=True).all()
 
@@ -1047,68 +1094,18 @@ def pack_search(en_que_texto, que_busco):
     if x:
         en_que_texto = re.sub(que_busco, '', en_que_texto, flags=re.IGNORECASE)
         en_que_texto = en_que_texto.strip()
-        unidades     = int(x[0])
+        unidades     = x[0]
+        try:
+            unidades = re.sub(r'\D', '', unidades)
+        except:
+            pass
+        unidades     = int(unidades)
         return unidades, en_que_texto
     else:
         return None, en_que_texto
     
 
 
-
-# def cambiaPalabras(nombre):
-#     nombre =  nombre.replace('brujas salamanca',' ')
-#     nombre =  nombre.replace('artesanos cochiguaz',' ')
-#     nombre =  nombre.replace('artesanos',' ')
-#     nombre =  nombre.replace('º gl','° ')
-#     nombre =  nombre.replace('º','°')
-#     nombre =  nombre.replace('° gl','° ')
-#     nombre =  nombre.replace('°c ','° ')
-#     nombre =  nombre.replace('Â° ','° ')
-#     nombre =  nombre.replace('°g ','° ')
-#     nombre =  nombre.replace('°gl','° ')
-#     nombre =  nombre.replace('40g ','40° ')
-#     nombre =  nombre.replace('40g,','40°,')
-#     nombre =  nombre.replace('14g ','14° ')
-#     nombre =  nombre.replace('35g ','35° ')
-#     nombre =  nombre.replace('35 g°','35° ')
-#     nombre =  nombre.replace('4.5 botella','4.5° botella')
-#     nombre =  nombre.replace('35 grados ','35° ')
-#     nombre =  nombre.replace('14°gl ','14° ')
-#     nombre =  nombre.replace('13g, ','13° ')
-#     nombre =  nombre.replace('13,5 °, ','13.5° ')
-#     nombre =  nombre.replace('13,5 ° gl, ','13.5° ')
-#     nombre =  nombre.replace('13,6 gl, ','13.6° ')
-#     nombre =  nombre.replace('12.5g, ','12.5° ')
-#     nombre =  nombre.replace('14.5g, ','14.5° ')
-#     nombre =  nombre.replace('14.2g, ','14.2° ')
-#     nombre =  nombre.replace('14g, ','14° ')
-#     nombre =  nombre.replace('12g, ','12° ')
-#     nombre =  nombre.replace('pierna 15g, ','pierna 15° ')
-#     nombre =  nombre.replace('6*90ml','6 un. 90 cc')
-#     nombre =  nombre.replace('6*80ml','6 un. 80 cc')
-#     nombre =  nombre.replace('3L*3 ','3 un. 3 l')
-#     nombre =  nombre.replace('multipack','')
-#     nombre =  nombre.replace('4 de 1,5 l','4 un. 1.5 l.')
-#     nombre =  nombre.replace('grados ','° ')
-#     nombre =  nombre.replace('u.)','unidades )')
-#     nombre =  nombre.replace('*',' - ')
-#     nombre =  nombre.replace('1,5l','1.5 l')
-#     nombre =  nombre.replace('1.2l','1.2 l')
-#     nombre =  nombre.replace('1,75l','1.75 l')
-#     nombre =  nombre.replace('1.5l','1.5 l')
-#     nombre =  nombre.replace('1.5lt','1.5 lt')
-#     nombre =  nombre.replace('3.0lt pet','3.0 lt')
-#     nombre =  nombre.replace('3.0lt','3.0 lt')
-#     nombre =  nombre.replace('- 6unid',' 6 un. ')
-#     nombre =  nombre.replace('- 3unid',' 3 un. ')
-#     nombre =  nombre.replace('1/4 kg','250 gr.')
-#     nombre =  nombre.replace('7kg','7 kg')
-#     nombre =  nombre.replace('5kg','5 kg')
-#     nombre =  nombre.replace('1kgr','1 kg')
-#     nombre =  nombre.replace('1 kgr','1 kg')
-#     nombre =  nombre.replace('tripack ','3 un. ')
-#     nombre =  nombre.replace('pack x 6','6 un. ')
-#     nombre =  nombre.replace('pack x6','6 un. ')
     
 
     # nombre =  nombre.replace('no retornable','desechable')
@@ -1144,54 +1141,54 @@ def pack_search(en_que_texto, que_busco):
     # nombre =  nombre.replace('relleno con ','relleno ')
     # nombre =  nombre.replace('gelatina en polvo ','gelatina ')
 
-    nombre =  nombre.replace('pack 2 ','2 un. ')
-    nombre =  nombre.replace('pack 2x ','2 un. ')
-    nombre =  nombre.replace('pack 3 ','3 un. ')
-    nombre =  nombre.replace('pack 3x ','3 un. ')
-    nombre =  nombre.replace('pack 3un ','3 un. ')
-    nombre =  nombre.replace('pack 4 ','4 un. ')
-    nombre =  nombre.replace('pack x 4','4 un. ')
-    nombre =  nombre.replace('pack 5 ','5 un. ')
-    nombre =  nombre.replace('pack 6 ','6 un. ')
-    nombre =  nombre.replace('6x ','6 un. ')
-    nombre =  nombre.replace('pack 7 ','7 un. ')
-    nombre =  nombre.replace('pack 8 ','8 un. ')
-    nombre =  nombre.replace('pack 9 ','9 un. ')
-    nombre =  nombre.replace('pack 10 ','10 un. ')
-    nombre =  nombre.replace('pack 10u ','10 un. ')
-    nombre =  nombre.replace('pack 12 ','12 un. ')
-    nombre =  nombre.replace('pack 12x ','12 un. ')
-    nombre =  nombre.replace('6 latas','6 un. lata')
-    nombre =  nombre.replace('12 latas','12 un. lata')
-    nombre =  nombre.replace('18 latas','18 un. lata')
-    nombre =  nombre.replace(' 4unid ',' 4 un. ')
-    nombre =  nombre.replace(' 6unid ',' 6 un. ')
-    nombre =  nombre.replace(' botellas,',' botella ')
-    nombre =  nombre.replace(' 2 botellas',' 2 un. botella')
-    nombre =  nombre.replace('light, 4 de',' 4 un. light')
-    nombre =  nombre.replace('2.4lt','2.4 l')
-    nombre =  nombre.replace(' 3 en 1',' 3 un. ')
-    nombre =  nombre.replace(' 64un',' 64 un. ')
-    nombre =  nombre.replace(' 8 und','  8 un. ')
-    nombre =  nombre.replace(' 45 und',' 45 un. ')
-    nombre =  nombre.replace(' 48un',' 48 un. ')
-    nombre =  nombre.replace(' 52un',' 52 un. ')
-    nombre =  nombre.replace(' 54 und',' 54 un. ')
-    nombre =  nombre.replace(' 68 und',' 68 un. ')
-    nombre =  nombre.replace('Display 6 ','6 un. ')
-    nombre =  nombre.replace('x54 unid','54 un. ')
-    nombre =  nombre.replace('2x1 unidades','2 un. ')
-    nombre =  nombre.replace('6X isotonica','6 un. isotonica')
-    nombre =  nombre.replace('12 Latas ','12 un. lata ')
-    nombre =  nombre.replace('rinde 1 l','')
-    nombre =  nombre.replace('2,25l','2.25 lt.')
-    nombre =  nombre.replace('2,5l','2.5 lt.')
-    nombre =  nombre.replace('2,5mts.','2.5 mt.')
-    nombre =  nombre.replace('2,7lt.','2.7 lt.')
-    nombre =  nombre.replace('2,8lt','2.8 lt.')
-    nombre =  nombre.replace(' zero ',' sin azucar ')
-    nombre =  nombre.replace('bebidas','bebida')
-    nombre =  nombre.replace('bbonnet','bonnet')
+    # nombre =  nombre.replace('pack 2 ','2 un. ')
+    # nombre =  nombre.replace('pack 2x ','2 un. ')
+    # nombre =  nombre.replace('pack 3 ','3 un. ')
+    # nombre =  nombre.replace('pack 3x ','3 un. ')
+    # nombre =  nombre.replace('pack 3un ','3 un. ')
+    # nombre =  nombre.replace('pack 4 ','4 un. ')
+    # nombre =  nombre.replace('pack x 4','4 un. ')
+    # nombre =  nombre.replace('pack 5 ','5 un. ')
+    # nombre =  nombre.replace('pack 6 ','6 un. ')
+    # nombre =  nombre.replace('6x ','6 un. ')
+    # nombre =  nombre.replace('pack 7 ','7 un. ')
+    # nombre =  nombre.replace('pack 8 ','8 un. ')
+    # nombre =  nombre.replace('pack 9 ','9 un. ')
+    # nombre =  nombre.replace('pack 10 ','10 un. ')
+    # nombre =  nombre.replace('pack 10u ','10 un. ')
+    # nombre =  nombre.replace('pack 12 ','12 un. ')
+    # nombre =  nombre.replace('pack 12x ','12 un. ')
+    # nombre =  nombre.replace('6 latas','6 un. lata')
+    # nombre =  nombre.replace('12 latas','12 un. lata')
+    # nombre =  nombre.replace('18 latas','18 un. lata')
+    # nombre =  nombre.replace(' 4unid ',' 4 un. ')
+    # nombre =  nombre.replace(' 6unid ',' 6 un. ')
+    # nombre =  nombre.replace(' botellas,',' botella ')
+    # nombre =  nombre.replace(' 2 botellas',' 2 un. botella')
+    # nombre =  nombre.replace('light, 4 de',' 4 un. light')
+    # nombre =  nombre.replace('2.4lt','2.4 l')
+    # nombre =  nombre.replace(' 3 en 1',' 3 un. ')
+    # nombre =  nombre.replace(' 64un',' 64 un. ')
+    # nombre =  nombre.replace(' 8 und','  8 un. ')
+    # nombre =  nombre.replace(' 45 und',' 45 un. ')
+    # nombre =  nombre.replace(' 48un',' 48 un. ')
+    # nombre =  nombre.replace(' 52un',' 52 un. ')
+    # nombre =  nombre.replace(' 54 und',' 54 un. ')
+    # nombre =  nombre.replace(' 68 und',' 68 un. ')
+    # nombre =  nombre.replace('Display 6 ','6 un. ')
+    # nombre =  nombre.replace('x54 unid','54 un. ')
+    # nombre =  nombre.replace('2x1 unidades','2 un. ')
+    # nombre =  nombre.replace('6X isotonica','6 un. isotonica')
+    # nombre =  nombre.replace('12 Latas ','12 un. lata ')
+    # nombre =  nombre.replace('rinde 1 l','')
+    # nombre =  nombre.replace('2,25l','2.25 lt.')
+    # nombre =  nombre.replace('2,5l','2.5 lt.')
+    # nombre =  nombre.replace('2,5mts.','2.5 mt.')
+    # nombre =  nombre.replace('2,7lt.','2.7 lt.')
+    # nombre =  nombre.replace('2,8lt','2.8 lt.')
+    # nombre =  nombre.replace(' zero ',' sin azucar ')
+    # nombre =  nombre.replace('bebidas','bebida')
+    # nombre =  nombre.replace('bbonnet','bonnet')
     
     
 
@@ -1282,7 +1279,7 @@ def get_unidadMedida( en_que_texto, UMEDIDAS):
     
     arr_nombre = en_que_texto.split(" ")
 
-    dimension = ""
+    # dimension = ""
     um_text = ""
     um_cant = ""
     palabra = 1
@@ -1309,13 +1306,13 @@ def get_unidadMedida( en_que_texto, UMEDIDAS):
             break
         else:
             paso = getStringAndNumbers(um_text)
-            if len(paso) == 1:
-                # print("paso 1")
-                um_text = paso[0]
-                if um_text in UMEDIDAS :
-                    um_cant = '1'
-                    retira = um_text
-                    break
+            # if len(paso) == 1:
+            #     # print("paso 1")
+            #     um_text = paso[0]
+            #     if um_text in UMEDIDAS :
+            #         um_cant = '1'
+            #         retira = um_text
+            #         break
 
             if len(paso) == 2:
                 print('larrgo  2')
@@ -1332,25 +1329,26 @@ def get_unidadMedida( en_que_texto, UMEDIDAS):
                         print(um_cant)
                         ## Podria ser:   1/4 o nada
             if len(paso) == 5:
-                if paso[2] == "X" or paso[2] == "x":
-                    # print("es dimension")
-                    um_cant = ""
-                    um_text = ""
-                    dimension = paso[1]+paso[2]+paso[3]+paso[4]
+                # if paso[2] == "X" or paso[2] == "x":
+                #     # print("es dimension")
+                #     um_cant = ""
+                #     um_text = ""
+                #     dimension = paso[1]+paso[2]+paso[3]+paso[4]
+                #     retira = paso[1]+paso[2]+paso[3]+paso[4]
+                # else:
+
+                # print("paso 5")
+                # for uni in paso:
+                #     print(uni)
+                if um_text in UMEDIDAS:
+                    um_text = paso[4]
+                    # um_cant = paso[1]+paso[2]+paso[3]
+                    um_cant = paso[1]+paso[3]
+                    # retira = um_cant  + '' + um_text
                     retira = paso[1]+paso[2]+paso[3]+paso[4]
                 else:
-                    # print("paso 5")
-                    # for uni in paso:
-                    #     print(uni)
-                    if um_text in UMEDIDAS:
-                        um_text = paso[4]
-                        # um_cant = paso[1]+paso[2]+paso[3]
-                        um_cant = paso[1]+paso[3]
-                        # retira = um_cant  + '' + um_text
-                        retira = paso[1]+paso[2]+paso[3]+paso[4]
-                    else:
-                        um_cant = ""
-                        um_text = ""
+                    um_cant = ""
+                    um_text = ""
                 break
 
         palabra = palabra + 1
@@ -1363,15 +1361,16 @@ def get_unidadMedida( en_que_texto, UMEDIDAS):
     um_text = normalizeUM(um_text)
     um_cant, um_text = normalizeCANTyUM(um_cant, um_text, True)
     
-    if um_cant > 0 :
-        medida = str(um_cant) + ' ' + um_text
-    else:
-        medida =  um_text
+    # if um_cant > 0 :
+    #     medida = str(um_cant) + ' ' + um_text
+    # else:
+    #     medida =  um_text
     en_que_texto =  en_que_texto.replace(retira,'')
 
     en_que_texto = en_que_texto.lstrip()
 
-    return en_que_texto, um_cant, um_text, dimension
+    return en_que_texto, um_cant, um_text
+# , dimension
 
 
 def getStringAndNumbers( donde):

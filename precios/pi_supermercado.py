@@ -165,15 +165,13 @@ def product_details_fromsoup_breadcrumb(ld_json_tags, is_selenium=False):
                 for item in ld_json['@graph']:
                     if isinstance(item, dict) and item.get('@type') == 'BreadcrumbList':
                         return extract_list_details(item)
-            # else:
-            #     print("No encontrado")
         except json.JSONDecodeError:
             # pass
             print(f'Error en product_details_fromsoup JSONDecodeError --->  {ld_json_tags}')
         except Exception as e:
             print(f'Error en product_details_fromsoup ---> {str(e)} {ld_json_tags}')
     
-    print('llega aca')
+    
     return None
 
 def product_details_fromsoup(ld_json_tags, is_selenium=False):

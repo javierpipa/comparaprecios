@@ -14,14 +14,26 @@ from precios.models import (
     Site, 
     SiteURLResults,
     PAGECRAWLER,
+    Marcas,
+    Vendedores,
+    Unifica,
+    Articulos,
+    AllPalabras,
+    ReemplazaPalabras,
 )
-
+from precios.pi_get import reemplaza_palabras        
+from precios.pi_rules import (
+    intenta_marca,
+    createRule, 
+)
 # from precios.pi_emails import send_email_account_daily
 # , send_email_account_daily
 from members.models import (
     Periodo,
 )
-
+from precios.pi_functions import (
+    setMessage, 
+)   
 #### Jupiter
 # DJANGO_PROJECT="myproject" jupyter notebook
 # python3 -m  celery  --app=myproject beat &
@@ -31,6 +43,157 @@ from members.models import (
 # python3 -m  celery --app=myproject worker -Q core_selenium -n worker3.%h &
 # python3 -m  celery --app=myproject worker -Q core_selenium2 -n worker4.%h -E
 
+@shared_task(queue='core_calc')
+def elimina_relacion_reglas(marca_id):
+    setMessage('Eliminando relacion con reglas')
+    urls = SiteURLResults.objects.all()
+
+    for url in urls:
+        url.reglas.clear()
+
+
+@shared_task(queue='core_calc')
+def limpiar_y_borrar_inicial():
+    setMessage('Generando articulos especial')
+
+    ## Pongo en 0 num_rules_created
+    rule = Settings.objects.get(key='num_rules_created')
+    rule.value = 0
+    rule.save()
+    
+    ## Elimina todas la reglas automaticas
+    Unifica.objects.filter(automatico=True).delete() 
+
+    ## Elimina vendedores y articulos
+    setMessage('Elimina vendedores y articulos')
+    Vendedores.objects.all().delete()
+    Articulos.objects.all().delete()
+
+@shared_task(queue='core_calc')
+def hace_nada():
+    pass
+
+@shared_task(queue='core_calc')
+def rules_marcas(marcaid2, marcaid):
+    ### Articulos debe estar lleno !!!
+        
+    ### de todas las reglas no automaticas
+    ### que tengan si_nombre y entonces_nombre en blanco
+    ### Se generan reglas automaticas
+
+    queryRules = Unifica.objects.filter(automatico=False, si_nombre=None, entonces_nombre=None).all()
+    if marcaid:
+        marcaObj = Marcas.objects.filter(id=marcaid).get()
+        queryRules = Unifica.objects.filter(automatico=False, si_marca=marcaObj).all()
+
+    print(f'reglas de cambio de marca = {len(queryRules)}')
+    num_articulos_cambio_marca = 0
+    for rule in queryRules:
+        print(f'si marca={rule.si_marca}')
+        si_marca        = rule.si_marca
+        entonces_marca  = rule.entonces_marca
+
+        filtrado_por_marca = Articulos.objects.filter(marca=si_marca)
+
+        num_articulos_cambio_marca = num_articulos_cambio_marca + len(filtrado_por_marca)
+        print(f'num_articulos_cambio_marca = {num_articulos_cambio_marca}')
+        for rowarticulo in filtrado_por_marca:         ## Por cada marca
+            if rowarticulo.envase == '' :
+                pon_envase = None
+            else:
+                pon_envase = rowarticulo.envase
+            if rowarticulo.nombre == '' :
+                pon_nombre = None
+            else:
+                pon_nombre = rowarticulo.nombre
+                
+            pon_nombre = reemplaza_palabras(pon_nombre)
+            createRule(
+                    si_marca, 
+                    pon_nombre, 
+                    rowarticulo.grados2, 
+                    rowarticulo.medida_cant, 
+                    rowarticulo.unidades, 
+                    pon_envase, 
+                    rowarticulo.talla, 
+
+                    entonces_marca, 
+                    pon_nombre, 
+                    rowarticulo.grados2, 
+                    rowarticulo.medida_cant, 
+                    rowarticulo.unidades,
+                    pon_envase,
+                    rowarticulo.talla, 
+                    'cambio de marca'
+                )
+            
+        si_marca_obj        = rule.si_marca
+        entonces_marca_obj  = rule.entonces_marca
+
+        si_marca_obj.es_marca = False
+        si_marca_obj.save()
+
+        entonces_marca_obj.es_marca = True
+        entonces_marca_obj.save()
+
+    print(f'TOTAL num_articulos_cambio_marca = {num_articulos_cambio_marca}')
+
+@shared_task(queue='core_calc')
+def generar_una_regla(marca_id, marca_id2 ):
+    # print(f'marca_id={marca_id} marca_id2={marca_id2}')
+    intenta_marca(marca_id2, False, None)
+
+
+
+@shared_task(queue='core_calc')
+def limpiar_y_borrar_normal(*args):
+    setMessage('Eliminando articulos')
+    marcaid = None
+    ######################################### INICIO      ###################
+    if marcaid:
+        marcaObj = Marcas.objects.filter(id=marcaid).get()
+        Articulos.objects.filter(marca=marcaObj).delete()
+        Unifica.objects.filter(si_marca=marcaObj).update(contador=0)
+    else:
+        Unifica.objects.all().update(contador=0)
+        AllPalabras.objects.all().update(contador=0)
+        ReemplazaPalabras.objects.all().update(contador=0)
+
+        setMessage('Eliminando vendedores')
+        Vendedores.objects.all().delete()
+        setMessage('')
+    
+    ######################################### FIN INICIO  ###################
+
+
+@shared_task(queue='core_calc')
+def limpiar_final(marcaid, *args):
+    setMessage('Elimina reglas automaticas sin uso')
+    Unifica.objects.filter(automatico=True, contador=0).delete()  ### Borra reglas sin uso
+
+    setMessage('Elimina productos sin vendedores')
+    arts = Articulos.objects.all()
+    cuenta = 0
+    nocuenta = 0
+    for art in arts:
+        if art.cuanntosvenden() == 0:
+            try:
+                art.delete()
+                cuenta = cuenta + 1
+            except Exception as e:
+                print(e)
+        else:
+            nocuenta = nocuenta + 1
+
+    print(f'Se eliminan {cuenta} no se eliminan={nocuenta}')
+    
+    if not marcaid:
+        setMessage('Actualizando numero de veces que reglas han sido creadas')
+        rules = Settings.objects.get(key='num_rules_created')
+        rules.value = str(int(rules.value) + 1)
+        rules.save()
+
+    setMessage('')
 
 from .pi_functions import (
     checkIfProcessRunning,
@@ -77,27 +240,22 @@ def check_periods(request):
                 period.save()            
 
 
-
-
 @shared_task(queue='core_calc',bind=True)
 def CreateRules(request):
-
     management.call_command('createRules')
 
-@shared_task(queue='core_calc',bind=True)
-def CreateProds(request):
-    
 
-    sites = Site.objects.filter(enable=True)
-    sites = sorted(sites, key=lambda a: a.urlCount, reverse=True)
-    posicion = 0
-    for site in sites:
-        posicion = posicion + 1
-        print(site.siteName)
-        print('===========================================')
-        management.call_command('createProds', site.id, posicion)
+######### createProds ################
+@shared_task(queue='core_calc')
+def CreateProds( site_id, site_id2, marcaid=None):
+    # if marcaid:
+    #     management.call_command('createProds', site_id2, 2, f'--marcaid={marcaid}')
+    # else:
+    management.call_command('createProds', site_id2, 2)
+        
 
-   
+######### FIN createProds ################
+
 
 ########## Cities ###########
 @shared_task(queue='core_calc',bind=True)

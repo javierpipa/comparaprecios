@@ -473,7 +473,7 @@ REST_FRAMEWORK = {
 }
 # LOGS
 # Define folder a usar
-log_folder = '/var/log/devop'
+log_folder = './log'
 
 if not os.path.exists(log_folder):
     os.makedirs(log_folder)

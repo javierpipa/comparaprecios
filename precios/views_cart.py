@@ -39,9 +39,9 @@ def could_user_to(request, objeto, cantidad_hasta_ahora):
     
     print(max_objeto, cantidad_hasta_ahora)
     if max_objeto >= cantidad_hasta_ahora:
-        return True
+        return True, max_objeto
     else:
-        return False
+        return False, max_objeto
     
 # @never_cache
 def getLastCart(request):
@@ -73,7 +73,8 @@ def cart(request):
 @require_POST
 def add_product(request):
     cart = Cart.new(request)
-    if could_user_to(request, OBJETOS_EN_PLAN.PROD_EN_LISTA,  len(cart)):
+    can, maxtoreach = could_user_to(request, OBJETOS_EN_PLAN.PROD_EN_LISTA,  len(cart))
+    if can:
         prrod = request.POST["product"]
         print(f'prrod={prrod}')
 
@@ -87,7 +88,8 @@ def add_product(request):
         table = createCart(request, cart)
         return JsonResponse(table, status=200, safe=False)
     else:
-        return JsonResponse([], status=403, safe=False)
+        # return JsonResponse([], status=403, safe=False)
+        return JsonResponse({'error': f'{OBJETOS_EN_PLAN.PROD_EN_LISTA} ha llegado al maximo de {maxtoreach} con {len(cart)}'}, status=403, safe=False)
     
 @never_cache
 @require_POST
@@ -348,9 +350,14 @@ def createCart(request, cart):
     totsuper    = []
     super_req   = []
 
-    costo_despacho = None
+    var_costo_despacho = None
     if request.session.get('costo_despacho'):
-        costo_despacho = request.session.get('costo_despacho')
+        var_costo_despacho = request.session.get('costo_despacho')
+    
+    if var_costo_despacho == 'false':
+        costo_despacho = False
+    else:
+        costo_despacho = True
 
 
     ## Que super me despachan
@@ -476,7 +483,11 @@ def createCart(request, cart):
             supersinproductos = supersinproductos + 1
       
     ### Orden
-    totsuper = sorted(totsuper, key=itemgetter('seleccionado','pre_seleccionado','total_super'))
+    
+    if not costo_despacho:
+        totsuper = sorted(totsuper, key=itemgetter('seleccionado','total_super'))
+    else:
+        totsuper = sorted(totsuper, key=itemgetter('seleccionado','pre_seleccionado','total_super'))
     
     superdetail = {
         'supermercadoscount': supermercadoscount,
@@ -556,16 +567,25 @@ def emptycart(request):
 @require_POST
 def save_cart(request):
     cart = Cart.new(request)
-    nombre_lista=request.POST["nombre_lista"]
+    nombre_lista    =request.POST["nombre_lista"]
+    public_var      =request.POST.get("public")
+    if public_var == 'false':
+        public = False
+    else:
+        public = True
 
     user            = request.user
     member          = Member.objects.get(user=user)
-    num_listas = Lista.objects.filter(member=member).count()
-    if could_user_to(request, OBJETOS_EN_PLAN.LISTAS,  num_listas):
+    num_listas      = Lista.objects.filter(member=member).count()
+
+    can, maxtoreach = could_user_to(request, OBJETOS_EN_PLAN.LISTAS,  num_listas)
+    if can:
         lista, created = Lista.objects.update_or_create(
             member=member,
             nombre_lista=nombre_lista,
             )
+        lista.public = public
+        lista.save()
         DetalleLista.objects.filter(lista = lista).delete()
         for item in cart:
             articulo = Articulos.objects.get(pk=item.product_pk)

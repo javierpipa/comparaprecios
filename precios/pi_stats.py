@@ -56,8 +56,6 @@ def get_product_price_history(id_prod, site_list):
         last_valor[rec[4]] = {}
         last_valor[rec[4]].update({'id': str(rec[4]), 'name': rec[5],  'valor':rec[2]}) 
     
-
-        
     lineas  = []
     linea = {}
     
@@ -67,22 +65,15 @@ def get_product_price_history(id_prod, site_list):
         for sitio in last_valor:
             if last_valor[sitio].get('name') == rec[5]:
                 valores.append({'id':last_valor[sitio].get('id'), 'name':last_valor[sitio].get('name'),'valor':rec[2] })
-                # linea.update({'fecha':rec[1],last_valor[sitio].get('id'):rec[2]})
                 last_valor[rec[4]].update({'id': str(rec[4]), 'name': rec[5],  'valor':rec[2]}) 
-                # linea = dict(fecha = rec[1], sitio = rec[2], id=rec[5])
             else:
                 valores.append({'id':last_valor[sitio].get('id'), 'name':last_valor[sitio].get('name'),'valor':last_valor[sitio].get('valor') })
-                # linea.update({'fecha':rec[1],last_valor[sitio].get('id'):last_valor[sitio].get('valor')})
-                # linea = dict(fecha = rec[1], sitio = 0, id=rec[5])
             linea.update({'fecha':rec[1],'valores':valores})
 
         
         lineas.append(linea)
-        
 
-    # print(lineas)
-    # print('********')
-    return lineas,sitios
+    return lineas, sitios
 
     
 #### Busquedas de marcas

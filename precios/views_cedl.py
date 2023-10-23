@@ -58,9 +58,8 @@ class SiteURLResultsListView(generic.ListView):
 
 
 class ProductDetailView(JsonLdDetailView):
-    template_name = 'precios/articulos/detalle2.html'
+    template_name   = 'precios/articulos/detalle2.html'
     model           = Articulos
-    # queryset        = Articulos.objects.select_related('marca').all()
 
     
     def get_context_data(self, *args, **kwargs):
