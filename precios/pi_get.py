@@ -495,7 +495,7 @@ def get_unidades2(nombre, unidades):
 
                 unidades = int(retorna)
                 return nombre, unidades
-                
+                           
     return nombre, 1
 
 ## 4.05 Anotacion de tallas
@@ -568,7 +568,9 @@ def obtener_marca(nombre, marca):
                 print(f'Marca no existe =|{marca}| creando Marca')
                 marca_obj = Marcas(
                     nombre=marca,
-                    es_marca=False
+                    es_marca=False,
+                    grados=False,
+                    talla=False
                 )
                 marca_obj.save()
                 marca = marca
@@ -721,6 +723,7 @@ def create_prods(
 
             nombre = nombre.replace(palabra, reemplaza_con) 
         #### Separa numeros de textos ##########################
+        
 
         otras_marcas = get_marcas_que_me_apuntan(newmarca)
 
@@ -756,13 +759,28 @@ def create_prods(
         envase, nombre = remueveYGuarda(ENVASES, nombre, " ", remover=True, todos=True)
         debug_nombre('4.- Envase: '+envase, debug)
 
-
-            
-
-        nombre,  grados = obtener_grados(nombre)
-
         ## Quito DE
         nombre =  nombre.replace(' de ',' ')
+
+
+        
+        if newmarca.grados:
+            busquedas = [
+                r'(\d+([.,]\d+)?)\s*(%|grados?|°?g|°)',
+                r'(\d+([.,]\d+)?)\s*(g|gr)\b'
+                # r'(\d+(\.\d+)?)\s*(?:grados?|°|\%)',
+                # r'(\d+(\.\d+)?)\s*g\s*[^r]',  # Para manejar casos como "40 g" pero no "80 gr"
+            ]
+            nombre,  grados = obtener_grados(nombre, busquedas)
+        else:
+            busquedas = [
+                # r'(\d+([.,]\d+)?)\s*(%|grados?|°?g|°)',
+                r'(\d+(\.\d+)?)\s*g\s*[^r]',  # Para manejar casos como "40 g" pero no "80 gr"
+            ]
+            nombre,  grados = obtener_grados(nombre, busquedas)
+
+
+        
         
         ## 4 Retiro de sufijos como 'Aprox' 
         agregar_sufijos, nombre = remueveYGuarda(SUJIFOS_NOMBRE, nombre, " ", remover=True, todos=True)
@@ -771,8 +789,23 @@ def create_prods(
 
         ## 4.05 Anotacion de tallas
         # talla, nombre = remueveYGuardaSinSplit(TALLAS, nombre, remover=True, todos=True)
-        busquedas = ['xxg','xg', 'rn', 'xg', 'prematuro', 's-m']
-        talla, nombre = obtener_talla(nombre, TALLAS, busquedas)
+        # busquedas = ['xxg','xg', 'rn', 'xg', 'prematuro', 's-m']
+        # talla, nombre = obtener_talla(nombre, TALLAS, busquedas)
+
+        ## Nuevamente se buscan tallas:
+        if talla == '' and newmarca.talla:
+            busquedas = [
+                'xxg',
+                'xg',
+                'rn',
+                'xg',
+                'prematuro',
+                'g',
+                'm',
+                'p',
+            ]
+            talla, nombre = obtener_talla(nombre, TALLAS, busquedas)
+
         # debug_nombre('6.- Quitar Tallas: '+talla, debug)
 
         # # 4.2 dimension
@@ -918,27 +951,68 @@ def create_prods(
         if medida_cant == 0:
             nombre, medida_cant, medida_um = get_unidadMedida(nombre, UMEDIDAS)
 
-        ## Nuevamente se buscan tallas:
-        if talla == '':
-            busquedas = [
-                'xxg',
-                'xg',
-                'rn',
-                'xg',
-                'prematuro',
-                'g',
-                'm',
-                'p',
-            ]
-            talla, nombre = obtener_talla(nombre, TALLAS, busquedas)
-
         if not grados:
-            nombre,  grados = obtener_grados(nombre)
+            if newmarca.grados:
+                busquedas = [
+                    r'(\d+([.,]\d+)?)\s*(%|grados?|°?g|°)',
+                    r'(\d+([.,]\d+)?)\s*(g|gr)\b'
+                    # r'(\d+(\.\d+)?)\s*(?:grados?|°|\%)',
+                    # r'(\d+(\.\d+)?)\s*g\s*[^r]',  # Para manejar casos como "40 g" pero no "80 gr"
+                ]
+                nombre,  grados = obtener_grados(nombre, busquedas)
+            else:
+                busquedas = [
+                    # r'(\d+([.,]\d+)?)\s*(%|grados?|°?g|°)',
+                    r'(\d+(\.\d+)?)\s*g\s*[^r]',  # Para manejar casos como "40 g" pero no "80 gr"
+                ]
+                nombre,  grados = obtener_grados(nombre, busquedas)
+            
 
         if unidades == 1:
             retorna, nombre = pack_search(nombre, '\d+$')
             if retorna:
                 unidades = int(retorna)
+
+        #### Some fixes
+        if unidades > 100 and unidades < 2000 and medida_cant ==0 and (envase == 'botella' or envase == 'lata'):
+            paso_unidades = unidades 
+            medida_cant = paso_unidades
+            unidades = 1 
+
+        if unidades == 1:
+            if 'bipack' in nombre:
+                unidades = 2
+            if 'six pack' in nombre:
+                unidades =  6
+            if '4 pack' in nombre:
+                unidades =  4
+            if 'tripack' in nombre:
+                unidades =  3
+            if '12 pack' in nombre:
+                unidades =  12
+            if 'triplepack' in nombre:
+                unidades =  3
+            if 'pack 6' in nombre:
+                unidades =  6
+            if 'pack 12' in nombre:
+                unidades =  12
+
+        nombre = nombre.replace('pack 6', '')
+        nombre = nombre.replace('pack 12', '')
+        nombre = nombre.replace('triplepack', '')
+        nombre = nombre.replace('bipack', '')
+        nombre = nombre.replace('six pack', '')
+        nombre = nombre.replace('4 pack', '')
+        nombre = nombre.replace('12 pack', '')
+        nombre = nombre.replace('tripack', '')
+
+        if grados:
+            if medida_cant == 0 and grados > 50:
+                medida_cant = grados
+                grados = 0
+
+
+
 
         ### Elimino marca que esta dentro del nombre    
         nombre      = nombre.replace(newmarca.nombre, '')
@@ -1046,7 +1120,7 @@ def get_dics():
     UMEDIDAS = AllPalabras.objects.filter(tipo=TIPOPALABRA.UMEDIDA).order_by('-palabra').values_list('palabra',flat=True).all()
     UNIDADES = AllPalabras.objects.filter(tipo=TIPOPALABRA.UNIDAD).order_by('-palabra').values_list('palabra',flat=True).all()
     PACKS = AllPalabras.objects.filter(tipo=TIPOPALABRA.PACKS).order_by('-palabra').values_list('palabra',flat=True).all()
-    TALLAS = AllPalabras.objects.filter(tipo=TIPOPALABRA.TALLA).order_by('-palabra').values_list('palabra',flat=True).all()
+    TALLAS = AllPalabras.objects.filter(tipo=TIPOPALABRA.TALLA).order_by('-largo').values_list('palabra',flat=True).all()
     COLORES = AllPalabras.objects.filter(tipo=TIPOPALABRA.COLOR).order_by('-palabra').values_list('palabra',flat=True).all()
     ENVASES = AllPalabras.objects.filter(tipo=TIPOPALABRA.ENVASE).order_by('-palabra').values_list('palabra',flat=True).all()
     marcas = SiteURLResults.objects.exclude(marca__exact='', precio=0 ).distinct().all()
@@ -1400,22 +1474,52 @@ def remueveYGuardaSinSplit( OBJETO, en_que_texto, remover=False, todos=False):
 
     return devuelve_palabra, en_que_texto
 
+def obtener_grados(text, busquedas):
+    # regex = r'(\d+([.,]\d+)?)\s*(%|grados?|°?g|°)'
+    for busca in busquedas:
+        match = re.search(busca, text)
+        
+        if match:
+            # Convierte el número encontrado a float
+            grados = float(match.group(1).replace(',', '.'))
+            
+            # Elimina la parte que contiene los grados del texto original
+            new_text = re.sub(busca, '', text).strip()
+            
+            return new_text, grados
+        
+    return text, None
+    
+# def obtener_grados(text):
+#     busquedas = [
+#         # tus reglas existentes aquí...
+#         r'(\d+([.,]\d+)?)\s*(%|grados?|°?g|°)'
+#     ]
+#     grados = None
+    
+#     for busca in busquedas:
+#         match = re.search(busca, text, re.IGNORECASE)
+#         if match:
+#             weight_range = match.group(0)
+#             new_text = re.sub(re.escape(weight_range), '', text)
+#             return weight_range, new_text.strip()
+    
+#     return '', text
 
-def obtener_grados(frase):
-    palabras = frase.split()
-    nombre = ""
-    grados = None
-    for i, palabra in enumerate(palabras):
-        if '°' in palabra:
-            try:
-                grados = float(palabra.replace('°', ''))
-            except ValueError:
-                nombre += " " + palabra
-        elif i == 0:
-            nombre += palabra
-        else:
-            nombre += " " + palabra
-    return nombre, grados
+#     palabras = frase.split()
+#     nombre = ""
+    
+#     for i, palabra in enumerate(palabras):
+#         if '°' in palabra:
+#             try:
+#                 grados = float(palabra.replace('°', ''))
+#             except ValueError:
+#                 nombre += " " + palabra
+#         elif i == 0:
+#             nombre += palabra
+#         else:
+#             nombre += " " + palabra
+#     return nombre, grados
 
 
 def check_sinum( valor):

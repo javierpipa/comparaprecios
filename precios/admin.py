@@ -109,8 +109,8 @@ class ArticulosxmarcaInline(admin.TabularInline):
     model = Articulos
     extra = 0
     can_delete = False
-    fields = ('nombre', 'medida_um', 'medida_cant')
-    readonly_fields=('nombre', 'medida_um', 'medida_cant')
+    fields = ('nombre', 'medida_um','medida_cant', 'grados2')
+    readonly_fields=('nombre', 'medida_um', 'medida_cant', 'grados2')
 
 class MomentosDespachoInline(admin.TabularInline):
     model = MomentosDespacho
@@ -379,6 +379,8 @@ class MarcasAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "nombre",
+        "grados",
+        "talla",
         "es_marca",
         "resultsCount",
         "slug",
@@ -533,6 +535,7 @@ class AllPalabrasAdmin(admin.ModelAdmin):
     list_display = (
         "palabra",
         "tipo",
+        "largo",
         "contador",
     )
     search_fields= ["palabra"]

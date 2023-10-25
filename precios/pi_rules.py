@@ -96,7 +96,8 @@ def check_pd(c,
              check_unidades=False,
              check_talla=False,
              fuz_level=70, 
-             debug=False):
+             debug=False,
+             level=1):
     
     for cuenta0, row0 in c.iterrows():
         este_pk             = row0['articulo__pk']
@@ -130,76 +131,80 @@ def check_pd(c,
                 otro_ean_13         = row02['lo__ean_13']
                 otro_talla          = row02['lo__talla']
                 # print('1')
-                if row02['r_nombre'] == 0 and  row0['r_nombre'] == 0:
+                # if row02['r_nombre'] == 0 and  row0['r_nombre'] == 0:
                         # print('3')
-                    if  not is_vendedores_in(arr_quienes_vender, row02['quienesvenden']):
-                        # print('4 Inicio')
-                        if debug:        
-                            print('SUPERIOR')
-                            print(tabulate(df_matches, headers = 'keys', tablefmt = 'psql'))
+                if  not is_vendedores_in(arr_quienes_vender, row02['quienesvenden']):
+                    # print('4 Inicio')
+                    if debug:        
+                        print('SUPERIOR')
+                        print(tabulate(df_matches, headers = 'keys', tablefmt = 'psql'))
+                    
+
+                    ### Cual esta mal ??
+                    ##### revisa grados
+                    if este_grados == 0 and otro_grados == 0: 
+                        ### Ambos grados iguales, no se corrige
+                        pass
+                    elif este_grados == 0 and otro_grados != 0: 
+                        c.at[cuenta0,'r_grados'] = 1
+                        c.at[cuenta0,'lo__grados2']  = otro_grados
+                        c.at[cuenta0,'rule'] = 'ean grados 1'
+                    elif este_grados != 0 and otro_grados == 0: 
+                        c.at[cuenta02,'r_grados'] = 1
+                        c.at[cuenta02,'lo__grados2']  = este_grados
+                        c.at[cuenta02,'rule'] = 'ean grados 2'
+                    
+                    if este_envase == '' and otro_envase == '':
+                        ### Ambos grados iguales, no se corrige
+                        pass
+                    elif este_envase == '' and otro_envase != '':
+                        c.at[cuenta0,'lo__envase']  = otro_envase
+                        c.at[cuenta0,'r_envase'] = 1
+                        c.at[cuenta0,'rule'] = 'ean envase 1'
+                    elif este_envase != '' and otro_envase == '':
+                        c.at[cuenta02,'lo__envase']  = este_envase
+                        c.at[cuenta02,'r_envase'] = 1
+                        c.at[cuenta02,'rule'] = 'ean envase 2'
+                    
+                    # if este_medida_cant < otro_medida_cant :
                         
+                    #     c.at[cuenta0,'lo__medida_cant']  = otro_medida_cant
+                    #     c.at[cuenta0,'r_medida'] = 1
+                    #     c.at[cuenta0,'rule'] = 'ean medida_cant 2'
 
-                        ### Cual esta mal ??
-                        ##### revisa grados
-                        if este_grados == 0 and otro_grados == 0: 
-                            ### Ambos grados iguales, no se corrige
-                            pass
-                        elif este_grados == 0 and otro_grados != 0: 
-                            c.at[cuenta0,'r_grados'] = 1
-                            c.at[cuenta0,'lo__grados2']  = otro_grados
-                            c.at[cuenta0,'rule'] = 'ean grados 1'
-                        # elif este_grados != 0 and otro_grados == 0: 
-                        #     c.at[cuenta02,'r_grados'] = 1
-                        #     c.at[cuenta02,'lo__grados2']  = este_grados
-                        #     c.at[cuenta02,'rule'] = 'ean grados 2'
-                        
-                        if este_envase == '' and otro_envase == '':
-                            ### Ambos grados iguales, no se corrige
-                            pass
-                        elif este_envase == '' and otro_envase != '':
-                            c.at[cuenta0,'lo__envase']  = otro_envase
-                            c.at[cuenta0,'r_envase'] = 1
-                            c.at[cuenta0,'rule'] = 'ean envase 1'
-                        # elif este_envase != '' and otro_envase == '':
-                        #     c.at[cuenta02,'lo__envase']  = este_envase
-                        #     c.at[cuenta02,'r_envase'] = 1
-                        #     c.at[cuenta02,'rule'] = 'ean envase 2'
-                        
-                        # if este_medida_cant < otro_medida_cant :
-                            
-                        #     c.at[cuenta0,'lo__medida_cant']  = otro_medida_cant
-                        #     c.at[cuenta0,'r_medida'] = 1
-                        #     c.at[cuenta0,'rule'] = 'ean medida_cant 2'
+                    # if este_unidades != otro_unidades :
+                    #     c.at[cuenta02,'lo__unidades']  = este_unidades    
 
-                        # if este_unidades != otro_unidades :
-                        #     c.at[cuenta02,'lo__unidades']  = este_unidades    
+                    if este_talla == '' and otro_talla != '':
+                        c.at[cuenta0,'lo__talla']  = otro_talla
+                        c.at[cuenta0,'r_talla'] = 1
+                        c.at[cuenta0,'rule'] = 'ean talla 1'
+                    if este_talla != '' and otro_talla == '':
+                        c.at[cuenta02,'lo__talla']  = este_talla
+                        c.at[cuenta02,'r_talla'] = 1
+                        c.at[cuenta02,'rule'] = 'ean talla 2'
 
-                        if este_talla == '' and otro_talla != '':
-                            c.at[cuenta0,'lo__talla']  = otro_talla
-                            c.at[cuenta0,'r_talla'] = 1
-                            c.at[cuenta0,'rule'] = 'ean talla 1'
-                        # if este_talla != '' and otro_talla == '':
-                        #     c.at[cuenta02,'lo__talla']  = este_talla
-                        #     c.at[cuenta02,'r_talla'] = 1
-                        #     c.at[cuenta02,'rule'] = 'ean talla 2'
+                    if len(otro_nombre) > len(este_nombre):
+                        c.at[cuenta0,'lo__nombre']  = otro_nombre
+                        c.at[cuenta0,'r_nombre'] = 1
+                        c.at[cuenta0,'rule'] = 'ean nombre 1'
+                    elif len(otro_nombre) < len(este_nombre):
+                        c.at[cuenta02,'lo__nombre']  = este_nombre
+                        c.at[cuenta02,'r_nombre'] = 1
+                        c.at[cuenta02,'rule'] = 'ean nombre 2'
 
-                        if len(otro_nombre) > 5:
-                            c.at[cuenta0,'lo__nombre']  = otro_nombre
-                            c.at[cuenta0,'r_nombre'] = 1
-                            c.at[cuenta0,'rule'] = 'ean nombre'
-
-                        c.at[cuenta02,'r_ean'] = 1
-                        if c.at[cuenta02,'rule'] == '' :
-                            c.at[cuenta02,'rule'] = 'check_ean'
-                        
-                        c = add_vendedores(c, cuenta0, cuenta02)
-                        # print('4 Fin')
-                        if debug:        
-                            df_matches = c.loc[
-                                (c['lo__ean_13']        == este_ean_13) 
-                            ]
-                            print('inferior')
-                            print(tabulate(df_matches, headers = 'keys', tablefmt = 'psql'))
+                    c.at[cuenta02,'r_ean'] = 1
+                    if c.at[cuenta02,'rule'] == '' :
+                        c.at[cuenta02,'rule'] = 'check_ean'
+                    
+                    c = add_vendedores(c, cuenta0, cuenta02)
+                    # print('4 Fin')
+                    if debug:        
+                        df_matches = c.loc[
+                            (c['lo__ean_13']        == este_ean_13) 
+                        ]
+                        print('inferior')
+                        print(tabulate(df_matches, headers = 'keys', tablefmt = 'psql'))
         else:  
             df_matches = c.loc[
                 (c['articulo__pk']      != este_pk)
@@ -255,7 +260,7 @@ def check_pd(c,
                 pass
 
             if check_nombre:
-                if row0['r_nombre'] == 0:
+                if level == 3:
                     df_matches = df_matches.loc[
                         (c['lo__medida_cant']   == este_medida_cant) & 
                         (c['lo__unidades']      == este_unidades) &
@@ -263,8 +268,20 @@ def check_pd(c,
                         (c['lo__envase']        == este_envase) &
                         (c['lo__talla']         == este_talla) 
                     ]
-                else:
-                    continue
+                if level == 2:
+                    df_matches = df_matches.loc[
+                        (c['lo__medida_cant']   == este_medida_cant) & 
+                        (c['lo__unidades']      == este_unidades) &
+                        (c['lo__grados2']       == este_grados) &
+                        (c['lo__talla']         == este_talla) 
+                    ]
+                if level == 1:
+                    df_matches = df_matches.loc[
+                        (c['lo__unidades']      == este_unidades) &
+                        (c['lo__grados2']       == este_grados) &
+                        (c['lo__talla']         == este_talla) 
+                    ]
+                
         ## Queremos arreglar este_ osea cuenta0 o row0
         for cuenta02, row02 in df_matches.iterrows():
             otro_nombre         = row02['lo__nombre']
@@ -306,10 +323,16 @@ def check_pd(c,
                     pass
 
                 if check_nombre and otro_nombre != '':
-                    # if fuz_precio > fuz_level:
-                    c.at[cuenta0,'r_nombre'] = 1
-                    c.at[cuenta0,'lo__nombre'] = otro_nombre
-                    c.at[cuenta0,'rule'] = 'pd_nombre'
+                    if fuz == 100:
+                        c.at[cuenta0,'lo__medida_cant'] = otro_medida_cant
+                        c.at[cuenta0,'lo__envase'] = otro_envase
+                        c.at[cuenta0,'rule'] = 'pd_nombre fuz=100'
+                        c.at[cuenta0,'lo__nombre'] = otro_nombre
+                    else:
+                        c.at[cuenta0,'r_nombre'] = 1
+                        c.at[cuenta0,'lo__nombre'] = otro_nombre
+                        c.at[cuenta0,'rule'] = 'pd_nombre'
+                    
                     c = add_vendedores(c, cuenta0, cuenta02)
 
     return c
@@ -559,6 +582,11 @@ def intenta_marca(marca_id, debug, nombre=None):
     # df_medida_cant_uno = get_value_counts_df(c, 'lo__medida_cant')
     # c = check_medida_cant(c, df_medida_cant_uno, debug=debug)
 
+    while True:
+        cuenta = cuenta + 1
+        if cuente > 100:
+            break
+
     
 
     
@@ -582,7 +610,43 @@ def intenta_marca(marca_id, debug, nombre=None):
         ## Talla
         c = check_pd(c, check_nombre=False, check_ean=False, check_grados=False, check_medida_cant=False, check_envase=False, check_unidades=False, check_talla=True, fuz_level=fuzl, debug=debug)
         
-
+    c = check_pd(c, 
+                     check_nombre=True,         ## Cierto .. debe ser al final
+                     check_ean=False, 
+                     check_grados=False, 
+                     check_medida_cant=False, 
+                     check_envase=False,  
+                     check_unidades=False,
+                     check_talla=False,
+                     fuz_level=93, 
+                     debug=debug,
+                     level=3
+                     )
+    c = check_pd(c, 
+                     check_nombre=True,         ## Cierto .. debe ser al final
+                     check_ean=False, 
+                     check_grados=False, 
+                     check_medida_cant=False, 
+                     check_envase=False,  
+                     check_unidades=False,
+                     check_talla=False,
+                     fuz_level=93, 
+                     debug=debug,
+                     level=2
+                     )
+    c = check_pd(c, 
+                     check_nombre=True,         ## Cierto .. debe ser al final
+                     check_ean=False, 
+                     check_grados=False, 
+                     check_medida_cant=False, 
+                     check_envase=False,  
+                     check_unidades=False,
+                     check_talla=False,
+                     fuz_level=93, 
+                     debug=debug,
+                     level=1
+                     )
+    
     fuz_levels = (95,90 )
     for fuzl in fuz_levels:
         if debug:
@@ -598,18 +662,18 @@ def intenta_marca(marca_id, debug, nombre=None):
                      fuz_level=fuzl, 
                      debug=debug)
         
-        # if debug:
-        #     print("Check- EAN")
-        # c = check_pd(c, 
-        #              check_nombre=False, 
-        #              check_ean=True,            ## Cierto
-        #              check_grados=False, 
-        #              check_medida_cant=False, 
-        #              check_envase=False, 
-        #              check_unidades=False,
-        #              check_talla=False,
-        #              fuz_level=fuzl, 
-        #              debug=debug)
+        if debug:
+            print("Check- EAN")
+        c = check_pd(c, 
+                     check_nombre=False, 
+                     check_ean=True,            ## Cierto
+                     check_grados=False, 
+                     check_medida_cant=False, 
+                     check_envase=False, 
+                     check_unidades=False,
+                     check_talla=False,
+                     fuz_level=fuzl, 
+                     debug=debug)
 
         if debug:
             print("Check- Grados")
@@ -674,9 +738,11 @@ def intenta_marca(marca_id, debug, nombre=None):
                      check_unidades=False,
                      check_talla=False,
                      fuz_level=fuzl, 
-                     debug=debug)
+                     debug=debug,
+                     level=3
+                     )
     
-
+    
     # grouped_general = c.groupby([
     #     'lo__medida_cant',
     #     'lo__grados2',
@@ -720,17 +786,18 @@ def intenta_marca(marca_id, debug, nombre=None):
         if debug:
             print(f"Check sailers min=2 fuz={fuzl}")
         c = check_sailers(c, 2, fuzl, debug)
-
-    c = check_pd(c, 
-        check_nombre=True,         ## Cierto .. debe ser al final
-        check_ean=False, 
-        check_grados=False, 
-        check_medida_cant=False, 
-        check_envase=False,  
-        check_unidades=False,
-        check_talla=False,
-        fuz_level=47, 
-        debug=debug)
+        
+    if marca_obj.talla or marca_obj.grados:
+        c = check_pd(c, 
+            check_nombre=True,         ## Cierto .. debe ser al final
+            check_ean=False, 
+            check_grados=False, 
+            check_medida_cant=False, 
+            check_envase=False,  
+            check_unidades=False,
+            check_talla=False,
+            fuz_level=47, 
+            debug=debug)
     
     if debug:
         print(tabulate(c, headers = 'keys', tablefmt = 'double_outline'))

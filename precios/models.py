@@ -647,8 +647,8 @@ class Marcas(models.Model):
     unificado           = models.BooleanField(default=False)
     es_marca            = models.BooleanField(default=True)
     created             = models.DateTimeField(editable=False,default=timezone.now)
-    # grados              = models.BooleanField(default=False)
-    # talla               = models.BooleanField(default=False)
+    grados              = models.BooleanField(default=False)
+    talla               = models.BooleanField(default=False)
 
     
 
@@ -1248,7 +1248,7 @@ class ReemplazaPalabras(models.Model):
             self.reemplazo = self.reemplazo.lower()
 
         return super(ReemplazaPalabras, self).save(*args, **kwargs)
-    
+
 
 class AllPalabras(models.Model):
     # palabra     = models.CharField(max_length=100, db_index=True, unique=True)
@@ -1261,6 +1261,8 @@ class AllPalabras(models.Model):
         blank=True, 
         null=True
     )
+    largo    = models.IntegerField(default=0, db_index=True)
+    
     # unique_together = [['country', 'name']]
     class Meta:
         verbose_name = "AllPalabras"
@@ -1273,5 +1275,6 @@ class AllPalabras(models.Model):
         return self.palabra
     
     def save(self, *args, **kwargs):
-        self.palabra = self.palabra.lower()
+        self.palabra = self.palabra.lower().strip()
+        self.largo   = len(self.palabra)
         return super(AllPalabras, self).save(*args, **kwargs)
