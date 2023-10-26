@@ -565,7 +565,6 @@ def intenta_marca(marca_id, debug, nombre=None):
     all_sites_arr       = []
     sites               = get_sites(marca_obj)
     
-
     if not sites:
         return
     
@@ -582,10 +581,12 @@ def intenta_marca(marca_id, debug, nombre=None):
     # df_medida_cant_uno = get_value_counts_df(c, 'lo__medida_cant')
     # c = check_medida_cant(c, df_medida_cant_uno, debug=debug)
 
-    while True:
-        cuenta = cuenta + 1
-        if cuente > 100:
-            break
+    # cuenta = 0
+    # while True:
+    #     print(cuenta)
+    #     cuenta = cuenta + 1
+    #     if cuenta > 100:
+    #         break
 
     
 

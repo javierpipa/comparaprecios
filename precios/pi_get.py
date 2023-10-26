@@ -1,25 +1,12 @@
 from selenium.webdriver.chrome.options import Options
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service as ChromiumService
-from webdriver_manager.chrome import ChromeDriverManager
-from webdriver_manager.core.utils import ChromeType
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service as ChromeService
 from django.db import transaction
-
-
 import chromedriver_autoinstaller
-##
 
 chromedriver_autoinstaller.install()  # Check if the current version of chromedriver exists
                                       # and if it doesn't exist, download it automatically,
                                       # then add chromedriver to path
-
-
-##
-
-
-
 
 try:
     chromedriver_autoinstaller.install() 
@@ -27,21 +14,17 @@ except:
     print('Sin conexcion')
 
 
-from django.db.models import Count, Q
+from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-from django.db import IntegrityError
 import re
 import html
-import unidecode
-
 import requests
 from bs4 import BeautifulSoup
 import nltk
 nltk.download('stopwords')
 nltk.download('wordnet')
-from nltk import word_tokenize, sent_tokenize
+from nltk import word_tokenize
 from nltk.corpus import stopwords
-from nltk.stem import LancasterStemmer, WordNetLemmatizer
 
 
 from precios.pi_functions import (
@@ -52,7 +35,6 @@ from precios.pi_functions import (
     loadProductBeautifulSoup,
     saveUrlData,
     click_element,
-    add_page,
 )
 from precios.pi_supermercado import (
     product_details_fromsoup,
@@ -74,7 +56,6 @@ from precios.models import (
     Vendedores,
     SiteURLResults,
     MarcasSistema,
-    Settings,
     ReemplazaPalabras,
     AllPalabras,
     TIPOPALABRA,
@@ -406,11 +387,12 @@ def remove_dollar_sign_and_following(text):
 # Using isdigit() + isalpha() + any()
 # res = []
 # temp = nombre.split()
-def get_palabras_con_numychar(texto):
+def get_palabras_con_numychar(nombre):
+    nombre = nombre.strip()
     ## La función get_palabras_con_numychar toma un string texto como entrada 
     # y devuelve una lista de palabras que contienen al menos un carácter alfabético y al menos un dígito numérico.
     res = []
-    temp = texto.split()
+    temp = nombre.split()
     for idx in temp:
         if any(chr.isalpha() for chr in idx) and any(chr.isdigit() for chr in idx):
             res.append(idx.strip())
@@ -441,31 +423,39 @@ def normaliza_talla(talla):
     
     return talla
 
-def extract_and_remove_weight_range_updated(text):
+def extract_and_remove_weight_range_updated(nombre):
+    nombre = nombre.strip()
     busquedas = [
+        r'(\d+([.,]\d+)?\s*[-–a]\s*\d+([.,]\d+)?)\s*kgs',
         r'(\d+([.,]\d+)?\s*[-–a]\s*\d+([.,]\d+)?)\s*kg',
+        r'(\d+([.,]\d+)?\s*[-–a]\s*\d+([.,]\d+)?)\s*cms',
         r'(\d+([.,]\d+)?\s*[-–a]\s*\d+([.,]\d+)?)\s*cm',
+        r'(\d+([.,]\d+)?\s*[-–x]\s*\d+([.,]\d+)?)\s*kgs',
         r'(\d+([.,]\d+)?\s*[-–x]\s*\d+([.,]\d+)?)\s*kg',
+        r'(\d+([.,]\d+)?\s*[-–x]\s*\d+([.,]\d+)?)\s*cms',
         r'(\d+([.,]\d+)?\s*[-–x]\s*\d+([.,]\d+)?)\s*cm',
+        r'(hasta\s*\d+([.,]\d+)?)\s*kgs',
         r'(hasta\s*\d+([.,]\d+)?)\s*kg',
+        r'(\d+([.,]\d+)?\s*cm\s*x\s*\d+([.,]\d+)?)\s*cms',
         r'(\d+([.,]\d+)?\s*cm\s*x\s*\d+([.,]\d+)?)\s*cm',
+        r'(\d+([.,]\d+)?)\s*["“”]',
     ]
     for busca in busquedas:
-        match = re.search(busca, text, re.IGNORECASE)
+        match = re.search(busca, nombre, re.IGNORECASE)
         if match:
             weight_range = match.group(0)
-            new_text = re.sub(re.escape(weight_range), '', text)
+            new_text = re.sub(re.escape(weight_range), '', nombre)
             return weight_range, new_text.strip()
     
-    return '', text
+    return '', nombre
 
-def replace_comma_in_degrees(text):
-    # return re.sub(r'(\d+),(\d+)°', r'\1.\2°', text)
+def replace_comma_in_degrees(nombre):
+    nombre = nombre.strip()
     # Reemplazar comas en grados por puntos
-    text = re.sub(r'(\d+),(\d+)°', r'\1.\2°', text)
+    nombre = re.sub(r'(\d+),(\d+)°', r'\1.\2°', nombre)
     # Eliminar 'gl' si está presente al lado derecho de '°'
-    text = re.sub(r'°\s*gl', '°', text)
-    return text
+    nombre = re.sub(r'°\s*gl', '°', nombre)
+    return nombre
 
 def get_unidades2(nombre, unidades):
     # Lista de patrones de búsqueda
@@ -500,6 +490,7 @@ def get_unidades2(nombre, unidades):
 
 ## 4.05 Anotacion de tallas
 def obtener_talla(nombre, TALLAS, busquedas):
+    nombre = nombre.strip()
     talla, nombre           = remueveYGuardaSinSplit(TALLAS, nombre, remover=True, todos=True)
     
     ###----------------------------
@@ -512,20 +503,18 @@ def obtener_talla(nombre, TALLAS, busquedas):
                 for word in words:
                     if busca == word:
                         talla = 'talla ' + busca
-                        # word = word.replace(busca,'')
                         words[words.index(word)] = word.replace(busca, '')
-                        # print(f'Encuentra talla |{talla}| buscaba|{busca}| word queda en {word}')
                         break
     if talla:
         talla = normaliza_talla(talla)    
     
     nombre = ' '.join(words)
-    ###----------------------------
-    # print(f'--- y el nombre queda como |{nombre}|')
 
     return talla, nombre
 
+
 def obtener_marca(nombre, marca):
+    nombre = nombre.strip()
     ## Revisamos si la marca en la URL existe
     
     # Si la marca no existe, busco en todas las marcas habilitadas si estuviera en el nombre
@@ -629,7 +618,7 @@ def normalize(words):
 
 def get_marcas_que_me_apuntan(marca_default):
     otras_marcas_lst = Unifica.objects.filter(entonces_marca=marca_default, automatico=False).values_list('si_marca__nombre', flat=True).distinct()
-    # otras_marcas_lst = Unifica.objects.filter(entonces_marca=marca_default).values_list('si_marca__nombre', flat=True).distinct()
+    
     return otras_marcas_lst
 
 ## Create Products
@@ -658,7 +647,6 @@ def create_prods(
         createRule
     ):
     
-    reglas_creados          = 0
     articulos_marca_vacio   = 0
 
     for url in urls:
@@ -722,10 +710,17 @@ def create_prods(
                         reemplaza_con = reemplaza_con + pa 
 
             nombre = nombre.replace(palabra, reemplaza_con) 
-        #### Separa numeros de textos ##########################
-        
+        #### FIN Separa numeros de textos ##########################
 
         otras_marcas = get_marcas_que_me_apuntan(newmarca)
+        
+        ### Elimino marca que esta dentro del nombre    
+        nombre      = nombre.replace(newmarca.nombre, '')
+        nombre      = nombre.replace('  ', ' ')
+        nombre      = nombre.strip()
+        otras_inutiles, nombre = remueveYGuardaSinSplit(otras_marcas, nombre, remover=True, todos=True)
+        ### FIN Elimino marca que esta dentro del nombre 
+
 
         nombre = replace_comma_in_degrees(nombre)
         
@@ -740,20 +735,15 @@ def create_prods(
         nombre = ' '.join(words)
         ###----------------------------
 
-        otras_inutiles, nombre = remueveYGuardaSinSplit(otras_marcas, nombre, remover=True, todos=True)
-        # print(f'otras_inutiles={otras_inutiles}')
-        
-        # ## 1.4 Remueve colores
-        # color, nombre = remueveYGuarda(COLORES, nombre, " ", remover=True, todos=True)
-        # color = color.replace(',', '')
+        ## 1.4 Remueve colores
+        color, nombre = remueveYGuarda(COLORES, nombre, " ", remover=True, todos=True)
+        color = color.replace(',', '')
         
         # # 1.5 rremueve todos los ', 1 Un'
         inutiles, nombre = remueveYGuardaSinSplit(PALABRAS_INUTILES, nombre, remover=True, todos=True)
-        debug_nombre('3.- Inutiles: '+inutiles, debug)
         
         ## Quito precio entre parentesis
         nombre = re.sub(r'\(\$.*? c/u\)', '', nombre).strip()
-
 
         # 2.2 mueve envases
         envase, nombre = remueveYGuarda(ENVASES, nombre, " ", remover=True, todos=True)
@@ -761,8 +751,6 @@ def create_prods(
 
         ## Quito DE
         nombre =  nombre.replace(' de ',' ')
-
-
         
         if newmarca.grados:
             busquedas = [
@@ -778,42 +766,17 @@ def create_prods(
                 r'(\d+(\.\d+)?)\s*g\s*[^r]',  # Para manejar casos como "40 g" pero no "80 gr"
             ]
             nombre,  grados = obtener_grados(nombre, busquedas)
-
-
-        
         
         ## 4 Retiro de sufijos como 'Aprox' 
         agregar_sufijos, nombre = remueveYGuarda(SUJIFOS_NOMBRE, nombre, " ", remover=True, todos=True)
-        
-        debug_nombre('5.- Quitar sufijos: '+agregar_sufijos, debug)
-
-        ## 4.05 Anotacion de tallas
-        # talla, nombre = remueveYGuardaSinSplit(TALLAS, nombre, remover=True, todos=True)
-        # busquedas = ['xxg','xg', 'rn', 'xg', 'prematuro', 's-m']
-        # talla, nombre = obtener_talla(nombre, TALLAS, busquedas)
 
         ## Nuevamente se buscan tallas:
         if talla == '' and newmarca.talla:
-            busquedas = [
-                'xxg',
-                'xg',
-                'rn',
-                'xg',
-                'prematuro',
-                'g',
-                'm',
-                'p',
-            ]
+            busquedas = [ 'xxg', 'xg', 'rn', 'xg', 'prematuro', 'g', 'm', 'p',]
             talla, nombre = obtener_talla(nombre, TALLAS, busquedas)
-
-        # debug_nombre('6.- Quitar Tallas: '+talla, debug)
-
-        # # 4.2 dimension
-        # dimension, nombre = extract_and_remove_weight_range_updated(nombre)
 
         # 4.2 Unidad de medida
         if medida_cant == 0:
-            # nombre, medida_cant, medida_um, dimension = get_unidadMedida(nombre, UMEDIDAS)
             nombre, medida_cant, medida_um = get_unidadMedida(nombre, UMEDIDAS)
         
 
@@ -853,25 +816,18 @@ def create_prods(
 
         debug_nombre('71.- Quitar Unidades: '+ str(unidades), debug)
         
-        # 2.2 mueve ennvases NUEVAMENTE
+        # 2.2 mueve envases NUEVAMENTE
         nombre      =  nombre.rstrip()            
         if envase == "":
             envase, nombre = remueveYGuarda(ENVASES, nombre, " ", remover=True)
             envase = envase.replace(',','')
             
-        
         if envase == "" and descripcion:        ## Si envase continua vacio, es posible que el envase este en el campo descripcion
             envase, descripcion_modificada = remueveYGuarda(ENVASES, descripcion, " ", remover=True)
             envase = envase.replace(',','')
 
-
-        debug_nombre('9.- Quirta envase: '+envase, debug)
                 
         nombre      = nombre + ' ' +  agregar_sufijos 
-        debug_nombre('11.- agrega sufijos:'+ nombre, debug)
-
-
-        
         
         nombre = nombre.strip(" ")
         if len(nombre)  > 1:
@@ -946,7 +902,6 @@ def create_prods(
         ## 2do cambio hecho, se hace reemplazo de frases o palabras
         ###########################################################
         nombre = reemplaza_palabras(nombre)
-       
 
         if medida_cant == 0:
             nombre, medida_cant, medida_um = get_unidadMedida(nombre, UMEDIDAS)
@@ -969,6 +924,7 @@ def create_prods(
             
 
         if unidades == 1:
+            nombre = nombre.strip()
             retorna, nombre = pack_search(nombre, '\d+$')
             if retorna:
                 unidades = int(retorna)
@@ -1011,13 +967,6 @@ def create_prods(
                 medida_cant = grados
                 grados = 0
 
-
-
-
-        ### Elimino marca que esta dentro del nombre    
-        nombre      = nombre.replace(newmarca.nombre, '')
-        nombre      = nombre.replace('  ', ' ')
-        nombre      = nombre.strip()
         if not grados:
             grados = float(0)
 
