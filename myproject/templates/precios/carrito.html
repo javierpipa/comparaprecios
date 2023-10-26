@@ -2,8 +2,27 @@
  
 {% load humanize mathfilters %}
 
-
 {% block title %}Lista{% endblock %}
+{% block breadcrumbs %}
+  {% if not is_popup %}
+  <section class="breadcrumbs">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2>Revisión de lista </h2>
+        {% if context.cache %}
+            <h6> Cache: {{ context.cache|title}}</h6>
+        {% endif %}
+        <ol>
+            <li><a href="/">Home</a></li>
+            <li>Revisión de lista</li>
+            
+        </ol>
+      </div>
+    </div>
+  </section><!-- Breadcrumbs Section -->
+  
+  {% endif %}
+  {% endblock %}
 {% block content %}
 <script>
         $( document ).ready(function() 
@@ -16,7 +35,6 @@
   .gradient-custom {
   /* fallback for old browsers */
   background: #6a11cb;
-
   /* Chrome 10-25, Safari 5.1-6 */
   background: -webkit-linear-gradient(to right, rgba(106, 17, 203, 1), rgba(37, 117, 252, 1));
 
@@ -24,8 +42,14 @@
   background: linear-gradient(to right, rgba(106, 17, 203, 1), rgba(37, 117, 252, 1))
 }
 </style>
+{% if request.user_agent.is_pc %}
+  para pc
+{% else %}
+  para movil
+{% endif %}
+
 <section class="h-100 gradient-custom">
-    <div class="container py-5">
+    <div class="container ">
       <div class="row d-flex justify-content-center my-4">
         <div class="col-md-4">
           <div class="card mb-4 ">

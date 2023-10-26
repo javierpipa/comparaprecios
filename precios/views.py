@@ -673,8 +673,6 @@ def precios(request):
         del params['page']
         
     context['clean_params'] = params.urlencode()
-    print(f'params.urlencode()={params.urlencode()}')
-   
     
     if  puede_connsultar and (rtags or rmarca or nombre !=''):
         momentos, supermercadoscount = getMomentos(request)

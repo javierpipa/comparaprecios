@@ -11,7 +11,6 @@
 
 {% block extrahead %}
     <meta property="product:brand" content="{{ object.nombre|title}}">
-
     <script>
         $( document ).ready(function() 
         {
@@ -21,17 +20,10 @@
 {% endblock %}
 
 {% block content %}
-<!-- Primera Línea: Formulario de Búsqueda -->
-<!-- <div class="container my-3">
-    'precios:brands_detail' resumen.brand
-    {% url 'precios:home' as url_formulario %}
-    {% include "precios/search_form.html" with url_formulario=url_formulario%}
-</div> -->
+
 
 <!-- Segunda Línea: Resumen de Resultados y Ofertas -->
 {% include "precios/segunda_linea.html" with articulos_count=resumen.articulos_count ofertas_count=resumen.ofertas_count%}
-
-
 
 <!-- Tercera Línea: Filtro, Orden y Artículos -->
 <div class="container my-3">

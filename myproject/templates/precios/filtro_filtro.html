@@ -18,7 +18,7 @@
                 {% endfor %}
                 {% for row in filtro.marcas %}
                     {% if request.GET.marca == row.marca_id|stringformat:"s" %}
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <li class="list-group-item d-flex justify-content-between align-items-center text-dark" style="background-color:#d2d5d8 !important">
                                 {{ row.marca__nombre|title }}
                                 <a href="?{% for key, value in request.GET.items %}{% ifnotequal key "marca" %}{{ key }}={{ value }}{% endifnotequal %}{% if not forloop.last %}&{% endif %}{% endfor %}" class="remove-filter">
                                     <i class="bi bi-x-circle"></i>
@@ -28,7 +28,7 @@
                 {% endfor %}
                 {% for row in filtro.grados %}
                     {% if request.GET.grados == row.grados2|stringformat:"s"|replace_comma %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <li class="list-group-item d-flex justify-content-between align-items-center bg-danger text-light">
                                 {{ row.grados2|floatformat:2|title }} °
                                 <a href="?{% for key, value in request.GET.items %}{% ifnotequal key "grados" %}{{ key }}={{ value }}{% endifnotequal %}{% if not forloop.last %}&{% endif %}{% endfor %}" class="remove-filter">
                                     <i class="bi bi-x-circle"></i>
@@ -39,7 +39,7 @@
 
                 {% for row in filtro.unidades %}
                     {% if request.GET.unidades == row.unidades|stringformat:"s" %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <li class="list-group-item d-flex justify-content-between align-items-center bg-dark text-light">
                             {{ row.unidades|title }} Unidades
                             <a href="?{% for key, value in request.GET.items %}{% ifnotequal key "unidades" %}{{ key }}={{ value }}{% endifnotequal %}{% if not forloop.last %}&{% endif %}{% endfor %}" class="remove-filter">
                                 <i class="bi bi-x-circle"></i>
@@ -50,7 +50,7 @@
                 {% for row in filtro.medida %}
                     {% with medida_cant_str=row.medida_cant|floatformat:0|stringformat:"s" %}
                         {% if request.GET.medida_cant == medida_cant_str %}
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <li class="list-group-item d-flex justify-content-between align-items-center bg-info text-light">
                                 
                                 {{ row.medida_cant|floatformat:0|intcomma  }}
                                 {% for um_row in filtro.medida_um %}
@@ -66,9 +66,19 @@
                         {% endif %}
                     {% endwith %}
                 {% endfor %}
+                {% for row in filtro.color %}
+                    {% if request.GET.color == row.color|stringformat:"s" %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center bg-success text-light">
+                            {{ row.color|title }}
+                            <a href="?{% for key, value in request.GET.items %}{% ifnotequal key "color" %}{{ key }}={{ value }}{% endifnotequal %}{% if not forloop.last %}&{% endif %}{% endfor %}" class="remove-filter">
+                                <i class="bi bi-x-circle"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
                 {% for row in filtro.envase %}
                     {% if request.GET.envase == row.envase|stringformat:"s" %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <li class="list-group-item d-flex justify-content-between align-items-center bg-secondary link-light">
                             {{ row.envase|title }}
                             <a href="?{% for key, value in request.GET.items %}{% ifnotequal key "envase" %}{{ key }}={{ value }}{% endifnotequal %}{% if not forloop.last %}&{% endif %}{% endfor %}" class="remove-filter">
                                 <i class="bi bi-x-circle"></i>
@@ -78,7 +88,7 @@
                 {% endfor %}
                 {% for row in filtro.talla %}
                     {% if request.GET.talla == row.talla|stringformat:"s" %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <li class="list-group-item d-flex justify-content-between align-items-center bg-danger text-light">
                             {{ row.talla|title }}
                             <a href="?{% for key, value in request.GET.items %}{% ifnotequal key "talla" %}{{ key }}={{ value }}{% endifnotequal %}{% if not forloop.last %}&{% endif %}{% endfor %}" class="remove-filter">
                                 <i class="bi bi-x-circle"></i>
@@ -117,7 +127,7 @@
             {% if  filtro.marcas|length > 1 %}
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="headingOne">
-                        <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#Marcasfilter">Marcas ({{filtro.marcas|length}})</button>									
+                        <button type="button" class="accordion-button collapsed link-light" style="background-color: rgb(186, 183, 183)" data-bs-toggle="collapse" data-bs-target="#Marcasfilter">Marcas ({{filtro.marcas|length}})</button>									
                     </h2>
                     <div id="Marcasfilter" class="accordion-collapse collapse">
                         <div class="card-body" style="max-height:250px; overflow-y: scroll;">
@@ -144,7 +154,7 @@
             {% if  filtro.grados|length > 1 %}
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="headingTwo">
-                        <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#gradosfilter">Grados ({{filtro.grados|length}})</button>
+                        <button type="button" class="accordion-button collapsed bg-danger text-light" data-bs-toggle="collapse" data-bs-target="#gradosfilter">Grados ({{filtro.grados|length}})</button>
                     </h2>
                     <div id="gradosfilter" class="accordion-collapse collapse">
                         <div class="card-body" style="max-height:250px; overflow-y: scroll;">
@@ -173,7 +183,7 @@
             {% if  filtro.unidades|length > 1 %}
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="headingThree">
-                        <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#unidadesfilter">Unidades ({{filtro.unidades|length}})</button>                     
+                        <button type="button" class="accordion-button collapsed bg-dark text-light" data-bs-toggle="collapse" data-bs-target="#unidadesfilter">Unidades ({{filtro.unidades|length}})</button>                     
                     </h2>
                     <div id="unidadesfilter" class="accordion-collapse collapse">
                         <div class="card-body"  style="max-height:250px; overflow-y: scroll;">
@@ -201,7 +211,7 @@
             {% if  filtro.envase|length > 1 %}
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="headingThree">
-                        <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#envasefilter">Envase ({{filtro.envase|length}})</button>                     
+                        <button type="button" class="accordion-button collapsed bg-secondary link-light" data-bs-toggle="collapse" data-bs-target="#envasefilter">Envase ({{filtro.envase|length}})</button>                     
                     </h2>
                     <div id="envasefilter" class="accordion-collapse collapse">
                         <div class="card-body"  style="max-height:250px; overflow-y: scroll;">
@@ -229,7 +239,7 @@
             {% if  filtro.color|length > 1 %}
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="headingFour">
-                        <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#colorfilter">Color ({{filtro.color|length}})</button>                     
+                        <button type="button" class="accordion-button collapsed bg-success text-light" data-bs-toggle="collapse" data-bs-target="#colorfilter">Color ({{filtro.color|length}})</button>                     
                     </h2>
                     <div id="colorfilter" class="accordion-collapse collapse">
                         <div class="card-body"  style="max-height:250px; overflow-y: scroll;">
@@ -256,7 +266,7 @@
             {% if  filtro.medida|length > 1 %}
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="headingFive">
-                        <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#medida_cantfilter">Medida ({{filtro.medida|length}})</button>                     
+                        <button type="button" class="accordion-button collapsed bg-info text-light" data-bs-toggle="collapse" data-bs-target="#medida_cantfilter">Medida ({{filtro.medida|length}})</button>                     
                     </h2>
                     <div id="medida_cantfilter" class="accordion-collapse collapse">
                         <div class="card-body"  style="max-height:250px; overflow-y: scroll;">
@@ -289,7 +299,7 @@
             {% if filtro.talla|length > 1 %}
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="headingFour">
-                        <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#tallafilter">Talla ({{filtro.talla|length}})</button>                     
+                        <button type="button" class="accordion-button collapsed bg-danger text-light" data-bs-toggle="collapse" data-bs-target="#tallafilter">Talla ({{filtro.talla|length}})</button>                     
                     </h2>
                     <div id="tallafilter" class="accordion-collapse collapse">
                         <div class="card-body"  style="max-height:250px; overflow-y: scroll;">

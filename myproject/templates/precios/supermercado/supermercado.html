@@ -40,12 +40,7 @@
                         
                         <h2>{{ context.supermercado.siteName }}</h2>
                         <h3>{{ context.supermercado.corporacion }}</h3>
-                        <!-- <div class="social-links mt-2">
-                        <a href="#" class="twitter"><i class="bi bi-twitter"></i></a>
-                        <a href="#" class="facebook"><i class="bi bi-facebook"></i></a>
-                        <a href="#" class="instagram"><i class="bi bi-instagram"></i></a>
-                        <a href="#" class="linkedin"><i class="bi bi-linkedin"></i></a>
-                        </div> -->
+                        
                     </div>
                 </div>
 
@@ -67,9 +62,11 @@
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" data-bs-toggle="tab" data-bs-target="#sitemap" aria-selected="false" role="tab" tabindex="-1">SiteMap</button>
                     </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#pages" aria-selected="false" role="tab" tabindex="-1">Pages</button>
-                    </li>
+                    {%if context.pages.count %}
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#pages" aria-selected="false" role="tab" tabindex="-1">Pages</button>
+                        </li>
+                    {% endif %}
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" data-bs-toggle="tab" data-bs-target="#registros" aria-selected="false" role="tab" tabindex="-1">Registros</button>
                     </li>
@@ -79,31 +76,37 @@
                         <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-edit" aria-selected="false" role="tab" tabindex="-1">Edit Profile</button>
                     </li>
 
-                    <!-- <li class="nav-item" role="presentation">
-                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-settings" aria-selected="false" role="tab" tabindex="-1">Settings</button>
-                    </li> -->
 
-                    <!-- <li class="nav-item" role="presentation">
-                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-change-password" aria-selected="false" role="tab" tabindex="-1">Change Password</button>
-                    </li> -->
 
                     </ul>
                     <div class="tab-content pt-2">
 
                     <div class="tab-pane fade profile-overview active show" id="profile-overview" role="tabpanel">
-                        <h5 class="card-title">About</h5>
-                        <p class="small fst-italic">Sunt est soluta temporibus accusantium neque nam maiores cumque temporibus. Tempora libero non est unde veniam est qui dolor. Ut sunt iure rerum quae quisquam autem eveniet perspiciatis odit. Fuga sequi sed ea saepe at unde.</p>
+                        <!-- <h5 class="card-title">About</h5>
+                        <p class="small fst-italic">Sunt est soluta temporibus accusantium neque nam maiores cumque temporibus. Tempora libero non est unde veniam est qui dolor. Ut sunt iure rerum quae quisquam autem eveniet perspiciatis odit. Fuga sequi sed ea saepe at unde.</p> -->
 
-                        <h5 class="card-title">Profile Details</h5>
+                        <!-- <h5 class="card-title">Profile Details</h5> -->
 
-                        <div class="row">
+                        <!-- <div class="row">
                             <div class="col-lg-3 col-md-4 label ">Parte del grupo</div>
                             <div class="col-lg-9 col-md-8">{{ context.supermercado.corporacion }}</div>
-                        </div>
+                        </div> -->
                         <div class="row">
                             <div class="col-lg-3 col-md-4 label ">Plan</div>
                             <div class="col-lg-9 col-md-8">{{ context.supermercado.account }}</div>
                         </div>
+                        <div class="row">
+                            <div class="col-lg-3 col-md-4 label ">Precios IVA incluido</div>
+                            <div class="col-lg-9 col-md-8">
+                                {% if context.supermercado.precios_con_iva %}
+                                    <img src="/static/admin/img/icon-yes.svg" alt="True">
+                                {% else %}
+                                    <img src="/static/admin/img/icon-no.svg" alt="False">
+                                {% endif %}
+                                {{ context.supermercado.precios_con_iva }}
+                            </div>
+                        </div>
+                        
                         <div class="row">
                             <div class="col-lg-3 col-md-4 label ">URL principal</div>
                             <div class="col-lg-9 col-md-8"><a href="{{ context.supermercado.siteURL }}" target="_blank">{{ context.supermercado.siteURL }}</a></div>
@@ -116,24 +119,26 @@
                             <div class="col-lg-3 col-md-4 label ">Cobertura de despacho</div>
                             <div class="col-lg-9 col-md-8"><a href="{{ context.supermercado.cobertura_url }}" target="_blank">{{ context.supermercado.cobertura_url }}</a></div>
                         </div>
-                        <div class="row">
-                            <div class="col-lg-3 col-md-4 label ">Reclamos</div>
-                            <div class="col-lg-9 col-md-8">
-                                {%if context.supermercado.reclamos_url %}
+                        {%if context.supermercado.reclamos_url %}
+                            <div class="row">
+                                <div class="col-lg-3 col-md-4 label ">Reclamos</div>
+                                <div class="col-lg-9 col-md-8">
                                     <a href="{{ context.supermercado.reclamos_url }}" target="_blank">{{ context.supermercado.reclamos_url }}</a>
-                                {%endif%}
+                                </div>
                             </div>
-                        </div>
+                        {%endif%}
+                        {%if context.pages.count %}
+                            <div class="row">
+                                <div class="col-lg-3 col-md-4 label ">Pages</div>
+                                <div class="col-lg-9 col-md-8">{{ context.pages.count }} </div>
+                            </div>
+                        {%endif%}
                         <div class="row">
-                            <div class="col-lg-3 col-md-4 label ">Pages</div>
-                            <div class="col-lg-9 col-md-8">{{ context.pages.count }} </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-3 col-md-4 label ">sitemaps</div>
+                            <div class="col-lg-3 col-md-4 label "># Sitemaps</div>
                             <div class="col-lg-9 col-md-8">{{ context.sitemaps.count }} </div>
                         </div>
                         <div class="row">
-                            <div class="col-lg-3 col-md-4 label ">costos de despacho</div>
+                            <div class="col-lg-3 col-md-4 label "># Costos de despacho</div>
                             <div class="col-lg-9 col-md-8">{{ context.momentos.count }} </div>
                         </div>
                         <div class="row">
