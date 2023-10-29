@@ -324,8 +324,10 @@ def check_pd(c,
 
                 if check_nombre and otro_nombre != '':
                     if fuz == 100:
-                        c.at[cuenta0,'lo__medida_cant'] = otro_medida_cant
-                        c.at[cuenta0,'lo__envase'] = otro_envase
+                        if este_medida_cant == 0:
+                            c.at[cuenta0,'lo__medida_cant'] = otro_medida_cant
+                        if este_envase == '':
+                            c.at[cuenta0,'lo__envase'] = otro_envase
                         c.at[cuenta0,'rule'] = 'pd_nombre fuz=100'
                         c.at[cuenta0,'lo__nombre'] = otro_nombre
                     else:
@@ -788,7 +790,7 @@ def intenta_marca(marca_id, debug, nombre=None):
             print(f"Check sailers min=2 fuz={fuzl}")
         c = check_sailers(c, 2, fuzl, debug)
         
-    if marca_obj.talla or marca_obj.grados:
+    if marca_obj.grados:
         c = check_pd(c, 
             check_nombre=True,         ## Cierto .. debe ser al final
             check_ean=False, 
@@ -798,6 +800,18 @@ def intenta_marca(marca_id, debug, nombre=None):
             check_unidades=False,
             check_talla=False,
             fuz_level=47, 
+            debug=debug)
+        
+    if marca_obj.talla :
+        c = check_pd(c, 
+            check_nombre=True,         ## Cierto .. debe ser al final
+            check_ean=False, 
+            check_grados=False, 
+            check_medida_cant=False, 
+            check_envase=False,  
+            check_unidades=False,
+            check_talla=False,
+            fuz_level=66, 
             debug=debug)
     
     if debug:

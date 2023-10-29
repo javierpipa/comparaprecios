@@ -158,18 +158,18 @@ def product_details_fromsoup_breadcrumb(ld_json_tags, is_selenium=False):
                 else:
                     ld_json = json.loads(tag.string)
                 
-
-            if isinstance(ld_json, dict) and ld_json.get('@type') == 'BreadcrumbList':
-                return extract_list_details(ld_json)
-            elif isinstance(ld_json, dict) and '@graph' in ld_json:
-                for item in ld_json['@graph']:
-                    if isinstance(item, dict) and item.get('@type') == 'BreadcrumbList':
-                        return extract_list_details(item)
         except json.JSONDecodeError:
-            # pass
-            print(f'Error en product_details_fromsoup JSONDecodeError --->  {ld_json_tags}')
+            print(f'Error en product_details_fromsoup_breadcrumb JSONDecodeError --->  {ld_json_tags}')
         except Exception as e:
-            print(f'Error en product_details_fromsoup ---> {str(e)} {ld_json_tags}')
+            print(f'Error en product_details_fromsoup_breadcrumb ---> {str(e)} {ld_json_tags}')
+
+        if isinstance(ld_json, dict) and ld_json.get('@type') == 'BreadcrumbList':
+            return extract_list_details(ld_json)
+        elif isinstance(ld_json, dict) and '@graph' in ld_json:
+            for item in ld_json['@graph']:
+                if isinstance(item, dict) and item.get('@type') == 'BreadcrumbList':
+                    return extract_list_details(item)
+                    
     
     
     return None
@@ -212,10 +212,13 @@ def extract_list_details(ld_json):
     extracted_data = []
 
     # Recorrer la lista y extraer la información relevante
-    for item in item_list:
-        position = item['position']
-        name = item['name']
-        item_url = item['item']
+    for itema in item_list:
+        position = itema['position']
+        name = itema['name']
+        try:
+            item_url = itema['item']
+        except:
+            item_url = ''
         extracted_data.append({'position': position, 'name': name, 'item': item_url})
 
     return extracted_data

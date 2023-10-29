@@ -11,16 +11,31 @@
 {% block content %}
   <section id="portfolio" class="d-flex">
     <div class="container" data-aos="fade-up">
-
       <div class="row row-cols-1 row-cols-md-4 g-4">
         {% for object in object_list %}
+          {% if object.resultsCount >= resumen.MinSuperCompara %}
           <div class="col">
             <div class="card" style="width: 18rem;">
               <div class="card-body">
                 <h5 class="card-title"><a href="{{object.get_absolute_url}}" class="btn btn-primary">{{ object|title }}</a></h5>
+                <span class="badge bg-secondary">
+                  Articulos = {{ object.resultsCount }}
+                </span>
+                <span class="badge bg-success">
+                  Rules = {{ object.rulesCount }}
+                </span>
+                
+                <span class="badge bg-danger">
+                  Grados = {{ object.grados }}
+                </span>
+                <span class="badge bg-danger">
+                  Talla = {{ object.talla }}
+                </span>
+                
               </div>
             </div>
           </div>
+          {% endif %}
         {% endfor %}
       </div>
     </div>

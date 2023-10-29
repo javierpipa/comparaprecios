@@ -62,14 +62,14 @@
 
 <!-- Esto se muestra solo en PC -->
 <div class="d-none d-md-inline">
-    <select id="order-select" class="form-control">
+    <select id="order-select" class="form-select form-select-sm" aria-label=".form-select-lg example">
         <option value="precio_por_unidad" {% if context.resumen.orden == 'precio_por_unidad' %}selected{% endif %}>
             Menor Precio por Unidad
         </option>
         <option value="-precio_por_unidad" {% if context.resumen.orden == '-precio_por_unidad' %}selected{% endif %}>
             Mayor Precio por Unidad
         </option>
-        <!-- Agregar más opciones aquí -->
+
         <option value="-mejor_precio" {% if context.resumen.orden == '-mejor_precio' %}selected{% endif %}>
             Mayor precio
         </option>
@@ -91,6 +91,7 @@
             Marca Nombre: Z - A
         </option>
     </select>
+    
 </div>
 
 <script>

@@ -649,16 +649,15 @@ class Marcas(models.Model):
     created             = models.DateTimeField(editable=False,default=timezone.now)
     grados              = models.BooleanField(default=False)
     talla               = models.BooleanField(default=False)
-
-    
+    numero              = models.BooleanField(default=False)
 
     @property
     def rulesCount(self) -> int:
         return Unifica.objects.filter(si_marca=self).count() + Unifica.objects.filter(entonces_marca=self).count() 
       
-    @property
+    # @property
     def resultsCount(self) -> int:
-        return Articulos.objects.filter( marca=self).count()
+        return Articulos.objects.filter(marca=self).count()
 
     @property
     def vendedoresList(self) -> list:

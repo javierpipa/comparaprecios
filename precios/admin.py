@@ -381,6 +381,7 @@ class MarcasAdmin(admin.ModelAdmin):
         "nombre",
         "grados",
         "talla",
+        "numero",
         "es_marca",
         "resultsCount",
         "slug",

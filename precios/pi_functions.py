@@ -144,7 +144,7 @@ def loadProductBeautifulSoup(sopa, como, que_busca, que_obtiene, metaopcion):
 
     return {"es_error": es_error, "valor":retorna}
 
-def generate_filters(articulos):
+def generate_filters(articulos, rsupermercados):
     filtro = {}
 
     articulo_ids = articulos.values_list('id', flat=True)
@@ -154,8 +154,12 @@ def generate_filters(articulos):
     vendedores_filtrados = Vendedores.objects.filter(articulo__id__in=articulo_ids).exclude(vendidoen__precio=0)
     # Generar el filtro de supermercados
     supermercados = vendedores_filtrados.values('vendidoen__site__siteName', 'vendidoen__site__id').annotate(Count('articulo', distinct=True)).order_by()
-    filtro['supermercados'] = supermercados
+    
+    if len(rsupermercados) > 0:
+        supermercados = supermercados.filter(vendidoen__site__id__in=rsupermercados)
+        # filtro['supermercados'] = None
 
+    filtro['supermercados'] = supermercados
     # Marcas
     marcas = articulos.values('marca__nombre','marca_id').exclude(marca__es_marca=False).annotate(Count('id', distinct=True)).order_by()
     filtro['marcas'] = marcas
@@ -435,7 +439,11 @@ def saveUrlData(campoensitio, laurl, valor):
         laurl.proveedor         = valor
 
     if campoensitio.campo.campoQueGraba == 'stock':
-        valor                   = valor.lower()
+        valor                   = valor.lower().strip()
+        if valor == 'agotado' or valor == '0 disponibles':
+            valor = 'outOfStock'
+        if valor == '':
+            valor = 'InStock'
         laurl.stock             = valor[0:20]
 
     if campoensitio.campo.campoQueGraba == 'precioref':

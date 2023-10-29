@@ -241,7 +241,10 @@ def url_get(browser,
         laurl.nombre        = nombre
         image               = ld_response.get("image")
         if isinstance(image, dict) or isinstance(image, list):
-            laurl.image         = image[0]
+            try:
+                laurl.image         = image[0]
+            except:
+                print('algun error en la imagen')
         else:
             laurl.image         = image
 
@@ -514,57 +517,53 @@ def obtener_talla(nombre, TALLAS, busquedas):
 
 
 def obtener_marca(nombre, marca):
+    
     nombre = nombre.strip()
-    ## Revisamos si la marca en la URL existe
-    
-    # Si la marca no existe, busco en todas las marcas habilitadas si estuviera en el nombre
-    if not Marcas.objects.filter(es_marca=True, nombre=marca).exists():
-        # Busca marca con espacios a ambos lados
-        for posible_marca in Marcas.objects.filter(es_marca=True).values_list('nombre', flat=True).all():
-            if ( ' ' + posible_marca +' ' in nombre ) :
-                marca  = posible_marca
-                nombre = nombre.replace(posible_marca, '')
-                return nombre, marca
-            
-        # Busca marca SIN espacios a ambos lados
-        for posible_marca in Marcas.objects.filter(es_marca=True).values_list('nombre', flat=True).all():
-            if (  posible_marca  in nombre ) :
-                marca  = posible_marca
-                nombre = nombre.replace(posible_marca, '')
-                return nombre, marca
-    
-    else:  # Si la marca SI existe, 
-        posible_marca = Marcas.objects.filter(es_marca=True, nombre=marca).values_list('nombre', flat=True).get()
-        nombre = nombre.replace(posible_marca, '')
-        return nombre, marca
-
-    ## Quizas la marca esta des-habilitada
-    if not Marcas.objects.filter(es_marca=True, nombre=marca).exists():
-        if Marcas.objects.filter(es_marca=False, nombre=marca).exists():
+    marca = marca.strip()
+    ## Revisamos si la marca enviada existe
+    if Marcas.objects.filter(nombre=marca).exists():
+        ## Puede ser marca habilitada o no, veamos:
+        if Marcas.objects.filter(es_marca=True, nombre=marca).exists():    
+            posible_marca = Marcas.objects.filter(es_marca=True, nombre=marca).values_list('nombre', flat=True).get()
+            nombre = nombre.replace(posible_marca, '').strip()
+            return nombre, marca
+        else:
+            ## Marca no esta habilitada:
             marca_obj = Marcas.objects.filter(es_marca=False, nombre=marca).get()
-            
             if Unifica.objects.filter(si_marca=marca_obj, si_nombre=None, si_grados2=float(0), si_medida_cant=float(0), si_unidades=1,  automatico=False ).exists():
                 unifica_obj = Unifica.objects.filter(si_marca=marca_obj, si_nombre=None, si_grados2=float(0), si_medida_cant=float(0), si_unidades=1, automatico=False).first()
                 if unifica_obj:
                     marca = unifica_obj.entonces_marca.nombre
-            else:
-                # print(f'Marca deshabilitada Y no tiene redireccion =|{marca}| Habilito la Marca')
-                # marca_obj.es_marca = True
-                # marca_obj.save()
-                marca = marca_obj.nombre
+                    nombre = nombre.replace(marca, '').strip()
+                    return nombre, marca
+    
+    else:
+        # Si la marca no existe, busco en todas las marcas habilitadas si estuviera en el nombre
+        
+        palabras = (nombre + ' ' + marca).split(' ')
+        for palabra in palabras:
+            if Marcas.objects.filter(nombre=palabra, es_marca=True).values_list('nombre', flat=True).exists():
+                marca = palabra
+                nombre = nombre.replace(marca, '').strip()
+                return nombre, marca
+            
+        
+        ## Finalmente la marca no existe, se crea
+        if marca !='' and len(marca) >= 2:
+            print(f'Marca no existe =|{marca}| creando Marca')
+            marca_obj = Marcas(
+                nombre=marca,
+                es_marca=False,
+                grados=False,
+                talla=False
+            )
+            marca_obj.save()
+            marca = marca
+            nombre = nombre.replace(marca, '').strip()
         else:
-            if marca !='' and len(marca) >= 2:
-                print(f'Marca no existe =|{marca}| creando Marca')
-                marca_obj = Marcas(
-                    nombre=marca,
-                    es_marca=False,
-                    grados=False,
-                    talla=False
-                )
-                marca_obj.save()
-                marca = marca
-            else:
-                marca = None
+            marca = None
+
+
 
     return nombre, marca
 
@@ -620,6 +619,16 @@ def get_marcas_que_me_apuntan(marca_default):
     otras_marcas_lst = Unifica.objects.filter(entonces_marca=marca_default, automatico=False).values_list('si_marca__nombre', flat=True).distinct()
     
     return otras_marcas_lst
+
+def remove_duplicates(nombre):
+    words = nombre.split()
+    seen = set()
+    result = []
+    for word in words:
+        if word.lower() not in seen:
+            seen.add(word.lower())
+            result.append(word)
+    return ' '.join(result)
 
 ## Create Products
 ####################
@@ -693,6 +702,17 @@ def create_prods(
         else:
             articulos_marca_vacio = articulos_marca_vacio + 1
             continue
+
+        nombre = remove_duplicates(nombre)
+        
+        ## Fix marca in URL
+        if url.marca != newmarca_str:
+            url.marca = newmarca_str
+            url.save()
+        
+        if url.nombre != nombre:
+            url.nombre = nombre
+            url.save()
 
         #### Separa numeros de textos ##########################
         res = get_palabras_con_numychar(nombre)

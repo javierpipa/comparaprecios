@@ -716,7 +716,6 @@ def precios(request):
 
         if rtags:
             articulos = articulos.filter(tags__slug=rtags)
-            # print(rtags, articulos, articulos.query)
 
         if rmarca:
             articulos = articulos.filter(marca__in=rmarca)
@@ -747,7 +746,7 @@ def precios(request):
 
 
         articulos_dict, articulos_count, ofertas_count = generate_articulos_dict(articulos, momentos, MinSuperCompara, orden)
-        filtro = generate_filters(articulos)
+        filtro = generate_filters(articulos, rsupermercados)
         
         
         context['resumen'] = {

@@ -178,7 +178,11 @@
   <header id="header" class="d-flex align-items-center">
     <div class="container d-flex align-items-center justify-content-between">
       <h2 class="logo"><img src="{% static 'assets/img/logoDevop.png'%}" alt="Devop Site"><a href="/">{% page_attribute "page_title" %}</a></h2>
-      
+      <!-- Primera Línea: Formulario de Búsqueda -->
+<div class="container ">
+  {% url 'precios:home' as url_formulario %}
+  {% include "precios/search_form.html" with url_formulario=url_formulario%}
+</div>
 
       <nav id="navbar" class="navbar">
         <ul> 

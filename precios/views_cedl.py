@@ -188,16 +188,18 @@ class CorporationDetailView(generic.DetailView):
     form_class = CorporationForm
 
 class MarcasListView(generic.ListView):
-    model = Marcas
-    form_class = MarcasForm
-    paginate_by = 50
+    model                   = Marcas
+    form_class              = MarcasForm
+    paginate_by             = 90
+    
 
     def get_queryset(self):
         return Marcas.objects.filter(es_marca=True)
     
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        marcas = Marcas.objects.filter(es_marca=True)
+        MinSuperCompara         = int(Settings.objects.get(key='MinSuperCompara').value)
+        context                 = super().get_context_data(**kwargs)
+        marcas                  = Marcas.objects.filter(es_marca=True)
 
         params = self.request.GET.copy()
         if 'page' in params:
@@ -217,6 +219,7 @@ class MarcasListView(generic.ListView):
 
         context['resumen'] = {
             'class': 'precios:brands',
+            'MinSuperCompara': MinSuperCompara,
         }
         context["paginator"] =  paginator
         context["page_obj"] =  page_obj

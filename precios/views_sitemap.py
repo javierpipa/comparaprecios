@@ -1,6 +1,7 @@
 from precios.models import (
     Marcas,
     Articulos,
+    Settings,
 )
 from django.db.models import  Count
 from django.contrib.sites.models import Site as siteSite
@@ -47,10 +48,11 @@ def sitemaps_articles(request, pagina):
 def sitemaps_marcas(request, pagina):
     pagina = int(pagina)
     suffix = get_domain()
+    MinSuperCompara         = int(Settings.objects.get(key='MinSuperCompara').value)
 
     lastmod = datetime.today().strftime('%Y-%m-%d')
 
-    subquery    = Articulos.objects.values('marca__nombre').annotate(cantidad=Count('id')).filter(cantidad__gt=0).values_list('marca__id', flat=True)
+    subquery    = Articulos.objects.values('marca__nombre').annotate(cantidad=Count('id')).filter(cantidad__gte=MinSuperCompara).values_list('marca__id', flat=True)
     records     = Marcas.objects.filter(id__in=subquery).filter(es_marca=True)
     num_paginas = int(Marcas.objects.filter(id__in=subquery).count() / 1000) + 1
 
@@ -59,8 +61,8 @@ def sitemaps_marcas(request, pagina):
     if pagina < 1 or pagina > num_paginas:
         return customhandler404(request, exception=404)
         
-    desde   = (( pagina - 1 ) * 1000 ) + 0
-    hasta   = (( pagina     ) * 1000 ) - 1
+    desde   = (( pagina - 1 ) * 10000 ) + 0
+    hasta   = (( pagina     ) * 10000 ) - 1
 
     priority = '0.5'
     changefreq = "weekly"
@@ -85,7 +87,7 @@ def marcas_y_articulos_sitemaps(request, file_size=1000):
     subquery = Articulos.objects.values('marca__nombre').annotate(cantidad=Count('id')).filter(cantidad__gt=0).values_list('marca__id', flat=True)
     num_records = Marcas.objects.filter(id__in=subquery).count()
     try:
-        paginas = math.ceil(num_records / 1000)
+        paginas = math.ceil(num_records / 10000)
         
     except:
         paginas = 1

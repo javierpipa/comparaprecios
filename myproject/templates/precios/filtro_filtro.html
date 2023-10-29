@@ -1,8 +1,10 @@
 {% load humanize mathfilters %}
 {% load precios_extras %}
 
-<!-- if context.resumen.articulos_count  -->
-    <section id="filterContainer" class="bg-white h-screen max-h-resultFilter mobile:hidden desktop:block rounded sticky top-10 overflow-scroll ">
+    <div id="filterContainer" class="bg-white h-screen max-h-resultFilter mobile:hidden desktop:block rounded sticky overflow-scroll ">
+        {% if request.GET %}
+            <label for="filterContainer">Filtros activos</label>
+        {% endif %}
         <div class="card-body" style="max-height:250px; overflow-y: scroll;">
             <ul class="list-group">
                 {% for row in filtro.supermercados %}
@@ -101,7 +103,7 @@
         <br/>
 
         <div class="accordion" id="myAccordion">
-            
+            <label for="myAccordion">Filtros disponibles</label>
             {% if  filtro.supermercados|length > 1 %}
             <div class="accordion-item">
                 <h2 class="accordion-header" id="headingTwo">
@@ -322,13 +324,8 @@
                     </div>
                 </div>
             {% endif %}
-        
-            
-
-            
 
         </div>
 
-    </section> 
+    </div> 
 
-<!-- endif   -->

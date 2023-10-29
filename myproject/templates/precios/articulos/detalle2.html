@@ -74,11 +74,15 @@
             {% endfor %}
       ]);
 
+    var csv = google.visualization.dataTableToCsv(data);
+    console.log(csv);
+
     var options = {
          title: 'Precios históricos',
          subtitle: 'en miles de pesos',
          curveType: 'function',
          legend: { position: 'bottom' },
+         height: 300,
 
         vAxis: { 
             title: "Precio" ,
@@ -136,7 +140,7 @@
                 <div class="card-header">
                     Gráfica  
                 </div>
-                <div id="chart_div" class="chart"></div>
+                <div id="chart_div" class="chart" style="width:400; height:300"></div>
             </div>
         </div>
     </div>
