@@ -194,12 +194,20 @@ class MarcasListView(generic.ListView):
     
 
     def get_queryset(self):
-        return Marcas.objects.filter(es_marca=True)
+        articles_from_all = Vendedores.objects.select_related('articulo')
+        articles_from_all = articles_from_all.exclude(vendidoen__precio=0)
+        articles_from_all = articles_from_all.exclude(vendidoen__error404=True)
+        articles_from_all = articles_from_all.exclude(articulo__marca__es_marca=False)
+        articles_from_all = articles_from_all.values('articulo__marca__pk').distinct().all()
+        records  = Marcas.objects.filter(id__in=articles_from_all).filter(es_marca=True)
+        return records
+        # return Marcas.objects.filter(es_marca=True)
     
     def get_context_data(self, **kwargs):
         MinSuperCompara         = int(Settings.objects.get(key='MinSuperCompara').value)
         context                 = super().get_context_data(**kwargs)
-        marcas                  = Marcas.objects.filter(es_marca=True)
+        # marcas                  = Marcas.objects.filter(es_marca=True)
+        marcas                  = self.get_queryset()
 
         params = self.request.GET.copy()
         if 'page' in params:
@@ -290,7 +298,7 @@ class MarcasDetailView(generic.DetailView):
 
         articulos_dict, articulos_count, ofertas_count = generate_articulos_dict(articulos, momentos, 0, orden)
 
-        filtro = generate_filters(articulos)
+        filtro = generate_filters(articulos, '')
 
         # Utiliza Paginator si es necesario
         paginator = Paginator(articulos_dict, self.paginate_by)

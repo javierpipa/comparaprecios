@@ -375,7 +375,7 @@ def save_site(siteURL, sitemap_url, plan, member):
         allLinksInOnePage   = False,
         siteSearchEnabled   = False,
         siteSearch          = 'sitemap',
-        productSearchEnabled= False,
+        productSearchEnabled= True,
         listHasClick        = False,
         listNeedsPgDn       = False,
         theparser           = THEPARSER.HTML_PARSER,

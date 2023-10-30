@@ -35,6 +35,7 @@ from precios.pi_functions import (
     loadProductBeautifulSoup,
     saveUrlData,
     click_element,
+    obtener_marca,
 )
 from precios.pi_supermercado import (
     product_details_fromsoup,
@@ -292,7 +293,8 @@ def url_get(browser,
                     print(f"Largo={len(ld_response_bread)} posicion={item['position']}")
                     laurl.tags.add(str(item['name']))
 
-        laurl.precio        = int(precio)
+        if precio:
+            laurl.precio        = int(precio)
         laurl.error404 = False
     
         
@@ -453,43 +455,45 @@ def extract_and_remove_weight_range_updated(nombre):
     return '', nombre
 
 def replace_comma_in_degrees(nombre):
-    nombre = nombre.strip()
-    # Reemplazar comas en grados por puntos
-    nombre = re.sub(r'(\d+),(\d+)°', r'\1.\2°', nombre)
-    # Eliminar 'gl' si está presente al lado derecho de '°'
-    nombre = re.sub(r'°\s*gl', '°', nombre)
+    if nombre:
+        nombre = nombre.strip()
+        # Reemplazar comas en grados por puntos
+        nombre = re.sub(r'(\d+),(\d+)°', r'\1.\2°', nombre)
+        # Eliminar 'gl' si está presente al lado derecho de '°'
+        nombre = re.sub(r'°\s*gl', '°', nombre)
+
     return nombre
 
-def get_unidades2(nombre, unidades):
-    # Lista de patrones de búsqueda
-    nombre = nombre.strip()
-    busquedas = [
-        r'(\d+)\s*(?:packs?|unidades?|pack)\s*x',
-        r'(\d+\s*unidades)',
-        r'(\d+\s*unidad)',
-        r'(\d+\s*unid)',
-        r'(\d+\s*uds)',
-        r'(\d+\s*un)',
-        r'(\d+)\s*x\s*',
-        r'\s*[^\S\n\t]+x\s*(\d+)',
-        r'^\d{1,2}',
-        r'(\d+)$'
-    ]
-    # Bucle para buscar y actualizar unidades y nombre
-    for busca in busquedas:
-        if unidades == 1:  # Si ya hemos encontrado unidades, no necesitamos seguir buscando
-            retorna, nombre = pack_search(nombre, busca)
-            if retorna:
-                # Elimina cualquier palabra no numérica (como "unidades", "pack", etc.)
-                try:
-                    retorna = re.sub(r'\D', '', retorna)
-                except:
-                    pass
+# def get_unidades2(nombre, unidades):
+#     # Lista de patrones de búsqueda
+#     nombre = nombre.strip()
+#     busquedas = [
+#         r'(\d+)\s*(?:packs?|unidades?|pack)\s*x',
+#         r'(\d+\s*unidades)',
+#         r'(\d+\s*unidad)',
+#         r'(\d+\s*unid)',
+#         r'(\d+\s*uds)',
+#         r'(\d+\s*un)',
+#         r'(\d+)\s*x\s*',
+#         r'\s*[^\S\n\t]+x\s*(\d+)',
+#         r'^\d{1,2}',
+#         r'(\d+)$'
+#     ]
+#     # Bucle para buscar y actualizar unidades y nombre
+#     for busca in busquedas:
+#         if unidades == 1:  # Si ya hemos encontrado unidades, no necesitamos seguir buscando
+#             retorna, nombre = pack_search(nombre, busca)
+#             if retorna:
+#                 # Elimina cualquier palabra no numérica (como "unidades", "pack", etc.)
+#                 try:
+#                     retorna = re.sub(r'\D', '', retorna)
+#                 except:
+#                     pass
 
-                unidades = int(retorna)
-                return nombre, unidades
+#                 unidades = int(retorna)
+#                 return nombre, unidades
                            
-    return nombre, 1
+#     return nombre, 1
 
 ## 4.05 Anotacion de tallas
 def obtener_talla(nombre, TALLAS, busquedas):
@@ -516,56 +520,7 @@ def obtener_talla(nombre, TALLAS, busquedas):
     return talla, nombre
 
 
-def obtener_marca(nombre, marca):
-    
-    nombre = nombre.strip()
-    marca = marca.strip()
-    ## Revisamos si la marca enviada existe
-    if Marcas.objects.filter(nombre=marca).exists():
-        ## Puede ser marca habilitada o no, veamos:
-        if Marcas.objects.filter(es_marca=True, nombre=marca).exists():    
-            posible_marca = Marcas.objects.filter(es_marca=True, nombre=marca).values_list('nombre', flat=True).get()
-            nombre = nombre.replace(posible_marca, '').strip()
-            return nombre, marca
-        else:
-            ## Marca no esta habilitada:
-            marca_obj = Marcas.objects.filter(es_marca=False, nombre=marca).get()
-            if Unifica.objects.filter(si_marca=marca_obj, si_nombre=None, si_grados2=float(0), si_medida_cant=float(0), si_unidades=1,  automatico=False ).exists():
-                unifica_obj = Unifica.objects.filter(si_marca=marca_obj, si_nombre=None, si_grados2=float(0), si_medida_cant=float(0), si_unidades=1, automatico=False).first()
-                if unifica_obj:
-                    marca = unifica_obj.entonces_marca.nombre
-                    nombre = nombre.replace(marca, '').strip()
-                    return nombre, marca
-    
-    else:
-        # Si la marca no existe, busco en todas las marcas habilitadas si estuviera en el nombre
-        
-        palabras = (nombre + ' ' + marca).split(' ')
-        for palabra in palabras:
-            if Marcas.objects.filter(nombre=palabra, es_marca=True).values_list('nombre', flat=True).exists():
-                marca = palabra
-                nombre = nombre.replace(marca, '').strip()
-                return nombre, marca
-            
-        
-        ## Finalmente la marca no existe, se crea
-        if marca !='' and len(marca) >= 2:
-            print(f'Marca no existe =|{marca}| creando Marca')
-            marca_obj = Marcas(
-                nombre=marca,
-                es_marca=False,
-                grados=False,
-                talla=False
-            )
-            marca_obj.save()
-            marca = marca
-            nombre = nombre.replace(marca, '').strip()
-        else:
-            marca = None
 
-
-
-    return nombre, marca
 
 def separate_numbers_from_text(words):
     """
@@ -630,6 +585,74 @@ def remove_duplicates(nombre):
             result.append(word)
     return ' '.join(result)
 
+def separaNumerosDeTextos(nombre):
+    #### Separa numeros de textos ##########################
+    res = get_palabras_con_numychar(nombre)
+    for palabra in res:
+        palas = re.split('([A-Za-z]+[\d@]+[\w@]*|[\d@]+[A-Za-z]+[\w@]*)', palabra.strip())
+        reemplaza_con = ''
+        for pa in palas:
+            if pa != '':
+                if len(get_palabras_con_numychar(pa)) > 0 :
+                    digitos = re.split('(\d+)', pa.strip())
+                    for digito in digitos:
+                        if digito != '':
+                            reemplaza_con = reemplaza_con + digito + ' '
+                else:
+                    reemplaza_con = reemplaza_con + pa 
+
+        nombre = nombre.replace(palabra, reemplaza_con) 
+    return nombre
+    #### FIN Separa numeros de textos ##########################
+
+def obtener_unidades(nombre):
+    nombre = nombre.strip()
+    unidades = 1
+    # Patrones de búsqueda para unidades
+    patrones = [
+        (r'(\d+)\s+(Unid|Unidades)', ' '),
+        (r'pack\s+(\d+)', 'Pack '),
+        (r'(\d+)\s*x', 'x'),
+    ]
+    # Intenta cada patrón y si encuentra una coincidencia, elimina esa parte del nombre del producto
+    for patron, reemplazo in patrones:
+        resultado = re.search(patron, nombre, re.IGNORECASE)
+        if resultado:
+            unidades = resultado.group(1)
+            unidades = int(unidades)
+            # Elimina la parte que coincide con el patrón del nombre del producto
+            nombre_producto_limpio = re.sub(patron, reemplazo, nombre, flags=re.IGNORECASE).strip()
+            return unidades, nombre_producto_limpio
+        
+    
+    busquedas = [
+        r'(\d+)\s*(?:packs?|unidades?|pack)\s*x',
+        r'(\d+\s*unidades)',
+        r'(\d+\s*unidad)',
+        r'(\d+\s*unid)',
+        r'(\d+\s*uds)',
+        r'(\d+\s*un)',
+        r'(\d+)\s*x\s*',
+        r'\s*[^\S\n\t]+x\s*(\d+)',
+        r'^\d{1,2}',
+        r'(\d+)$'
+    ]
+    # Bucle para buscar y actualizar unidades y nombre
+    for busca in busquedas:
+        if unidades == 1:  # Si ya hemos encontrado unidades, no necesitamos seguir buscando
+            retorna, nombre = pack_search(nombre, busca)
+            if retorna:
+                # Elimina cualquier palabra no numérica (como "unidades", "pack", etc.)
+                try:
+                    retorna = re.sub(r'\D', '', retorna)
+                except:
+                    pass
+
+                unidades = int(retorna)
+                return unidades, nombre
+    # Si no se encuentra ningún patrón, asume que es una unidad y devuelve el nombre original
+    return 1, nombre
+
 ## Create Products
 ####################
 def create_prods(
@@ -670,32 +693,44 @@ def create_prods(
         nombre_original = ''
         descripcion = ''
 
-        if url.nombre :
-            nombre = url.nombre
-            nombre_original = url.nombre
-            descripcion = url.descripcion
-        else:
+        if not url.nombre :
             articulos_nombre_vacio = articulos_nombre_vacio + 1
             ## Si no hay nombre, loop
             continue
 
-        unidades    = url.unidades
-        medida_um   = url.medida_um
-        medida_cant = url.medida_cant
-        newmarca_str = url.marca
-        tags        = url.tags.all()
+        nombre          = url.nombre
+        nombre_original = url.nombre
+        descripcion     = url.descripcion
+        unidades        = url.unidades
+        medida_um       = url.medida_um
+        medida_cant     = url.medida_cant
+        newmarca_str    = url.marca
+        tags            = url.tags.all()
+        tipo            = url.tipo 
 
         #######
         nombre = html.unescape(nombre)
         nombre = nombre.lower()
-        tipo   = url.tipo 
-        debug_nombre('1.- Inicio: '+ nombre, debug)
         #######
 
         nombre                  = reemplaza_palabras(nombre)
-        nombre, newmarca_str    = obtener_marca(nombre, newmarca_str)
+        nombre                  = remove_duplicates(nombre)
         nombre                  = separate_numbers_from_text(nombre)
+        nombre                  = separaNumerosDeTextos(nombre)
+        nombre                  = replace_comma_in_degrees(nombre)
+        if not nombre:
+            articulos_nombre_vacio = articulos_nombre_vacio + 1
+            ## Si no hay nombre, loop
+            continue
+
+        nombre                  = nombre.replace(' de ',' ')
+        nombre                  = remove_dollar_sign_and_following(nombre)
         
+        inutiles, nombre        = remueveYGuardaSinSplit(PALABRAS_INUTILES, nombre, remover=True, todos=True)
+        agregar_sufijos, nombre = remueveYGuarda(SUJIFOS_NOMBRE, nombre, " ", remover=True, todos=True)
+        
+        nombre, newmarca_str    = obtener_marca(nombre, newmarca_str)
+
         if Marcas.objects.filter(nombre=newmarca_str).exists():
             newmarca = Marcas.objects.filter(nombre=newmarca_str).get()
             # or not newmarca_str:
@@ -703,94 +738,98 @@ def create_prods(
             articulos_marca_vacio = articulos_marca_vacio + 1
             continue
 
-        nombre = remove_duplicates(nombre)
-        
         ## Fix marca in URL
         if url.marca != newmarca_str:
             url.marca = newmarca_str
             url.save()
-        
-        if url.nombre != nombre:
-            url.nombre = nombre
-            url.save()
 
-        #### Separa numeros de textos ##########################
-        res = get_palabras_con_numychar(nombre)
-        for palabra in res:
-            palas = re.split('([A-Za-z]+[\d@]+[\w@]*|[\d@]+[A-Za-z]+[\w@]*)', palabra.strip())
-            reemplaza_con = ''
-            for pa in palas:
-                if pa != '':
-                    if len(get_palabras_con_numychar(pa)) > 0 :
-                        digitos = re.split('(\d+)', pa.strip())
-                        for digito in digitos:
-                            if digito != '':
-                                reemplaza_con = reemplaza_con + digito + ' '
-                    else:
-                        reemplaza_con = reemplaza_con + pa 
+        ## Quito precio entre parentesis
+        nombre                  = re.sub(r'\(\$.*? c/u\)', '', nombre).strip()
 
-            nombre = nombre.replace(palabra, reemplaza_con) 
-        #### FIN Separa numeros de textos ##########################
+        # if url.nombre != nombre:
+        #     url.nombre = nombre
+        #     url.save()
 
-        otras_marcas = get_marcas_que_me_apuntan(newmarca)
-        
         ### Elimino marca que esta dentro del nombre    
-        nombre      = nombre.replace(newmarca.nombre, '')
-        nombre      = nombre.replace('  ', ' ')
-        nombre      = nombre.strip()
-        otras_inutiles, nombre = remueveYGuardaSinSplit(otras_marcas, nombre, remover=True, todos=True)
+        nombre                  = nombre.replace(newmarca.nombre, '')
+        otras_marcas            = get_marcas_que_me_apuntan(newmarca)
+        otras_inutiles, nombre  = remueveYGuardaSinSplit(otras_marcas, nombre, remover=True, todos=True)
+        nombre                  = nombre.replace('  ', ' ')
+        nombre                  = nombre.strip()
         ### FIN Elimino marca que esta dentro del nombre 
-
-
-        nombre = replace_comma_in_degrees(nombre)
+       
         
         # 4.2 dimension
         dimension, nombre = extract_and_remove_weight_range_updated(nombre)
 
         ###----------------------------
         words = nltk.word_tokenize(nombre)
-        # print('3->', words)
         words = normalize(words)
-        # print('4->', words)
         nombre = ' '.join(words)
         ###----------------------------
+        
+        if site.pk in ean_13_site_ids and url.idproducto:
+            ean_13 = url.idproducto
+            ean_13 = ean_13.rstrip()
+            ean_13 = ean_13.lstrip()
+            ean_13 = ean_13.replace('[','')
+            ean_13 = ean_13.replace('}','')
+            if "'" in ean_13:
+                ean_13 = ean_13.replace("'","")
+            if '-' in ean_13:
+                ean_arr = ean_13.split('-')
+                ean_13 = ean_arr[0]
+            if 'x' in ean_13:
+                ean_arr = ean_13.split('x')
+                ean_13 = ean_arr[0]
+                if unidades == 1:
+                    unidades = int(ean_arr[1])
+            try:
+                ean_13_int = int(ean_13)
+                ean_13 = str(ean_13_int)
+                if len(ean_13) <= 7:
+                    ean_13 = None
+            except ValueError as e:
+                # print('Problemas con ean_13 ', ean_13)
+                ean_13 = None
+            
+        else:
+            ean_13 = None
 
         ## 1.4 Remueve colores
         color, nombre = remueveYGuarda(COLORES, nombre, " ", remover=True, todos=True)
         color = color.replace(',', '')
         
-        # # 1.5 rremueve todos los ', 1 Un'
-        inutiles, nombre = remueveYGuardaSinSplit(PALABRAS_INUTILES, nombre, remover=True, todos=True)
-        
-        ## Quito precio entre parentesis
-        nombre = re.sub(r'\(\$.*? c/u\)', '', nombre).strip()
-
         # 2.2 mueve envases
         envase, nombre = remueveYGuarda(ENVASES, nombre, " ", remover=True, todos=True)
-        debug_nombre('4.- Envase: '+envase, debug)
+        nombre      =  nombre.rstrip()            
+        if envase == "":
+            envase, nombre = remueveYGuarda(ENVASES, nombre, " ", remover=True)
+           
+        if envase == "" and descripcion:        ## Si envase continua vacio, es posible que el envase este en el campo descripcion
+            envase, descripcion_modificada = remueveYGuarda(ENVASES, descripcion, " ", remover=True)
 
-        ## Quito DE
-        nombre =  nombre.replace(' de ',' ')
-        
+        envase = envase.replace(',','')
+
+        # if newmarca.numero:
+
         if newmarca.grados:
             busquedas = [
                 r'(\d+([.,]\d+)?)\s*(%|grados?|°?g|°)',
-                r'(\d+([.,]\d+)?)\s*(g|gr)\b'
-                # r'(\d+(\.\d+)?)\s*(?:grados?|°|\%)',
-                # r'(\d+(\.\d+)?)\s*g\s*[^r]',  # Para manejar casos como "40 g" pero no "80 gr"
+                r'(\d+([.,]\d+)?)\s*(g|gr)\b',
+                r'(\d+\.?\d*)\s*°'
             ]
             nombre,  grados = obtener_grados(nombre, busquedas)
+            if not grados:
+                nombre,  grados = obtener_grados_alcohol(nombre)
         else:
             busquedas = [
-                # r'(\d+([.,]\d+)?)\s*(%|grados?|°?g|°)',
                 r'(\d+(\.\d+)?)\s*g\s*[^r]',  # Para manejar casos como "40 g" pero no "80 gr"
             ]
             nombre,  grados = obtener_grados(nombre, busquedas)
         
-        ## 4 Retiro de sufijos como 'Aprox' 
-        agregar_sufijos, nombre = remueveYGuarda(SUJIFOS_NOMBRE, nombre, " ", remover=True, todos=True)
 
-        ## Nuevamente se buscan tallas:
+        ## se buscan tallas:
         if talla == '' and newmarca.talla:
             busquedas = [ 'xxg', 'xg', 'rn', 'xg', 'prematuro', 'g', 'm', 'p',]
             talla, nombre = obtener_talla(nombre, TALLAS, busquedas)
@@ -799,55 +838,38 @@ def create_prods(
         if medida_cant == 0:
             nombre, medida_cant, medida_um = get_unidadMedida(nombre, UMEDIDAS)
         
-
-        ## Packs y Sets
-        debug_nombre('8.- Quita Pack: ', debug)
-        
-        arr_nombre = nombre.split(" ")
-        for palabra in arr_nombre:
-            if palabra in PACKS :
-                busca = palabra + '.([0-9]+)'
-                retorna, nombre = pack_search(nombre,busca)
-                if retorna:
-                    nombre = nombre.replace('un. ','')
-                    nombre = nombre.replace('unidades ','')
-                    if unidades == 1 :
-                        unidades = retorna
-
-                    break
-
-        # 4.2 Unidades
-        
-        
         if unidades == 1:
-            nombre, unidades = get_unidades2(nombre, unidades)
+            unidades, nombre = obtener_unidades(nombre)
 
-        if unidades == 1:
-            nombre, unidades = get_unidades(nombre, UNIDADES)
-            unidades = float(unidades) * float(cantidad)
-            cantidad = 1
+        # ## Packs y Sets
+        # arr_nombre = nombre.split(" ")
+        # for palabra in arr_nombre:
+        #     if palabra in PACKS :
+        #         busca = palabra + '.([0-9]+)'
+        #         retorna, nombre = pack_search(nombre,busca)
+        #         if retorna:
+        #             nombre = nombre.replace('un. ','')
+        #             nombre = nombre.replace('unidades ','')
+        #             if unidades == 1 :
+        #                 unidades = retorna
 
-            nombre      =  nombre.strip()
-            if unidades == 1 and nombre.endswith('x'):
-                busca = '.([0-9]+).x'
-                retorna, nombre = pack_search(nombre,busca)
-                if retorna:
-                    unidades = retorna
+        #             break
 
-        debug_nombre('71.- Quitar Unidades: '+ str(unidades), debug)
-        
-        # 2.2 mueve envases NUEVAMENTE
-        nombre      =  nombre.rstrip()            
-        if envase == "":
-            envase, nombre = remueveYGuarda(ENVASES, nombre, " ", remover=True)
-            envase = envase.replace(',','')
-            
-        if envase == "" and descripcion:        ## Si envase continua vacio, es posible que el envase este en el campo descripcion
-            envase, descripcion_modificada = remueveYGuarda(ENVASES, descripcion, " ", remover=True)
-            envase = envase.replace(',','')
+        # # 4.2 Unidades
+        # if unidades == 1:
+        #     nombre, unidades = get_unidades2(nombre, unidades)
 
-                
-        nombre      = nombre + ' ' +  agregar_sufijos 
+        # if unidades == 1:
+        #     nombre, unidades = get_unidades(nombre, UNIDADES)
+        #     unidades = float(unidades) * float(cantidad)
+        #     cantidad = 1
+
+        #     nombre      =  nombre.strip()
+        #     if unidades == 1 and nombre.endswith('x'):
+        #         busca = '.([0-9]+).x'
+        #         retorna, nombre = pack_search(nombre,busca)
+        #         if retorna:
+        #             unidades = retorna
         
         nombre = nombre.strip(" ")
         if len(nombre)  > 1:
@@ -876,10 +898,10 @@ def create_prods(
         if nombre.startswith("- "):
             nombre =  nombre.replace('- ','')
 
-        nombre =  remove_dollar_sign_and_following(nombre)
-        nombre =  nombre.replace('.',' ')
+        
+        # nombre =  nombre.replace('.',' ')
         nombre =  nombre.replace(',',' ')
-        envase =  envase.replace(',',' ')
+        
 
         nombre      = nombre.strip()
         medida_um   = medida_um.strip()
@@ -890,33 +912,7 @@ def create_prods(
 
         debug_nombre('20.- FINAL: '+ nombre, debug)
 
-        if site.pk in ean_13_site_ids and url.idproducto:
-            ean_13 = url.idproducto
-            ean_13 = ean_13.rstrip()
-            ean_13 = ean_13.lstrip()
-            ean_13 = ean_13.replace('[','')
-            ean_13 = ean_13.replace('}','')
-            if "'" in ean_13:
-                ean_13 = ean_13.replace("'","")
-            if '-' in ean_13:
-                ean_arr = ean_13.split('-')
-                ean_13 = ean_arr[0]
-            if 'x' in ean_13:
-                ean_arr = ean_13.split('x')
-                ean_13 = ean_arr[0]
-                if unidades == 1:
-                    unidades = int(ean_arr[1])
-            try:
-                ean_13_int = int(ean_13)
-                ean_13 = str(ean_13_int)
-                if len(ean_13) <= 7:
-                    ean_13 = None
-            except ValueError as e:
-                # print('Problemas con ean_13 ', ean_13)
-                ean_13 = None
-            
-        else:
-            ean_13 = None
+
         
         ###########################################################
         ## 2do cambio hecho, se hace reemplazo de frases o palabras
@@ -931,23 +927,20 @@ def create_prods(
                 busquedas = [
                     r'(\d+([.,]\d+)?)\s*(%|grados?|°?g|°)',
                     r'(\d+([.,]\d+)?)\s*(g|gr)\b'
-                    # r'(\d+(\.\d+)?)\s*(?:grados?|°|\%)',
-                    # r'(\d+(\.\d+)?)\s*g\s*[^r]',  # Para manejar casos como "40 g" pero no "80 gr"
                 ]
                 nombre,  grados = obtener_grados(nombre, busquedas)
             else:
                 busquedas = [
-                    # r'(\d+([.,]\d+)?)\s*(%|grados?|°?g|°)',
                     r'(\d+(\.\d+)?)\s*g\s*[^r]',  # Para manejar casos como "40 g" pero no "80 gr"
                 ]
                 nombre,  grados = obtener_grados(nombre, busquedas)
             
 
-        if unidades == 1:
-            nombre = nombre.strip()
-            retorna, nombre = pack_search(nombre, '\d+$')
-            if retorna:
-                unidades = int(retorna)
+        # if unidades == 1:
+        #     nombre = nombre.strip()
+        #     retorna, nombre = pack_search(nombre, '\d+$')
+        #     if retorna:
+        #         unidades = int(retorna)
 
         #### Some fixes
         if unidades > 100 and unidades < 2000 and medida_cant ==0 and (envase == 'botella' or envase == 'lata'):
@@ -991,6 +984,8 @@ def create_prods(
 
         if not grados:
             grados = float(0)
+
+        nombre      = nombre + ' ' +  agregar_sufijos 
 
         ### Revisiones
         reglas      = []
@@ -1238,21 +1233,21 @@ def pack_search(en_que_texto, que_busco):
     
 
     ## saco annios
-    nombre =  nombre.replace(' 2006','')
-    nombre =  nombre.replace(' 2012','')
-    nombre =  nombre.replace(' 2013','')
-    nombre =  nombre.replace(' 2014','')
-    nombre =  nombre.replace(' 2015','')
-    nombre =  nombre.replace(' 2016','')
-    nombre =  nombre.replace(' 2017','')
-    nombre =  nombre.replace(' 2018','')
-    nombre =  nombre.replace(' 2019','')
-    nombre =  nombre.replace(' 2020','')
-    nombre =  nombre.replace(' 2021','')
-    nombre =  nombre.replace('ml',' ml')
-    nombre =  nombre.replace(',','.')
+    # nombre =  nombre.replace(' 2006','')
+    # nombre =  nombre.replace(' 2012','')
+    # nombre =  nombre.replace(' 2013','')
+    # nombre =  nombre.replace(' 2014','')
+    # nombre =  nombre.replace(' 2015','')
+    # nombre =  nombre.replace(' 2016','')
+    # nombre =  nombre.replace(' 2017','')
+    # nombre =  nombre.replace(' 2018','')
+    # nombre =  nombre.replace(' 2019','')
+    # nombre =  nombre.replace(' 2020','')
+    # nombre =  nombre.replace(' 2021','')
+    # nombre =  nombre.replace('ml',' ml')
+    # nombre =  nombre.replace(',','.')
 
-    return nombre
+    # return nombre
 
 
 def getMarca(en_que_texto, que_sitio, campoMarcaObj, listamarcas, sin_marca, debug):
@@ -1440,10 +1435,20 @@ def remueveYGuardaSinSplit( OBJETO, en_que_texto, remover=False, todos=False):
         if salir:
             break
             
-    en_que_texto        = en_que_texto.rstrip()
+    en_que_texto        = en_que_texto.strip()
     devuelve_palabra    = devuelve_palabra.strip()
 
     return devuelve_palabra, en_que_texto
+
+# Función para obtener los grados de alcohol
+def obtener_grados_alcohol(nombre):
+    resultado = re.search(r'(\d+\.?\d*)\s*°', nombre)
+    if resultado:
+        grados = resultado.group(1)
+        nombre = nombre.replace(grados,'')
+        grados = float(grados)
+        return nombre, grados
+    return nombre, None
 
 def obtener_grados(text, busquedas):
     # regex = r'(\d+([.,]\d+)?)\s*(%|grados?|°?g|°)'
@@ -1631,7 +1636,7 @@ def remueveYGuarda(OBJETO, en_que_texto, split_por, remover=False, todos=False):
         if salir:
             break
 
-    en_que_texto = en_que_texto.rstrip()
+    en_que_texto = en_que_texto.strip()
 
     return devuelve_palabra, en_que_texto
 

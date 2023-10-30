@@ -214,10 +214,11 @@ def extract_list_details(ld_json):
     # Recorrer la lista y extraer la información relevante
     for itema in item_list:
         position = itema['position']
-        name = itema['name']
         try:
+            name = itema['name']
             item_url = itema['item']
         except:
+            name = ''
             item_url = ''
         extracted_data.append({'position': position, 'name': name, 'item': item_url})
 

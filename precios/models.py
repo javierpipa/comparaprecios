@@ -770,8 +770,6 @@ class Articulos(ModelMeta, models.Model):
 
     @property
     def sd(self):
-        
-
         return {
             "@type": 'Product',
             "name": self.titulo,
@@ -1015,7 +1013,6 @@ class Unifica(models.Model):
         ]
 
 
-
 ### Almacen de resultados
 class SiteURLResults(models.Model):
     """
@@ -1127,38 +1124,80 @@ class SiteURLResults(models.Model):
 
         ### Busco Marca
         if not self.marca and self.nombre != '' and not self.error404:
-            temp = self.nombre.split()
-            for palabra_busco in temp:
-                for posible_marca in Marcas.objects.filter(nombre=palabra_busco, es_marca=True).values_list('nombre', flat=True).all():
-                    self.marca = posible_marca
-                    self.nombre = self.nombre.replace(posible_marca, '')
-                    print(f'1- reemplaza aca marca que llega= {self.marca}')
-                    break
+            nombre = self.nombre.strip()
+            marca = ''
+            ## Revisamos si la marca enviada existe
+            if Marcas.objects.filter(nombre=marca).exists():
+                ## Puede ser marca habilitada o no, veamos:
+                if Marcas.objects.filter(es_marca=True, nombre=marca).exists():    
+                    posible_marca = Marcas.objects.filter(es_marca=True, nombre=marca).values_list('nombre', flat=True).get()
+                    self.nombre = nombre.replace(posible_marca, '').strip()
+                    self.marca = marca
+                else:
+                    ## Marca no esta habilitada:
+                    marca_obj = Marcas.objects.filter(es_marca=False, nombre=marca).get()
+                    if Unifica.objects.filter(si_marca=marca_obj, si_nombre=None, si_grados2=float(0), si_medida_cant=float(0), si_unidades=1,  automatico=False ).exists():
+                        unifica_obj = Unifica.objects.filter(si_marca=marca_obj, si_nombre=None, si_grados2=float(0), si_medida_cant=float(0), si_unidades=1, automatico=False).first()
+                        if unifica_obj:
+                            self.marca = unifica_obj.entonces_marca.nombre
+                            self.nombre = nombre.replace(marca, '').strip()
 
-        if not self.marca and self.nombre != '' and not self.error404:
-            for posible_marca in Marcas.objects.filter(es_marca=True).values_list('nombre', flat=True).all():
-                if ( ' ' + posible_marca +' ' in self.nombre ) :
-                    self.marca = posible_marca
-                    self.nombre = self.nombre.replace(posible_marca, '')
-                    print(f'2- reemplaza aca marca que llega= {self.marca}')
-                    break
-
-        if not self.marca and self.nombre != '' and not self.error404:
-            for posible_marca in Marcas.objects.filter(es_marca=True).values_list('nombre', flat=True).all():
-                if (  posible_marca  in self.nombre ) :
-                    self.marca = posible_marca
-                    self.nombre = self.nombre.replace(posible_marca, '')
-                    print(f'3- reemplaza aca marca que llega= {self.marca}')
-                    break
-
-        if not Marcas.objects.filter(nombre__iexact=self.marca, es_marca=True).exists() and not self.marca and self.idproducto:
-            if self.site.es_ean13 and Articulos.objects.filter(ean_13 = self.idproducto).exclude(marca__es_marca = False).exists():
-                print(f'4- SiteURLResults: Utiliza la marca de un articulo con mismo ean_13 ean_13={self.idproducto} marca={self.marca}')
-                art = Articulos.objects.filter(ean_13 = self.idproducto).exclude(marca__es_marca = False).values_list('marca__nombre', flat=True).first()
-                self.marca = art
             else:
-                print('SiteURLResults: limpia marca pues no existe')
-                self.marca = ''
+                # Si la marca no existe, busco en todas las marcas habilitadas si estuviera en el nombre
+                
+                palabras = (nombre + ' ' + marca).split(' ')
+                for palabra in palabras:
+                    if Marcas.objects.filter(nombre=palabra, es_marca=True).values_list('nombre', flat=True).exists():
+                        self.marca = palabra
+                        self.nombre = nombre.replace(marca, '').strip()
+                
+                ## Finalmente la marca no existe, se crea
+                if marca !='' and len(marca) >= 2:
+                    print(f'Marca no existe =|{marca}| creando Marca')
+                    marca_obj = Marcas(
+                        nombre=marca,
+                        es_marca=False,
+                        grados=False,
+                        talla=False
+                    )
+                    marca_obj.save()
+                    self.marca = marca
+                    self.nombre = nombre.replace(marca, '').strip()
+                else:
+                    self.marca = None
+            
+        #     temp = self.nombre.split()
+        #     for palabra_busco in temp:
+        #         for posible_marca in Marcas.objects.filter(nombre=palabra_busco, es_marca=True).values_list('nombre', flat=True).all():
+        #             self.marca = posible_marca
+        #             self.nombre = self.nombre.replace(posible_marca, '')
+        #             print(f'1- reemplaza aca marca que llega= {self.marca}')
+        #             break
+
+        # if not self.marca and self.nombre != '' and not self.error404:
+        #     for posible_marca in Marcas.objects.filter(es_marca=True).values_list('nombre', flat=True).all():
+        #         if ( ' ' + posible_marca +' ' in self.nombre ) :
+        #             self.marca = posible_marca
+        #             self.nombre = self.nombre.replace(posible_marca, '')
+        #             print(f'2- reemplaza aca marca que llega= {self.marca}')
+        #             break
+
+        # if not self.marca and self.nombre != '' and not self.error404:
+        #     for posible_marca in Marcas.objects.filter(es_marca=True).values_list('nombre', flat=True).all():
+        #         if (  posible_marca  in self.nombre ) :
+        #             self.marca = posible_marca
+        #             self.nombre = self.nombre.replace(posible_marca, '')
+        #             print(f'3- reemplaza aca marca que llega= {self.marca}')
+        #             break
+
+        # if not Marcas.objects.filter(nombre__iexact=self.marca, es_marca=True).exists() and not self.marca and self.idproducto:
+        #     if self.site.es_ean13 and Articulos.objects.filter(ean_13 = self.idproducto).exclude(marca__es_marca = False).exists():
+        #         print(f'4- SiteURLResults: Utiliza la marca de un articulo con mismo ean_13 ean_13={self.idproducto} marca={self.marca}')
+        #         art = Articulos.objects.filter(ean_13 = self.idproducto).exclude(marca__es_marca = False).values_list('marca__nombre', flat=True).first()
+        #         self.marca = art
+        #     else:
+        #         print('SiteURLResults: limpia marca pues no existe')
+        #         self.marca = ''
 
         super(SiteURLResults, self).save(*args, **kwargs)
         if not existe_historico:

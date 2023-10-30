@@ -39,6 +39,58 @@ from selenium.common.exceptions import ElementNotInteractableException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select, WebDriverWait
 
+def obtener_marca(nombre, marca):
+    
+    nombre = nombre.strip()
+    marca = marca.strip()
+    ## Revisamos si la marca enviada existe
+    if Marcas.objects.filter(nombre=marca).exists():
+        ## Puede ser marca habilitada o no, veamos:
+        if Marcas.objects.filter(es_marca=True, nombre=marca).exists():    
+            posible_marca = Marcas.objects.filter(es_marca=True, nombre=marca).values_list('nombre', flat=True).get()
+            nombre = nombre.replace(posible_marca, '').strip()
+            return nombre, marca
+        else:
+            ## Marca no esta habilitada:
+            marca_obj = Marcas.objects.filter(es_marca=False, nombre=marca).get()
+            if Unifica.objects.filter(si_marca=marca_obj, si_nombre=None, si_grados2=float(0), si_medida_cant=float(0), si_unidades=1,  automatico=False ).exists():
+                unifica_obj = Unifica.objects.filter(si_marca=marca_obj, si_nombre=None, si_grados2=float(0), si_medida_cant=float(0), si_unidades=1, automatico=False).first()
+                if unifica_obj:
+                    marca = unifica_obj.entonces_marca.nombre
+                    nombre = nombre.replace(marca, '').strip()
+                    return nombre, marca
+    
+    else:
+        # Si la marca no existe, busco en todas las marcas habilitadas si estuviera en el nombre
+        
+        palabras = (nombre + ' ' + marca).split(' ')
+        for palabra in palabras:
+            if Marcas.objects.filter(nombre=palabra, es_marca=True).values_list('nombre', flat=True).exists():
+                marca = palabra
+                nombre = nombre.replace(marca, '').strip()
+                return nombre, marca
+            
+        
+        ## Finalmente la marca no existe, se crea
+        if marca !='' and len(marca) >= 2:
+            print(f'Marca no existe =|{marca}| creando Marca')
+            marca_obj = Marcas(
+                nombre=marca,
+                es_marca=False,
+                grados=False,
+                talla=False
+            )
+            marca_obj.save()
+            marca = marca
+            nombre = nombre.replace(marca, '').strip()
+        else:
+            marca = None
+
+
+
+    return nombre, marca
+
+
 def getMessage():
     return Settings.objects.get(key='MSG-actualiza-articulos').value
 
