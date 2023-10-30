@@ -52,99 +52,61 @@
                           <thead class="bg-light">
                               <tr>
                                   <!-- ## Sitio ## -->
-  
                                   <th>Nombre</th>
-                                  <th class="d-none d-md-table-cell">Search w.</th>
-                                  
-                                 
+                                  <th class="d-none d-sm-table-cell">Search<br/>with</th>
+                                   
                                   <!-- URLs  -->
                                   <th class="d-none d-sm-table-cell">Despachos</th>
-                                  <th class="d-none d-sm-table-cell">URL 404</th>
-                                  <th>Ok</th>
+                                  <th class="d-none d-sm-table-cell">URL<br/> 404</th>
+                                  <th>URL Ok</th>
   
                                   <!-- Resultados  -->
                                   <th >Nombres</th>
                                   <th class="d-none d-sm-table-cell">% de URL</th>
-                                  <th class="d-none d-sm-table-cell">Get Avg (s)</th>
+                                  
                                   <th class="d-none d-sm-table-cell">Marcas</th>
                                   <th class="d-none d-sm-table-cell">Imagen</th>
                                   <th class="d-none d-sm-table-cell">Precios</th>
                                   <th class="d-none d-sm-table-cell">Antiguos</th>
-                                  <th class="d-none d-sm-table-cell">Articulos<br/> Creados</th>
-                                  
-                                          
+                                  <th class="d-sm-table-cell">Articulos<br/> Creados</th>
                               </tr>
                           </thead>
                           <tbody>
                               {% for row in context %}
                               <tr>
   
-                                  <td colspan="1" class="bg-light" scope="row">
-                                      {{ row.id }}:
-                                      <a href="{%url 'precios:supermercado' row.id %}">
-                                          {{ row.name }}
-                                      </a>
-                                  </th>
-                                  <td class="d-none d-md-table-cell">
-                                      {{ row.crawler }}
-                                  </td>
-                                 
+                                  <td class="bg-light" scope="row">{{ row.id }}: <a href="{%url 'precios:supermercado' row.id %}">{{ row.name }}</a></td>
+                                  <td class="d-none d-md-table-cell">{{ row.crawler }}</td>
                                   
                                   <!-- URLs  -->
-                                  <td class="d-sm-table-cell text-right">
-                                       <!-- row.URLS|intcomma  -->
-                                      {{ row.areasDespacho }}
-                                  </td>
-                                  <td class="d-none d-sm-table-cell text-right">
-                                      {{ row.urls404|intcomma }}
-                                  </td>
+                                  <td class="d-none d-sm-table-cell" >{{ row.areasDespacho }}</td>
+                                  <td class="d-none d-sm-table-cell" >{{ row.urls404|intcomma }}</td>
                                   <td class="text-right">{{ row.sin404|intcomma }}</td>
   
                                   <!-- Resultados  -->
-                                  <td class="text-right">
-                                      <b>{{ row.ReCampoNombre|intcomma }} </b>
-                                  </td>
+                                  <td class="text-right"><b>{{ row.ReCampoNombre|intcomma }} </b></td>
   
-                                      {% if row.ReCampoNombrePercent <= 50 %}
-                                          <td style="background-color: pink;" class="d-none d-sm-table-cell text-right">
-                                      {% else %}
-                                          <td class="d-none d-sm-table-cell text-right">
-                                      {% endif %}
-  
-                                      {{ row.ReCampoNombrePercent|floatformat:2|intcomma }} %
-                                      
-                                  </td>
-                                  <td class="d-none d-sm-table-cell text-right">
-                                      {{ row.ReSeconds.average_time|floatformat:2|intcomma }}
-                                  </td >
-                                      {% if row.ReCampoMarcaPrc <= 50 %}
-                                          <td style="background-color: pink;" class="d-none d-sm-table-cell text-right">
-                                      {% else %}
-                                          <td class="d-none d-sm-table-cell text-right">
-                                      {% endif %}
-                                      <!-- {{ row.ReCampoMarca|intcomma }}  -->
-                                      {{row.ReCampoMarcaPrc|floatformat:2|intcomma}} %
-                                  </td>
-                                      {% if row.ReCampoImagenPrc <= 50 %}
-                                          <td style="background-color: pink;" class="d-none d-sm-table-cell text-right">
-                                      {% else %}
-                                          <td class="d-none d-sm-table-cell text-right">
-                                      {% endif %}
-                                      <!-- row.ReCampoImagen|intcomma  -->
-                                      {{row.ReCampoImagenPrc|floatformat:2|intcomma}} %
-                                  </td>
-                                  <td class="d-none d-sm-table-cell text-right">
-                                      <!-- row.ReCampoPrecio|intcomma  -->
-                                      {{row.ReCampoPrecioPrc|floatformat:2|intcomma}} %
-                                  </td>
-                                  <td class="d-none d-sm-table-cell text-right">
-                                      {{ row.ReCampoPrecioNotUpdt|intcomma }}
-                                  </td>
-                                  <td class="d-none d-sm-table-cell text-right">
-                                      {{ row.vendedores|intcomma }}
-                                  </td>
-                                     
-  
+                                {% if row.ReCampoNombrePercent <= 50 %}
+                                    <td class="d-none d-sm-table-cell" style="background-color: pink;" > {{ row.ReCampoNombrePercent|floatformat:2|intcomma }} % </td>
+                                {% else %}
+                                    <td class="d-none d-sm-table-cell "> {{ row.ReCampoNombrePercent|floatformat:2|intcomma }} % </td>
+                                {% endif %}
+
+                                    {% if row.ReCampoMarcaPrc <= 50 %}
+                                        <td style="background-color: pink;" class="d-none d-sm-table-cell ">{{row.ReCampoMarcaPrc|floatformat:2|intcomma}} %</td>
+                                    {% else %}
+                                        <td class="d-none d-sm-table-cell ">{{row.ReCampoMarcaPrc|floatformat:2|intcomma}} %</td>
+                                    {% endif %}
+                                    
+                                    {% if row.ReCampoImagenPrc <= 50 %}
+                                        <td style="background-color: pink;" class="d-none d-sm-table-cell ">{{row.ReCampoImagenPrc|floatformat:2|intcomma}} % </td>
+                                    {% else %}
+                                        <td class="d-none d-sm-table-cell">{{row.ReCampoImagenPrc|floatformat:2|intcomma}} % </td>
+                                    {% endif %}
+                                    
+                                  <td class="d-none d-sm-table-cell">{{row.ReCampoPrecioPrc|floatformat:2|intcomma}} %</td>
+                                  <td class="d-none d-sm-table-cell">{{ row.ReCampoPrecioNotUpdt|intcomma }}</td>
+                                  <td class="d-sm-table-cell">{{ row.vendedores|intcomma }}</td>
                                   
                               </tr>
   
@@ -152,27 +114,28 @@
                           </tbody>
                           <tfooter>
                             <tr>
-                                <th colspan="2">Sitios: {{ context|length }}</th>
+                                <th colspan="1">Sitios: {{ context|length }}</th>
                                   {% for row in resumen %}
-                                      <th  class="d-sm-table-cell text-right">{{row.suma_url|intcomma}}</th>
-                                      <th  class="d-none d-sm-table-cell text-right">{{row.suma_url404|intcomma}}</th>
+                                      <th  class="d-sm-table-cell">{{row.suma_url|intcomma}}</th>
+                                      <th  class="d-none d-sm-table-cell"></th>
+                                      <th  class="d-none d-sm-table-cell">{{row.suma_url404|intcomma}}</th>
                                       <th  class="text-right">{{ row.suma_sin404|intcomma }}</th>
   
                                       <th  class="text-right">{{row.suma_nombres|intcomma}}</th>
-                                      <th  class="d-none d-sm-table-cell text-right">{{ row.sumaNombrePercent|floatformat:2|intcomma }} %</th>
+                                      <th  class="d-none d-sm-table-cell">{{ row.sumaNombrePercent|floatformat:2|intcomma }} %</th>
                                       <th  class="d-none d-sm-table-cell"></th>
-                                      <th  class="d-none d-sm-table-cell text-right">{{row.suma_marca|intcomma}}</th>
-                                      <th  class="d-none d-sm-table-cell"></th>
-                                      <th  class="d-none d-sm-table-cell text-right">{{row.suma_precio|intcomma}}</th>
+                                      <th  class="d-none d-sm-table-cell">{{row.suma_marca|intcomma}}</th>
                                       
-                                      <th  class="d-none d-sm-table-cell text-right">{{row.suma_prercioNotUpdt|intcomma}}</th>
-                                      <th  class="d-none d-sm-table-cell text-right">{{row.suma_vendedores|intcomma}}</th>
+                                      <th  class="d-none d-sm-table-cell">{{row.suma_precio|intcomma}}</th>
+                                      
+                                      <th  class="d-none d-sm-table-cell">{{row.suma_prercioNotUpdt|intcomma}}</th>
+                                      <th  class="d-sm-table-cell">{{row.suma_vendedores|intcomma}}</th>
                                   {% endfor %}
                             </tr>
                             <tr>
-                                <th colspan="2">Total Articulos</th>
+                                <th colspan="1">Total Articulos</th>
                                 {% for row in resumen %}
-                                    <th  class="d-none d-sm-table-cell text-right">{{row.suma_articulos|intcomma}}</th>
+                                    <th  class="d-sm-table-cell">{{row.suma_articulos|intcomma}}</th>
                                 {% endfor %}
                             </tr>
                       
