@@ -42,7 +42,10 @@ from selenium.webdriver.support.ui import Select, WebDriverWait
 def obtener_marca(nombre, marca):
     
     nombre = nombre.strip()
-    marca = marca.strip()
+    if marca:
+        marca = marca.strip()
+    else:
+        marca = ''
     ## Revisamos si la marca enviada existe
     if Marcas.objects.filter(nombre=marca).exists():
         ## Puede ser marca habilitada o no, veamos:

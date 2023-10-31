@@ -632,6 +632,7 @@ def obtener_unidades(nombre):
         r'(\d+\s*unid)',
         r'(\d+\s*uds)',
         r'(\d+\s*un)',
+        r'(\d+\s*u)',
         r'(\d+)\s*x\s*',
         r'\s*[^\S\n\t]+x\s*(\d+)',
         r'^\d{1,2}',
