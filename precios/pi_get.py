@@ -288,9 +288,7 @@ def url_get(browser,
         laurl.tags.clear()
         if ld_response_bread:
             for item in ld_response_bread:
-                
                 if len(ld_response_bread) == int(item['position']):
-                    print(f"Largo={len(ld_response_bread)} posicion={item['position']}")
                     laurl.tags.add(str(item['name']))
 
         if precio:

@@ -130,9 +130,6 @@ def check_pd(c,
                 otro_envase         = row02['lo__envase']
                 otro_ean_13         = row02['lo__ean_13']
                 otro_talla          = row02['lo__talla']
-                # print('1')
-                # if row02['r_nombre'] == 0 and  row0['r_nombre'] == 0:
-                        # print('3')
                 if  not is_vendedores_in(arr_quienes_vender, row02['quienesvenden']):
                     # print('4 Inicio')
                     if debug:        
@@ -184,14 +181,15 @@ def check_pd(c,
                         c.at[cuenta02,'r_talla'] = 1
                         c.at[cuenta02,'rule'] = 'ean talla 2'
 
-                    if len(otro_nombre) > len(este_nombre):
-                        c.at[cuenta0,'lo__nombre']  = otro_nombre
-                        c.at[cuenta0,'r_nombre'] = 1
-                        c.at[cuenta0,'rule'] = 'ean nombre 1'
-                    elif len(otro_nombre) < len(este_nombre):
-                        c.at[cuenta02,'lo__nombre']  = este_nombre
-                        c.at[cuenta02,'r_nombre'] = 1
-                        c.at[cuenta02,'rule'] = 'ean nombre 2'
+                    # if len(otro_nombre) > len(este_nombre):
+                    #     c.at[cuenta0,'lo__nombre']  = otro_nombre
+                    #     c.at[cuenta0,'r_nombre'] = 1
+                    #     c.at[cuenta0,'rule'] = 'ean nombre 1'
+                    # elif len(otro_nombre) < len(este_nombre):
+
+                    c.at[cuenta02,'lo__nombre']  = este_nombre
+                    c.at[cuenta02,'r_nombre'] = 1
+                    c.at[cuenta02,'rule'] = 'ean nombre 2'
 
                     c.at[cuenta02,'r_ean'] = 1
                     if c.at[cuenta02,'rule'] == '' :
@@ -580,8 +578,7 @@ def intenta_marca(marca_id, debug, nombre=None):
         print(tabulate(c, headers = 'keys', tablefmt = 'double_outline'))
 
     
-    # df_medida_cant_uno = get_value_counts_df(c, 'lo__medida_cant')
-    # c = check_medida_cant(c, df_medida_cant_uno, debug=debug)
+
 
     # cuenta = 0
     # while True:
@@ -591,8 +588,27 @@ def intenta_marca(marca_id, debug, nombre=None):
     #         break
 
     
+    grouped_ean = c.groupby([
+        'lo__ean_13', 
+    ])
+    list_of_processed_groups = []
+    for name, group in grouped_ean:
+        processed_group = check_pd(group, 
+                check_nombre=False, 
+                check_ean=True,
+                check_grados=False, 
+                check_medida_cant=False, 
+                check_envase=False, 
+                check_unidades=False,
+                check_talla=False,
+                fuz_level=93, 
+                debug=debug)
+        list_of_processed_groups.append(processed_group)
 
+    c = pd.concat(list_of_processed_groups, ignore_index=True)
     
+    # df_medida_cant_uno = get_value_counts_df(c, 'lo__medida_cant')
+    # c = check_medida_cant(c, df_medida_cant_uno, debug=debug)    
 
     ## Caso grados que haya solo 1 registro
     if debug:
@@ -665,18 +681,18 @@ def intenta_marca(marca_id, debug, nombre=None):
                      fuz_level=fuzl, 
                      debug=debug)
         
-        if debug:
-            print("Check- EAN")
-        c = check_pd(c, 
-                     check_nombre=False, 
-                     check_ean=True,            ## Cierto
-                     check_grados=False, 
-                     check_medida_cant=False, 
-                     check_envase=False, 
-                     check_unidades=False,
-                     check_talla=False,
-                     fuz_level=fuzl, 
-                     debug=debug)
+        # if debug:
+        #     print("Check- EAN")
+        # c = check_pd(c, 
+        #              check_nombre=False, 
+        #              check_ean=True,            ## Cierto
+        #              check_grados=False, 
+        #              check_medida_cant=False, 
+        #              check_envase=False, 
+        #              check_unidades=False,
+        #              check_talla=False,
+        #              fuz_level=fuzl, 
+        #              debug=debug)
 
         if debug:
             print("Check- Grados")
@@ -746,18 +762,10 @@ def intenta_marca(marca_id, debug, nombre=None):
                      )
     
     
-    # grouped_general = c.groupby([
-    #     'lo__medida_cant',
-    #     'lo__grados2',
-    #     'lo__envase',
-    #     'lo__talla'
-    # ])
-    # list_of_processed_groups = []
-    # for name, group in grouped_general:
-    #     processed_group = lkernel(group)
-    #     list_of_processed_groups.append(processed_group)
 
-    # c = pd.concat(list_of_processed_groups, ignore_index=True)
+    
+
+
 
 
     
@@ -1099,3 +1107,15 @@ def createRule(si_marca,
         
     
 ###############
+    # grouped_general = c.groupby([
+    #     'lo__medida_cant',
+    #     'lo__grados2',
+    #     'lo__envase',
+    #     'lo__talla'
+    # ])
+    # list_of_processed_groups = []
+    # for name, group in grouped_general:
+    #     processed_group = lkernel(group)
+    #     list_of_processed_groups.append(processed_group)
+
+    # c = pd.concat(list_of_processed_groups, ignore_index=True)
