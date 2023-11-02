@@ -195,7 +195,7 @@ def loadProductBeautifulSoup(sopa, como, que_busca, que_obtiene, metaopcion):
     #     print(f'*** como= {como} LoadProductBeautiful function Error: {str(e)}')
     #     retorna = str(e)[0:640]
     #     es_error  = True
-    print(que_busca, retorna)
+    # print(que_busca, retorna)
 
     return {"es_error": es_error, "valor":retorna}
 

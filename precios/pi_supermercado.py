@@ -202,7 +202,7 @@ def product_details_fromsoup(ld_json_tags, is_selenium=False):
         except Exception as e:
             print(f'Error en product_details_fromsoup ---> {str(e)} {ld_json_tags}')
     
-    print('llega aca')
+    
     return None
 
 def extract_list_details(ld_json):

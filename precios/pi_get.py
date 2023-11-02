@@ -946,7 +946,7 @@ def create_prods(
             paso_unidades = unidades 
             medida_cant = paso_unidades
             unidades = 1 
-        if unidades > 1000:
+        if unidades > 500:
             unidades = 1 
 
         if unidades == 1:
