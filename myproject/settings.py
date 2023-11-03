@@ -1,6 +1,6 @@
 import os
 import logging
-
+from django.utils.translation import gettext_lazy as _
 from pathlib import Path
 from django.conf import settings as django_settings
 from django.utils.translation import gettext_lazy as _
@@ -340,14 +340,17 @@ DATABASES = {
 
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'craw3_cms',
+        'NAME': 'craw4_cms',
         'USER': 'root',
         'PASSWORD': 'dbrootdevel',
         'HOST': 'localhost',
         'PORT': 3306,
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-            'charset': 'utf8mb4'
+            'charset': 'utf8mb4',
+        },
+        'TEST':{
+            'COLLATION': 'utf8mb4_bin',
         }
     },
 }
@@ -425,7 +428,7 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
 LANGUAGES = [
-    ('es', 'Spanish'),
+    ('es', _('Spanish')),
 ]
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
@@ -473,7 +476,7 @@ REST_FRAMEWORK = {
 }
 # LOGS
 # Define folder a usar
-log_folder = './log'
+log_folder = './logs'
 
 if not os.path.exists(log_folder):
     os.makedirs(log_folder)

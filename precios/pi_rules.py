@@ -139,8 +139,6 @@ def check_pd(c,
                         print(tabulate(df_matches, headers = 'keys', tablefmt = 'psql'))
                     
 
-                    ### Cual esta mal ??
-
                     c.at[cuenta02,'r_grados'] = 1
                     c.at[cuenta02,'lo__grados2']  = este_grados
                     c.at[cuenta02,'rule'] = 'ean grados 2'
@@ -154,8 +152,8 @@ def check_pd(c,
                     c.at[cuenta02,'rule'] = 'ean medida_cant 2'
 
                     if este_unidades != otro_unidades :
-                        if fuz_precio > 93:
-                            print(f'fuz_precio={fuz_precio}')
+                        print(f'fuz_precio={fuz_precio}')
+                        if fuz_precio > 73:
                             c.at[cuenta02,'lo__unidades']  = este_unidades    
 
                     c.at[cuenta02,'lo__talla']  = este_talla
@@ -171,7 +169,6 @@ def check_pd(c,
                         c.at[cuenta02,'rule'] = 'check_ean'
                     
                     c = add_vendedores(c, cuenta0, cuenta02)
-                    # print('4 Fin')
                     if debug:        
                         df_matches2 = c.loc[
                             (c['lo__ean_13']        == este_ean_13) 
@@ -556,293 +553,302 @@ def intenta_marca(marca_id, debug, nombre=None):
     if debug:
         print(tabulate(c, headers = 'keys', tablefmt = 'double_outline'))
 
+    # cuenta = 0
+    # while True:
+    #     print(cuenta)
+    #     cuenta = cuenta + 1
+    #     if cuenta > 100:
+    #         break
+
     grouped_ean = c.groupby(['lo__ean_13', ])
     list_of_processed_groups = []
     for name, group in grouped_ean:
-        group_sorted = group.sort_values(by=['cuantos_venden'], ascending=False)
-        if debug:
-            print('evaluo grupo', name)
-            print(tabulate(group_sorted, headers = 'keys', tablefmt = 'double_outline'))
-        processed_group = check_pd(group_sorted, 
-                check_nombre=False, 
-                check_ean=True,
-                check_grados=False, 
-                check_medida_cant=False, 
-                check_envase=False, 
-                check_unidades=False,
-                check_talla=False,
-                fuz_level=93, 
-                debug=debug)
-        list_of_processed_groups.append(processed_group)
+        if len(group) > 1:
+        
+            group_sorted = group.sort_values(by=['cuantos_venden'], ascending=False)
+            if debug:
+                print(f'Largo grupo={len(group)}')
+                print('evaluo grupo', name)
+                print(tabulate(group_sorted, headers = 'keys', tablefmt = 'double_outline'))
+            processed_group = check_pd(group_sorted, 
+                    check_nombre=False, 
+                    check_ean=True,
+                    check_grados=False, 
+                    check_medida_cant=False, 
+                    check_envase=False, 
+                    check_unidades=False,
+                    check_talla=False,
+                    fuz_level=93, 
+                    debug=debug)
+            list_of_processed_groups.append(processed_group)
+        else:
+            list_of_processed_groups.append(group)
 
     c = pd.concat(list_of_processed_groups, ignore_index=True)
     
-    # df_medida_cant_uno = get_value_counts_df(c, 'lo__medida_cant')
-    # c = check_medida_cant(c, df_medida_cant_uno, debug=debug)    
-
     
-    # #### Desde aca null
-    # ## Caso grados que haya solo 1 registro
-    # if debug:
-    #     print("######### Check Grados ###############")
+    #### Desde aca null
+    ## Caso grados que haya solo 1 registro
+    if debug:
+        print("######### Check Grados ###############")
 
-    # df_grados_uno = get_value_counts_df(c, 'lo__grados2')
-    # c = check_grados_func(c, df_grados_uno, debug=debug)
+    df_grados_uno = get_value_counts_df(c, 'lo__grados2')
+    c = check_grados_func(c, df_grados_uno, debug=debug)
     
     
-    # fuz_levels = (95,93 )
-    # for fuzl in fuz_levels:
-    #     ## Envase
-    #     c = check_pd(c, check_nombre=False, check_ean=False, check_grados=False, check_medida_cant=False, check_envase=True, check_unidades=False, check_talla=False, fuz_level=fuzl, debug=debug)
-    #     ## Grados
-    #     c = check_pd(c, check_nombre=False, check_ean=False, check_grados=True, check_medida_cant=False, check_envase=False, check_unidades=False, check_talla=False, fuz_level=fuzl, debug=debug)
-    #     ## Medida_cant
-    #     c = check_pd(c, check_nombre=False, check_ean=False, check_grados=False, check_medida_cant=True, check_envase=False, check_unidades=False, check_talla=False, fuz_level=fuzl, debug=debug)
-    #     ## Talla
-    #     c = check_pd(c, check_nombre=False, check_ean=False, check_grados=False, check_medida_cant=False, check_envase=False, check_unidades=False, check_talla=True, fuz_level=fuzl, debug=debug)
+    fuz_levels = (95,93 )
+    for fuzl in fuz_levels:
+        ## Envase
+        c = check_pd(c, check_nombre=False, check_ean=False, check_grados=False, check_medida_cant=False, check_envase=True, check_unidades=False, check_talla=False, fuz_level=fuzl, debug=debug)
+        ## Grados
+        c = check_pd(c, check_nombre=False, check_ean=False, check_grados=True, check_medida_cant=False, check_envase=False, check_unidades=False, check_talla=False, fuz_level=fuzl, debug=debug)
+        ## Medida_cant
+        c = check_pd(c, check_nombre=False, check_ean=False, check_grados=False, check_medida_cant=True, check_envase=False, check_unidades=False, check_talla=False, fuz_level=fuzl, debug=debug)
+        ## Talla
+        c = check_pd(c, check_nombre=False, check_ean=False, check_grados=False, check_medida_cant=False, check_envase=False, check_unidades=False, check_talla=True, fuz_level=fuzl, debug=debug)
         
-    # c = check_pd(c, 
-    #                  check_nombre=True,         ## Cierto .. debe ser al final
-    #                  check_ean=False, 
-    #                  check_grados=False, 
-    #                  check_medida_cant=False, 
-    #                  check_envase=False,  
-    #                  check_unidades=False,
-    #                  check_talla=False,
-    #                  fuz_level=93, 
-    #                  debug=debug,
-    #                  level=3
-    #                  )
-    # c = check_pd(c, 
-    #                  check_nombre=True,         ## Cierto .. debe ser al final
-    #                  check_ean=False, 
-    #                  check_grados=False, 
-    #                  check_medida_cant=False, 
-    #                  check_envase=False,  
-    #                  check_unidades=False,
-    #                  check_talla=False,
-    #                  fuz_level=93, 
-    #                  debug=debug,
-    #                  level=2
-    #                  )
-    # c = check_pd(c, 
-    #                  check_nombre=True,         ## Cierto .. debe ser al final
-    #                  check_ean=False, 
-    #                  check_grados=False, 
-    #                  check_medida_cant=False, 
-    #                  check_envase=False,  
-    #                  check_unidades=False,
-    #                  check_talla=False,
-    #                  fuz_level=93, 
-    #                  debug=debug,
-    #                  level=1
-    #                  )
+    c = check_pd(c, 
+                     check_nombre=True,         ## Cierto .. debe ser al final
+                     check_ean=False, 
+                     check_grados=False, 
+                     check_medida_cant=False, 
+                     check_envase=False,  
+                     check_unidades=False,
+                     check_talla=False,
+                     fuz_level=93, 
+                     debug=debug,
+                     level=3
+                     )
+    c = check_pd(c, 
+                     check_nombre=True,         ## Cierto .. debe ser al final
+                     check_ean=False, 
+                     check_grados=False, 
+                     check_medida_cant=False, 
+                     check_envase=False,  
+                     check_unidades=False,
+                     check_talla=False,
+                     fuz_level=93, 
+                     debug=debug,
+                     level=2
+                     )
+    c = check_pd(c, 
+                     check_nombre=True,         ## Cierto .. debe ser al final
+                     check_ean=False, 
+                     check_grados=False, 
+                     check_medida_cant=False, 
+                     check_envase=False,  
+                     check_unidades=False,
+                     check_talla=False,
+                     fuz_level=93, 
+                     debug=debug,
+                     level=1
+                     )
     
-    # fuz_levels = (95,90 )
-    # for fuzl in fuz_levels:
-    #     if debug:
-    #         print("Check- envase")
-    #     c = check_pd(c, 
-    #                  check_nombre=False, 
-    #                  check_ean=False, 
-    #                  check_grados=False, 
-    #                  check_medida_cant=False, 
-    #                  check_envase=True,         ## Cierto
-    #                  check_unidades=False,
-    #                  check_talla=False,
-    #                  fuz_level=fuzl, 
-    #                  debug=debug)
+    fuz_levels = (95,90 )
+    for fuzl in fuz_levels:
+        if debug:
+            print("Check- envase")
+        c = check_pd(c, 
+                     check_nombre=False, 
+                     check_ean=False, 
+                     check_grados=False, 
+                     check_medida_cant=False, 
+                     check_envase=True,         ## Cierto
+                     check_unidades=False,
+                     check_talla=False,
+                     fuz_level=fuzl, 
+                     debug=debug)
         
-    #     # if debug:
-    #     #     print("Check- EAN")
-    #     # c = check_pd(c, 
-    #     #              check_nombre=False, 
-    #     #              check_ean=True,            ## Cierto
-    #     #              check_grados=False, 
-    #     #              check_medida_cant=False, 
-    #     #              check_envase=False, 
-    #     #              check_unidades=False,
-    #     #              check_talla=False,
-    #     #              fuz_level=fuzl, 
-    #     #              debug=debug)
+        # if debug:
+        #     print("Check- EAN")
+        # c = check_pd(c, 
+        #              check_nombre=False, 
+        #              check_ean=True,            ## Cierto
+        #              check_grados=False, 
+        #              check_medida_cant=False, 
+        #              check_envase=False, 
+        #              check_unidades=False,
+        #              check_talla=False,
+        #              fuz_level=fuzl, 
+        #              debug=debug)
 
-    #     if debug:
-    #         print("Check- Grados")
-    #     c = check_pd(c, 
-    #                  check_nombre=False, 
-    #                  check_ean=False, 
-    #                  check_grados=True,         ## Cierto
-    #                  check_medida_cant=False, 
-    #                  check_envase=False,  
-    #                  check_unidades=False,
-    #                  check_talla=False,
-    #                  fuz_level=fuzl, 
-    #                  debug=debug)
+        if debug:
+            print("Check- Grados")
+        c = check_pd(c, 
+                     check_nombre=False, 
+                     check_ean=False, 
+                     check_grados=True,         ## Cierto
+                     check_medida_cant=False, 
+                     check_envase=False,  
+                     check_unidades=False,
+                     check_talla=False,
+                     fuz_level=fuzl, 
+                     debug=debug)
 
-    #     if debug:
-    #         print("Check- medida_cant")
-    #     c = check_pd(c, 
-    #                  check_nombre=False, 
-    #                  check_ean=False, 
-    #                  check_grados=False, 
-    #                  check_medida_cant=True,    ## Cierto
-    #                  check_envase=False, 
-    #                  check_unidades=False,
-    #                  check_talla=False,
-    #                  fuz_level=fuzl, 
-    #                  debug=debug)
+        if debug:
+            print("Check- medida_cant")
+        c = check_pd(c, 
+                     check_nombre=False, 
+                     check_ean=False, 
+                     check_grados=False, 
+                     check_medida_cant=True,    ## Cierto
+                     check_envase=False, 
+                     check_unidades=False,
+                     check_talla=False,
+                     fuz_level=fuzl, 
+                     debug=debug)
         
-    #     if debug:
-    #         print("Check- talla")
-    #     c = check_pd(c, 
-    #                  check_nombre=False, 
-    #                  check_ean=False, 
-    #                  check_grados=False, 
-    #                  check_medida_cant=False,    
-    #                  check_envase=False, 
-    #                  check_unidades=False,
-    #                  check_talla=True,          ## Cierto
-    #                  fuz_level=fuzl, 
-    #                  debug=debug)
+        if debug:
+            print("Check- talla")
+        c = check_pd(c, 
+                     check_nombre=False, 
+                     check_ean=False, 
+                     check_grados=False, 
+                     check_medida_cant=False,    
+                     check_envase=False, 
+                     check_unidades=False,
+                     check_talla=True,          ## Cierto
+                     fuz_level=fuzl, 
+                     debug=debug)
         
-    #     if debug:
-    #         print("Check- unidades")
-    #     c = check_pd(c, 
-    #                  check_nombre=False, 
-    #                  check_ean=False, 
-    #                  check_grados=False, 
-    #                  check_medida_cant=False,    
-    #                  check_envase=False, 
-    #                  check_unidades=True,
-    #                  check_talla=False,
-    #                  fuz_level=fuzl, 
-    #                  debug=debug)
+        if debug:
+            print("Check- unidades")
+        c = check_pd(c, 
+                     check_nombre=False, 
+                     check_ean=False, 
+                     check_grados=False, 
+                     check_medida_cant=False,    
+                     check_envase=False, 
+                     check_unidades=True,
+                     check_talla=False,
+                     fuz_level=fuzl, 
+                     debug=debug)
         
-    #     if debug:
-    #         print("Check- Nombre")
-    #     c = check_pd(c, 
-    #                  check_nombre=True,         ## Cierto .. debe ser al final
-    #                  check_ean=False, 
-    #                  check_grados=False, 
-    #                  check_medida_cant=False, 
-    #                  check_envase=False,  
-    #                  check_unidades=False,
-    #                  check_talla=False,
-    #                  fuz_level=fuzl, 
-    #                  debug=debug,
-    #                  level=3
-    #                  )
+        if debug:
+            print("Check- Nombre")
+        c = check_pd(c, 
+                     check_nombre=True,         ## Cierto .. debe ser al final
+                     check_ean=False, 
+                     check_grados=False, 
+                     check_medida_cant=False, 
+                     check_envase=False,  
+                     check_unidades=False,
+                     check_talla=False,
+                     fuz_level=fuzl, 
+                     debug=debug,
+                     level=3
+                     )
     
         
-    # # if c.shape[0] <= 50:
-    # # print(f'*** {marca_obj.slug}  c.size={c.shape[0]}')
-    # # grouped_estricto = c.groupby([
-    # #     'lo__medida_cant', 
-    # #     'lo__unidades', 
-    # #     'lo__grados2', 
-    # #     'lo__envase', 
-    # #     'lo__talla'
-    # # ])
-    # # list_of_processed_groups = []
+    # if c.shape[0] <= 50:
+    # print(f'*** {marca_obj.slug}  c.size={c.shape[0]}')
+    # grouped_estricto = c.groupby([
+    #     'lo__medida_cant', 
+    #     'lo__unidades', 
+    #     'lo__grados2', 
+    #     'lo__envase', 
+    #     'lo__talla'
+    # ])
+    # list_of_processed_groups = []
 
-    # # for name, group in grouped_estricto:
-    # #     # print('***** lkernel group name', name)
-    # #     processed_group = lkernel(group)
-    # #     list_of_processed_groups.append(processed_group)
+    # for name, group in grouped_estricto:
+    #     # print('***** lkernel group name', name)
+    #     processed_group = lkernel(group)
+    #     list_of_processed_groups.append(processed_group)
 
-    # # c = pd.concat(list_of_processed_groups, ignore_index=True)
+    # c = pd.concat(list_of_processed_groups, ignore_index=True)
 
 
-    # fuz_levels = (93,90)
-    # for fuzl in fuz_levels:
-    #     if debug:
-    #         print(f"Check sailers min=1 fuz={fuzl}")
-    #     c = check_sailers(c, 1, fuzl, debug)
+    fuz_levels = (93,90)
+    for fuzl in fuz_levels:
+        if debug:
+            print(f"Check sailers min=1 fuz={fuzl}")
+        c = check_sailers(c, 1, fuzl, debug)
 
-    #     if debug:
-    #         print(f"Check sailers min=2 fuz={fuzl}")
-    #     c = check_sailers(c, 2, fuzl, debug)
+        if debug:
+            print(f"Check sailers min=2 fuz={fuzl}")
+        c = check_sailers(c, 2, fuzl, debug)
         
-    # if marca_obj.grados:
-    #     c = check_pd(c, 
-    #         check_nombre=True,         ## Cierto .. debe ser al final
-    #         check_ean=False, 
-    #         check_grados=False, 
-    #         check_medida_cant=False, 
-    #         check_envase=False,  
-    #         check_unidades=False,
-    #         check_talla=False,
-    #         fuz_level=47, 
-    #         debug=debug)
+    if marca_obj.grados:
+        c = check_pd(c, 
+            check_nombre=True,         ## Cierto .. debe ser al final
+            check_ean=False, 
+            check_grados=False, 
+            check_medida_cant=False, 
+            check_envase=False,  
+            check_unidades=False,
+            check_talla=False,
+            fuz_level=47, 
+            debug=debug)
         
-    # if marca_obj.talla :
-    #     c = check_pd(c, 
-    #         check_nombre=True,         ## Cierto .. debe ser al final
-    #         check_ean=False, 
-    #         check_grados=False, 
-    #         check_medida_cant=False, 
-    #         check_envase=False,  
-    #         check_unidades=False,
-    #         check_talla=False,
-    #         fuz_level=66, 
-    #         debug=debug)
+    if marca_obj.talla :
+        c = check_pd(c, 
+            check_nombre=True,         ## Cierto .. debe ser al final
+            check_ean=False, 
+            check_grados=False, 
+            check_medida_cant=False, 
+            check_envase=False,  
+            check_unidades=False,
+            check_talla=False,
+            fuz_level=66, 
+            debug=debug)
     
-    # if debug:
-    #     print(tabulate(c, headers = 'keys', tablefmt = 'double_outline'))
+    if debug:
+        print(tabulate(c, headers = 'keys', tablefmt = 'double_outline'))
 
-    # ### Caso nombre que haya solo 1 registro
-    # if debug:
-    #     print("######### Check NOMBRES ###############")
-    # nombres_list        = c.lo__nombre.value_counts()
-    # nombres_list_uno    = nombres_list.loc[lambda x : x==1]
-    # df_nombres_uno      = nombres_list_uno.to_frame('counts').reset_index()
-    # if debug:
-    #     print(f'cuantos = {len(df_nombres_uno)}')
-    #     print(tabulate(df_nombres_uno, headers = 'keys', tablefmt = 'psql'))
-    # for cuenta, row in df_nombres_uno.iterrows():
-    #     valor       = row['lo__nombre']
-    #     a           = c.loc[c['lo__nombre'] == valor]
-    #     for cuenta2, row2 in a.iterrows():      ### Por cada tipo de nombre
-    #         if debug:
-    #             print(tabulate(a, headers = 'keys', tablefmt = 'psql'))
+    ### Caso nombre que haya solo 1 registro
+    if debug:
+        print("######### Check NOMBRES ###############")
+    nombres_list        = c.lo__nombre.value_counts()
+    nombres_list_uno    = nombres_list.loc[lambda x : x==1]
+    df_nombres_uno      = nombres_list_uno.to_frame('counts').reset_index()
+    if debug:
+        print(f'cuantos = {len(df_nombres_uno)}')
+        print(tabulate(df_nombres_uno, headers = 'keys', tablefmt = 'psql'))
+    for cuenta, row in df_nombres_uno.iterrows():
+        valor       = row['lo__nombre']
+        a           = c.loc[c['lo__nombre'] == valor]
+        for cuenta2, row2 in a.iterrows():      ### Por cada tipo de nombre
+            if debug:
+                print(tabulate(a, headers = 'keys', tablefmt = 'psql'))
 
-    #         este_nombre         = row2['lo__nombre']
-    #         a_grados            = row2['lo__grados2']
-    #         a_unidades          = row2['lo__unidades']
-    #         a_medida_cant       = row2['lo__medida_cant']
-    #         a_envase            = row2['lo__envase']
-    #         este_get_price      = row2['get_price']
-    #         arr_quienes_vender  = row2['quienesvenden']
-    #         df_matches = c.loc[
-    #                 (c['lo__medida_cant']   == a_medida_cant) & 
-    #                 (c['lo__unidades']      == a_unidades) & 
-    #                 (c['lo__envase']        == a_envase) & 
-    #                 (c['lo__grados2']       == a_grados) & 
-    #                 (c['lo__nombre']        != este_nombre)
-    #             ]
-    #         if debug:
-    #             print(tabulate(df_matches, headers = 'keys', tablefmt = 'psql'))
+            este_nombre         = row2['lo__nombre']
+            a_grados            = row2['lo__grados2']
+            a_unidades          = row2['lo__unidades']
+            a_medida_cant       = row2['lo__medida_cant']
+            a_envase            = row2['lo__envase']
+            este_get_price      = row2['get_price']
+            arr_quienes_vender  = row2['quienesvenden']
+            df_matches = c.loc[
+                    (c['lo__medida_cant']   == a_medida_cant) & 
+                    (c['lo__unidades']      == a_unidades) & 
+                    (c['lo__envase']        == a_envase) & 
+                    (c['lo__grados2']       == a_grados) & 
+                    (c['lo__nombre']        != este_nombre)
+                ]
+            if debug:
+                print(tabulate(df_matches, headers = 'keys', tablefmt = 'psql'))
             
-    #         best_fuz = 0
-    #         best_id  = None
-    #         if len(df_matches) > 0:
-    #             for cuenta3, row3 in df_matches.iterrows():
-    #                 # print('casi')
-    #                 arr_otro_vender     = row3['quienesvenden']
-    #                 pon_nombre          = row3['lo__nombre']
-    #                 otro_get_price      = row3['get_price']
-    #                 if not is_vendedores_in(arr_quienes_vender, arr_otro_vender):
-    #                     fuz         = fuzz.token_sort_ratio(este_nombre, pon_nombre)
-    #                     fuz_precio  = fuzz.token_sort_ratio(este_get_price, otro_get_price)
-    #                     if fuz > best_fuz:
-    #                         best_fuz    = fuz
-    #                         best_id     = cuenta3
-    #                         best_nombre = row3['lo__nombre']
-    #             if best_id and best_fuz >= 90 and fuz_precio > 90:
-    #                 c.at[cuenta2,'lo__nombre']  = best_nombre
-    #                 c.at[cuenta2,'r_nombre'] = 1
-    #                 c.at[cuenta2,'rule'] = f'Check NOMBRES fuz={best_fuz}'
-    #                 add_vendedores(c, cuenta2, cuenta3)
+            best_fuz = 0
+            best_id  = None
+            if len(df_matches) > 0:
+                for cuenta3, row3 in df_matches.iterrows():
+                    # print('casi')
+                    arr_otro_vender     = row3['quienesvenden']
+                    pon_nombre          = row3['lo__nombre']
+                    otro_get_price      = row3['get_price']
+                    if not is_vendedores_in(arr_quienes_vender, arr_otro_vender):
+                        fuz         = fuzz.token_sort_ratio(este_nombre, pon_nombre)
+                        fuz_precio  = fuzz.token_sort_ratio(este_get_price, otro_get_price)
+                        if fuz > best_fuz:
+                            best_fuz    = fuz
+                            best_id     = cuenta3
+                            best_nombre = row3['lo__nombre']
+                if best_id and best_fuz >= 90 and fuz_precio > 90:
+                    c.at[cuenta2,'lo__nombre']  = best_nombre
+                    c.at[cuenta2,'r_nombre'] = 1
+                    c.at[cuenta2,'rule'] = f'Check NOMBRES fuz={best_fuz}'
+                    add_vendedores(c, cuenta2, cuenta3)
 
     
 

@@ -642,7 +642,7 @@ class MarcasSistema(models.Model):
 
 
 class Marcas(models.Model):
-    nombre              = models.CharField(max_length=250, validators=[MinLengthValidator(2)], unique=True, blank=False, null=False)
+    nombre              = models.CharField(max_length=250, validators=[MinLengthValidator(2)], unique=True, db_index=True, blank=False, null=False)
     slug                = AutoSlugField(populate_from='nombre', editable=True, unique=True, db_index=True, slugify_function=my_slugify_function)
     unificado           = models.BooleanField(default=False)
     es_marca            = models.BooleanField(default=True)
@@ -686,6 +686,9 @@ class Marcas(models.Model):
 
     def get_update_url(self):
         return reverse("precios:Marcas_update", args=(self.pk,))
+
+    def save(self, *args, **kwargs):
+        self.nombre = self.nombre.lower()
 
 class TaggedArticles(TaggedItemBase):
     content_object = models.ForeignKey('Articulos', on_delete=models.CASCADE)

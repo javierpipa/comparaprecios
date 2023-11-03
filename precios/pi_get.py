@@ -837,7 +837,7 @@ def create_prods(
         if medida_cant == 0:
             nombre, medida_cant, medida_um = get_unidadMedida(nombre, UMEDIDAS)
         
-        if unidades == 1:
+        if unidades == 1 and not newmarca.numero:
             unidades, nombre = obtener_unidades(nombre)
 
         # ## Packs y Sets
