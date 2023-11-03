@@ -340,18 +340,18 @@ DATABASES = {
 
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'craw4_cms',
-        'USER': 'root',
-        'PASSWORD': 'dbrootdevel',
+        'NAME': 'craw3_cms',
+        'USER': config('DATABASE_USER', default='valor_predeterminado'),
+        'PASSWORD': config('DATABASE_PASSW', default='valor_predeterminado'),
         'HOST': 'localhost',
         'PORT': 3306,
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
             'charset': 'utf8mb4',
         },
-        'TEST':{
-            'COLLATION': 'utf8mb4_bin',
-        }
+        # 'TEST':{
+        #     'COLLATION': 'utf8mb4_bin',
+        # }
     },
 }
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
@@ -404,7 +404,7 @@ CELERY_RESULT_EXPIRES = 150
 CELERY_CREATE_MISSING_QUEUES = True
 
 CELERY_FLOWER_USER = 'admin'
-CELERY_FLOWER_PASSWORD = config('CELERY_FLOWER_PASSWORD', default='cps112233')
+CELERY_FLOWER_PASSWORD = config('CELERY_FLOWER_PASSWORD', default='default')
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
