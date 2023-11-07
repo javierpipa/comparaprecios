@@ -198,7 +198,6 @@ class MarcasListView(generic.ListView):
         articles_from_all = articles_from_all.exclude(vendidoen__precio=0)
         articles_from_all = articles_from_all.exclude(vendidoen__error404=True)
         articles_from_all = articles_from_all.exclude(articulo__marca__es_marca=False)
-        # articles_from_all = articles_from_all.aggregate(numque=Count('vendidoen__precio'))
         articles_from_all = articles_from_all.values('articulo__marca__pk').distinct().all()
         
 
