@@ -198,15 +198,17 @@ class MarcasListView(generic.ListView):
         articles_from_all = articles_from_all.exclude(vendidoen__precio=0)
         articles_from_all = articles_from_all.exclude(vendidoen__error404=True)
         articles_from_all = articles_from_all.exclude(articulo__marca__es_marca=False)
+        # articles_from_all = articles_from_all.aggregate(numque=Count('vendidoen__precio'))
         articles_from_all = articles_from_all.values('articulo__marca__pk').distinct().all()
+        
+
         records  = Marcas.objects.filter(id__in=articles_from_all).filter(es_marca=True)
         return records
-        # return Marcas.objects.filter(es_marca=True)
+
     
     def get_context_data(self, **kwargs):
         MinSuperCompara         = int(Settings.objects.get(key='MinSuperCompara').value)
         context                 = super().get_context_data(**kwargs)
-        # marcas                  = Marcas.objects.filter(es_marca=True)
         marcas                  = self.get_queryset()
 
         params = self.request.GET.copy()

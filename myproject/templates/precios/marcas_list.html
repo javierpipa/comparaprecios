@@ -11,33 +11,33 @@
 {% block content %}
   <section id="portfolio" class="d-flex">
     <div class="container" data-aos="fade-up">
-      <div class="row row-cols-1 row-cols-md-4 g-4">
-        {% for object in object_list %}
-          {% if object.resultsCount >= resumen.MinSuperCompara %}
-          <div class="col">
-            <div class="card" style="width: 18rem;">
-              <div class="card-body">
-                <h5 class="card-title"><a href="{{object.get_absolute_url}}" class="btn btn-primary">{{ object|title }}</a></h5>
-                <span class="badge bg-secondary">
-                  Articulos = {{ object.resultsCount }}
-                </span>
-                <span class="badge bg-success">
-                  Rules = {{ object.rulesCount }}
-                </span>
-                
-                <span class="badge bg-danger">
-                  Grados = {{ object.grados }}
-                </span>
-                <span class="badge bg-danger">
-                  Talla = {{ object.talla }}
-                </span>
-                
-              </div>
-            </div>
-          </div>
-          {% endif %}
+      <div class="table-responsive">
+        <table class="table table-bordered">
+          <tr>
+            <th class="table-primary">Marca</th>
+            <th class="table-secondary">Articulos</th>
+            <th class="table-secondary">Ofertas</th>
+            <th class="table-success">Rules</th>
+            <th class="table-danger">Grados</th>
+            <th class="table-warning">Talla</th>
+          </tr>
+          {% for object in object_list %}
+            {% if object.resultsCount >= resumen.MinSuperCompara %}
+              <tr>
+                <td class="table-primary"><h5><a href="{{object.get_absolute_url}}" class="btn btn-primary">{{ object|title }}</a></h5></td>
+                <td class="table-secondary">{{ object.resultsCount }}</td>
+                <td class="table-warning">{{ object.ofertas }}</td>
+                <td class="table-success">{{ object.rulesCount }}</td>
+                <td class="table-danger">{{ object.grados }}</td>
+                <td class="table-warning">{{ object.talla }}</td>
+
+              </tr>
+              {% endif %}
         {% endfor %}
+        </table>
       </div>
+      
+
     </div>
   </section>
 

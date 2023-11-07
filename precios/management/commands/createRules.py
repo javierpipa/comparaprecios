@@ -15,23 +15,20 @@ class Command(BaseCommand):
     
     def add_arguments(self, parser):
         parser.add_argument('--marcaid', type=int, help='Marca id', default=None)
-        parser.add_argument('--crear', type=bool, help='Solo crear articulos', default=False)
+        parser.add_argument('--crear', type=bool, help='Eliminar vendedores y crear articulos', default=False)
 
 
     def handle(self, *args, **options):
     
         marcaid     = options["marcaid"]
         print(marcaid)
-
-        
+       
         
         if marcaid:
             sites = Site.objects.filter(enable=True).order_by('-id')
             sites = sorted(sites, key=lambda a: a.urlCount, reverse=True)
             tasks_for_sites = [CreateProds.s(site.id, marcaid) for site in sites]
             group_tasks_sites = group(tasks_for_sites)
-
-
 
             marcas = Marcas.objects.filter(id=marcaid)
         else:

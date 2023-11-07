@@ -5,6 +5,7 @@ from precios.models import (
     Articulos,
     Vendedores,
     Unifica,
+    ReemplazaPalabras,
 )
 
 # Required Libraries
@@ -116,73 +117,74 @@ def check_pd(c,
         este_r_medida       = row0['r_medida']
         este_r_talla        = row0['r_talla']
 
-        if check_ean and este_ean_13 !='':
-            df_matches = c.loc[
-                (c['lo__ean_13']        == este_ean_13) & 
-                (c['articulo__pk']      != este_pk)
-            ]
-            for cuenta02, row02 in df_matches.iterrows():
-                otro_pk             = row02['articulo__pk']
-                otro_nombre         = row02['lo__nombre']
-                otro_grados         = row02['lo__grados2']
-                otro_medida_cant    = row02['lo__medida_cant']
-                otro_unidades       = row02['lo__unidades']
-                otro_envase         = row02['lo__envase']
-                otro_ean_13         = row02['lo__ean_13']
-                otro_talla          = row02['lo__talla']
-                otro_get_price      = row02['get_price']
-                fuz_precio  = fuzz.token_sort_ratio(este_get_price, otro_get_price)
-                if  not is_vendedores_in(arr_quienes_vender, row02['quienesvenden']):
-                    # print('4 Inicio')
-                    if debug:        
-                        print('SUPERIOR')
-                        print(tabulate(df_matches, headers = 'keys', tablefmt = 'psql'))
-                    
-
-                    c.at[cuenta02,'r_grados'] = 1
-                    c.at[cuenta02,'lo__grados2']  = este_grados
-                    c.at[cuenta02,'rule'] = 'ean grados 2'
-                    
-                    c.at[cuenta02,'lo__envase']  = este_envase
-                    c.at[cuenta02,'r_envase'] = 1
-                    c.at[cuenta02,'rule'] = 'ean envase 2'
+        if check_ean: 
+            if  este_ean_13 !='':
+                df_matches = c.loc[
+                    (c['lo__ean_13']        == este_ean_13) & 
+                    (c['articulo__pk']      != este_pk)
+                ]
+                for cuenta02, row02 in df_matches.iterrows():
+                    otro_pk             = row02['articulo__pk']
+                    otro_nombre         = row02['lo__nombre']
+                    otro_grados         = row02['lo__grados2']
+                    otro_medida_cant    = row02['lo__medida_cant']
+                    otro_unidades       = row02['lo__unidades']
+                    otro_envase         = row02['lo__envase']
+                    otro_ean_13         = row02['lo__ean_13']
+                    otro_talla          = row02['lo__talla']
+                    otro_get_price      = row02['get_price']
+                    fuz_precio  = fuzz.token_sort_ratio(este_get_price, otro_get_price)
+                    if  not is_vendedores_in(arr_quienes_vender, row02['quienesvenden']):
+                        # print('4 Inicio')
+                        if debug:        
+                            print('SUPERIOR')
+                            print(tabulate(df_matches, headers = 'keys', tablefmt = 'psql'))
                         
-                    c.at[cuenta02,'lo__medida_cant']  = este_medida_cant
-                    c.at[cuenta02,'r_medida'] = 1
-                    c.at[cuenta02,'rule'] = 'ean medida_cant 2'
 
-                    if este_unidades != otro_unidades :
-                        print(f'fuz_precio={fuz_precio}')
-                        if fuz_precio > 73:
-                            c.at[cuenta02,'lo__unidades']  = este_unidades    
+                        c.at[cuenta02,'r_grados'] = 1
+                        c.at[cuenta02,'lo__grados2']  = este_grados
+                        c.at[cuenta02,'rule'] = 'ean grados 2'
+                        
+                        c.at[cuenta02,'lo__envase']  = este_envase
+                        c.at[cuenta02,'r_envase'] = 1
+                        c.at[cuenta02,'rule'] = 'ean envase 2'
+                            
+                        c.at[cuenta02,'lo__medida_cant']  = este_medida_cant
+                        c.at[cuenta02,'r_medida'] = 1
+                        c.at[cuenta02,'rule'] = 'ean medida_cant 2'
 
-                    c.at[cuenta02,'lo__talla']  = este_talla
-                    c.at[cuenta02,'r_talla'] = 1
-                    c.at[cuenta02,'rule'] = 'ean talla 1'
+                        if este_unidades != otro_unidades :
+                            if fuz_precio > 60:
+                                c.at[cuenta02,'lo__unidades']  = este_unidades    
 
-                    c.at[cuenta02,'lo__nombre']  = este_nombre
-                    c.at[cuenta02,'r_nombre'] = 1
-                    c.at[cuenta02,'rule'] = 'ean nombre 2'
+                        c.at[cuenta02,'lo__talla']  = este_talla
+                        c.at[cuenta02,'r_talla'] = 1
+                        c.at[cuenta02,'rule'] = 'ean talla 1'
 
-                    c.at[cuenta02,'r_ean'] = 1
-                    if c.at[cuenta02,'rule'] == '' :
-                        c.at[cuenta02,'rule'] = 'check_ean'
-                    
-                    c = add_vendedores(c, cuenta0, cuenta02)
-                    if debug:        
-                        df_matches2 = c.loc[
-                            (c['lo__ean_13']        == este_ean_13) 
-                        ]
-                        print('inferior')
-                        print(tabulate(df_matches2, headers = 'keys', tablefmt = 'psql'))
-            return c
+                        c.at[cuenta02,'lo__nombre']  = este_nombre
+                        c.at[cuenta02,'r_nombre'] = 1
+                        c.at[cuenta02,'rule'] = 'ean nombre 2'
+
+                        c.at[cuenta02,'r_ean'] = 1
+                        if c.at[cuenta02,'rule'] == '' :
+                            c.at[cuenta02,'rule'] = 'check_ean'
+                        
+                        c = add_vendedores(c, cuenta0, cuenta02)
+                if debug:        
+                    df_matches2 = c.loc[
+                        (c['lo__ean_13']        == este_ean_13) 
+                    ]
+                    print('inferior')
+                    print(tabulate(df_matches2, headers = 'keys', tablefmt = 'psql'))
+                return c
         else:  
-            df_matches = c.loc[
-                (c['articulo__pk']      != este_pk)
-            ]
+            # df_matches = c.loc[
+            #     (c['articulo__pk']      != este_pk)
+            # ]
             if check_grados:
                 if este_grados == 0 and este_r_grados == 0:
-                    df_matches = df_matches.loc[
+                    df_matches = c.loc[
+                        (c['articulo__pk']      != este_pk) &
                         (c['lo__medida_cant']   == este_medida_cant) & 
                         (c['lo__unidades']      == este_unidades) &
                         (c['lo__envase']        == este_envase) &
@@ -195,7 +197,8 @@ def check_pd(c,
             if check_envase:
                 if este_envase == '' and este_r_envase == 0:
                     
-                    df_matches = df_matches.loc[
+                    df_matches = c.loc[
+                        (c['articulo__pk']      != este_pk) &
                         (c['lo__medida_cant']   == este_medida_cant) & 
                         (c['lo__unidades']      == este_unidades) &
                         (c['lo__grados2']       == este_grados) &
@@ -207,7 +210,8 @@ def check_pd(c,
                     continue
             if check_medida_cant:
                 if este_r_medida == 0 and este_medida_cant == 0:
-                    df_matches = df_matches.loc[
+                    df_matches = c.loc[
+                        (c['articulo__pk']      != este_pk) &
                         (c['lo__unidades']      == este_unidades) &
                         (c['lo__envase']        == este_envase) &
                         (c['lo__grados2']       == este_grados) &
@@ -218,7 +222,8 @@ def check_pd(c,
                     continue
             if check_talla:
                 if este_r_talla == 0 and este_talla == '':
-                    df_matches = df_matches.loc[
+                    df_matches = c.loc[
+                        (c['articulo__pk']      != este_pk) &
                         (c['lo__medida_cant']   == este_medida_cant) & 
                         (c['lo__unidades']      == este_unidades) &
                         (c['lo__envase']        == este_envase) &
@@ -232,7 +237,8 @@ def check_pd(c,
 
             if check_nombre:
                 if level == 3:
-                    df_matches = df_matches.loc[
+                    df_matches = c.loc[
+                        (c['articulo__pk']      != este_pk) &
                         (c['lo__medida_cant']   == este_medida_cant) & 
                         (c['lo__unidades']      == este_unidades) &
                         (c['lo__grados2']       == este_grados) &
@@ -240,73 +246,75 @@ def check_pd(c,
                         (c['lo__talla']         == este_talla) 
                     ]
                 if level == 2:
-                    df_matches = df_matches.loc[
+                    df_matches = c.loc[
+                        (c['articulo__pk']      != este_pk) &
                         (c['lo__medida_cant']   == este_medida_cant) & 
                         (c['lo__unidades']      == este_unidades) &
                         (c['lo__grados2']       == este_grados) &
                         (c['lo__talla']         == este_talla) 
                     ]
                 if level == 1:
-                    df_matches = df_matches.loc[
+                    df_matches = c.loc[
+                        (c['articulo__pk']      != este_pk) &
                         (c['lo__unidades']      == este_unidades) &
                         (c['lo__grados2']       == este_grados) &
                         (c['lo__talla']         == este_talla) 
                     ]
                 
-        ## Queremos arreglar este_ osea cuenta0 o row0
-        for cuenta02, row02 in df_matches.iterrows():
-            otro_nombre         = row02['lo__nombre']
-            otro_grados         = row02['lo__grados2']
-            otro_medida_cant    = row02['lo__medida_cant']
-            otro_unidades       = row02['lo__unidades']
-            otro_envase         = row02['lo__envase']
-            otro_talla          = row02['lo__talla']
-            otro_get_price      = row02['get_price']
-            arr_otro_vender     = row02['quienesvenden']
-           
-            fuz         = fuzz.token_sort_ratio(este_nombre, otro_nombre)
-            fuz_precio  = fuzz.token_sort_ratio(este_get_price, otro_get_price)
+            ## Queremos arreglar este_ osea cuenta0 o row0
+            for cuenta02, row02 in df_matches.iterrows():
+                otro_nombre         = row02['lo__nombre']
+                otro_grados         = row02['lo__grados2']
+                otro_medida_cant    = row02['lo__medida_cant']
+                otro_unidades       = row02['lo__unidades']
+                otro_envase         = row02['lo__envase']
+                otro_talla          = row02['lo__talla']
+                otro_get_price      = row02['get_price']
+                arr_otro_vender     = row02['quienesvenden']
+            
+                fuz         = fuzz.token_sort_ratio(este_nombre, otro_nombre)
+                fuz_precio  = fuzz.token_sort_ratio(este_get_price, otro_get_price)
 
-            if fuz > fuz_level and not is_vendedores_in(arr_quienes_vender, arr_otro_vender):     ### Hay proximidad de nombre y no ha sido copiado
-                if debug:
-                    print(f'basado_en_linea={cuenta0} fuz={fuz}  linea = {cuenta02} vs otro_nombre={otro_nombre}')
+                if fuz > fuz_level and not is_vendedores_in(arr_quienes_vender, arr_otro_vender):     ### Hay proximidad de nombre y no ha sido copiado
+                    if debug:
+                        print(f'basado_en_linea={cuenta0} fuz={fuz}  linea = {cuenta02} vs otro_nombre={otro_nombre}')
 
-                if check_grados:
-                    c.at[cuenta0,'lo__grados2'] = otro_grados
-                    c.at[cuenta0,'r_grados'] = 1
-                    c.at[cuenta0,'rule'] = 'pd_grados'
-                    
-                if check_envase:
-                    c.at[cuenta0,'lo__envase'] = otro_envase
-                    c.at[cuenta0,'r_envase'] = 1
-                    c.at[cuenta0,'rule'] = 'pd_envase'
-                    
-                if check_medida_cant:
-                    c.at[cuenta0,'lo__medida_cant'] = otro_medida_cant
-                    c.at[cuenta0,'r_medida'] = 1
-                    c.at[cuenta0,'rule'] =  'pd_medida_cant'
-                if check_talla:
-                    c.at[cuenta0,'lo__talla'] = otro_talla
-                    c.at[cuenta0,'r_talla'] = 1
-                    c.at[cuenta0,'rule'] = 'pd_talla'
-                    
-                if check_unidades:
-                    pass
+                    if check_grados:
+                        c.at[cuenta0,'lo__grados2'] = otro_grados
+                        c.at[cuenta0,'r_grados'] = 1
+                        c.at[cuenta0,'rule'] = 'pd_grados'
+                        
+                    if check_envase:
+                        c.at[cuenta0,'lo__envase'] = otro_envase
+                        c.at[cuenta0,'r_envase'] = 1
+                        c.at[cuenta0,'rule'] = 'pd_envase'
+                        
+                    if check_medida_cant:
+                        c.at[cuenta0,'lo__medida_cant'] = otro_medida_cant
+                        c.at[cuenta0,'r_medida'] = 1
+                        c.at[cuenta0,'rule'] =  'pd_medida_cant'
+                    if check_talla:
+                        c.at[cuenta0,'lo__talla'] = otro_talla
+                        c.at[cuenta0,'r_talla'] = 1
+                        c.at[cuenta0,'rule'] = 'pd_talla'
+                        
+                    if check_unidades:
+                        pass
 
-                if check_nombre and otro_nombre != '':
-                    if fuz == 100:
-                        if este_medida_cant == 0:
-                            c.at[cuenta0,'lo__medida_cant'] = otro_medida_cant
-                        if este_envase == '':
-                            c.at[cuenta0,'lo__envase'] = otro_envase
-                        c.at[cuenta0,'rule'] = 'pd_nombre fuz=100'
-                        c.at[cuenta0,'lo__nombre'] = otro_nombre
-                    else:
-                        c.at[cuenta0,'r_nombre'] = 1
-                        c.at[cuenta0,'lo__nombre'] = otro_nombre
-                        c.at[cuenta0,'rule'] = 'pd_nombre'
-                    
-                    c = add_vendedores(c, cuenta0, cuenta02)
+                    if check_nombre and otro_nombre != '':
+                        if fuz == 100:
+                            if este_medida_cant == 0:
+                                c.at[cuenta0,'lo__medida_cant'] = otro_medida_cant
+                            if este_envase == '':
+                                c.at[cuenta0,'lo__envase'] = otro_envase
+                            c.at[cuenta0,'rule'] = 'pd_nombre fuz=100'
+                            c.at[cuenta0,'lo__nombre'] = otro_nombre
+                        else:
+                            c.at[cuenta0,'r_nombre'] = 1
+                            c.at[cuenta0,'lo__nombre'] = otro_nombre
+                            c.at[cuenta0,'rule'] = 'pd_nombre'
+                        
+                        c = add_vendedores(c, cuenta02, cuenta0)
 
     return c
 
@@ -534,6 +542,137 @@ def get_articles_from_all(marca_obj, nombre, all_sites_arr):
 
     return articles_from_all
 
+def reduce_c(c, procesados):
+    # Encontrar los índices donde 'cuantos_venden' es igual a 0 y mover esas filas
+    indices_a_mover = c[c['cuantos_venden'] == 0].index
+    procesados = pd.concat([procesados, c.loc[indices_a_mover]], ignore_index=True)
+    c.drop(indices_a_mover, inplace=True)
+
+    return c
+
+def unProductoEnMarca(c):
+    if c['quienesvenden'].explode().nunique() == c['quienesvenden'].explode().size:
+        # Definimos un rango de precios para considerar productos como similares.
+        # Por ejemplo, un 20% de diferencia en precio.
+        precio_rango = 0.3
+        
+        # Ordenamos el dataframe por precio para agrupar precios cercanos.
+        c.sort_values('get_price', inplace=True)
+        
+        # Creamos una nueva columna para almacenar los grupos
+        c['grupo'] = None
+        
+        grupo_counter = 0
+        precio_referencia = c['get_price'].iloc[0]
+
+        # Iteramos sobre las filas del DataFrame
+        for i, row in c.iterrows():
+            # Si es la primera fila, asignamos el primer grupo.
+            if i == 0:
+                c.at[i, 'grupo'] = grupo_counter
+                continue
+            
+            # Si el precio actual está dentro del rango del precio de referencia, es del mismo grupo.
+            if abs(row['get_price'] - precio_referencia) / precio_referencia <= precio_rango:
+                c.at[i, 'grupo'] = grupo_counter
+            else:
+                # Si el precio actual está fuera del rango, actualizamos el precio de referencia y creamos un nuevo grupo.
+                precio_referencia = row['get_price']
+                grupo_counter += 1
+                c.at[i, 'grupo'] = grupo_counter
+
+        grupos_unicos = c['grupo'].dropna().unique()
+
+        # Procesamos cada grupo uno por uno
+        for grupo_id in grupos_unicos:
+            # # Seleccionamos todas las filas que pertenecen al grupo actual
+            # grupo_df = c[c['grupo'] == grupo_id]
+
+            # print(f"Procesando grupo {grupo_id}:")
+            indices_grupo = c.index[c['grupo'] == grupo_id].tolist()
+
+            # Si hay más de una fila en el grupo, actualiza 'lo__nombre'
+            if len(indices_grupo) > 1:
+                # Asignar el nombre de la primera fila del grupo a todas las filas del grupo
+                nombre_grupo            = c.loc[indices_grupo[0], 'lo__nombre']
+                lo__medida_cant_grupo   = c.loc[indices_grupo[0], 'lo__medida_cant']
+                lo__unidades_grupo      = c.loc[indices_grupo[0], 'lo__unidades']
+                lo__grados2_grupo       = c.loc[indices_grupo[0], 'lo__grados2']
+                lo__envase_grupo        = c.loc[indices_grupo[0], 'lo__envase']
+
+                c.loc[indices_grupo, 'lo__nombre']      = nombre_grupo
+                c.loc[indices_grupo, 'lo__medida_cant'] = lo__medida_cant_grupo
+                c.loc[indices_grupo, 'lo__unidades']    = lo__unidades_grupo
+                c.loc[indices_grupo, 'lo__grados2']     = lo__grados2_grupo
+                c.loc[indices_grupo, 'lo__envase']     = lo__envase_grupo
+
+    return c
+
+from fuzzywuzzy import process
+def unProductoEnMarca_2(c):
+    # Definimos un nivel de similitud más bajo para agrupar productos similares.
+    fuzz_level = 60
+    
+    # Creamos una nueva columna para almacenar los grupos
+    c['grupo'] = None
+    
+    # Preparamos una lista de nombres únicos para comparar y evitar repetición en comparaciones
+    nombres_unicos = c['lo__nombre'].unique()
+    # nombres_unicos = c['get_price'].unique()
+    
+    grupo_counter = 0
+    
+    # Creamos un diccionario para almacenar los grupos formados
+    grupos = {}
+    
+    for nombre in nombres_unicos:
+        # Encuentra los mejores matches para el nombre actual con un puntaje dado por fuzz_level
+        matches = process.extractBests(nombre, nombres_unicos, scorer=fuzz.token_sort_ratio, score_cutoff=fuzz_level)
+        
+        # Solo agregamos al grupo si no ha sido agregado antes
+        if not any(nombre in valores for valores in grupos.values()):
+            # Guardamos todos los nombres similares bajo el mismo grupo
+            grupos[grupo_counter] = [match[0] for match in matches]
+            grupo_counter += 1
+    
+    # Ahora, asignamos los grupos basados en los nombres similares encontrados
+    for grupo_id, nombres in grupos.items():
+        for nombre in nombres:
+            c.loc[c['lo__nombre'] == nombre, 'grupo'] = grupo_id
+            # c.loc[c['get_price'] == nombre, 'grupo'] = grupo_id
+
+
+    grupos_unicos = c['grupo'].dropna().unique()
+
+    # Procesamos cada grupo uno por uno
+    for grupo_id in grupos_unicos:
+        # # Seleccionamos todas las filas que pertenecen al grupo actual
+        # grupo_df = c[c['grupo'] == grupo_id]
+
+        print(f"Procesando grupo {grupo_id}:")
+        indices_grupo = c.index[c['grupo'] == grupo_id].tolist()
+
+        # Si hay más de una fila en el grupo, actualiza 'lo__nombre'
+        if len(indices_grupo) > 1:
+            # Asignar el nombre de la primera fila del grupo a todas las filas del grupo
+            nombre_grupo            = c.loc[indices_grupo[0], 'lo__nombre']
+            lo__medida_cant_grupo   = c.loc[indices_grupo[0], 'lo__medida_cant']
+            lo__unidades_grupo      = c.loc[indices_grupo[0], 'lo__unidades']
+            lo__grados2_grupo       = c.loc[indices_grupo[0], 'lo__grados2']
+            lo__envase_grupo        = c.loc[indices_grupo[0], 'lo__envase']
+
+            c.loc[indices_grupo, 'lo__nombre']      = nombre_grupo
+            c.loc[indices_grupo, 'lo__medida_cant'] = lo__medida_cant_grupo
+            c.loc[indices_grupo, 'lo__unidades']    = lo__unidades_grupo
+            c.loc[indices_grupo, 'lo__grados2']     = lo__grados2_grupo
+            c.loc[indices_grupo, 'lo__envase']     = lo__envase_grupo
+
+        
+
+    return c
+
+
+
 def intenta_marca(marca_id, debug, nombre=None):
     num_rules_created   = int(Settings.objects.get(key='num_rules_created').value)
     marca_obj           = Marcas.objects.get(id=marca_id)
@@ -553,51 +692,81 @@ def intenta_marca(marca_id, debug, nombre=None):
     if debug:
         print(tabulate(c, headers = 'keys', tablefmt = 'double_outline'))
 
-    # cuenta = 0
-    # while True:
-    #     print(cuenta)
-    #     cuenta = cuenta + 1
-    #     if cuenta > 100:
-    #         break
-
-    grouped_ean = c.groupby(['lo__ean_13', ])
-    list_of_processed_groups = []
-    for name, group in grouped_ean:
-        if len(group) > 1:
-        
-            group_sorted = group.sort_values(by=['cuantos_venden'], ascending=False)
-            if debug:
-                print(f'Largo grupo={len(group)}')
-                print('evaluo grupo', name)
-                print(tabulate(group_sorted, headers = 'keys', tablefmt = 'double_outline'))
-            processed_group = check_pd(group_sorted, 
-                    check_nombre=False, 
-                    check_ean=True,
-                    check_grados=False, 
-                    check_medida_cant=False, 
-                    check_envase=False, 
-                    check_unidades=False,
-                    check_talla=False,
-                    fuz_level=93, 
-                    debug=debug)
-            list_of_processed_groups.append(processed_group)
+    ### Reemplaza palabras
+    pal_o_frases = ReemplazaPalabras.objects.all()
+    for pal_o_frase in pal_o_frases:
+        if pal_o_frase.reemplazo:
+            c['lo__nombre'] = c['lo__nombre'].str.replace(pal_o_frase.palabra, pal_o_frase.reemplazo, regex=False)
         else:
-            list_of_processed_groups.append(group)
+            c['lo__nombre'] = c['lo__nombre'].str.replace(pal_o_frase.palabra, '', regex=False)
+        
+    ### Limpia
+    c['lo__nombre'] = c['lo__nombre'].str.replace('pack .', '', regex=False)
+    c['lo__nombre'] = c['lo__nombre'].str.replace('pack', '', regex=False)
+    c['lo__nombre'] = c['lo__nombre'].str.strip()
+    
+    ### Pone medida_cant al que no tiene. Se copia desde el mismo nombre
+    df_con_medida_cero = c[c['lo__medida_cant'] == 0]
+    for cuenta, row in df_con_medida_cero.iterrows():
+        a           = c.loc[c['lo__nombre'] == row['lo__nombre']]
+        a           = a.loc[c['lo__medida_cant'] != 0].head(1)
+        if not a.empty:
+            new_medida = a['lo__medida_cant']
+            c.at[cuenta,'lo__medida_cant'] = float(a.iloc[0]['lo__medida_cant']) 
 
-    c = pd.concat(list_of_processed_groups, ignore_index=True)
     
-    
-    #### Desde aca null
-    ## Caso grados que haya solo 1 registro
-    if debug:
-        print("######### Check Grados ###############")
+    c = unProductoEnMarca(c)
 
-    df_grados_uno = get_value_counts_df(c, 'lo__grados2')
-    c = check_grados_func(c, df_grados_uno, debug=debug)
     
-    
-    fuz_levels = (95,93 )
-    for fuzl in fuz_levels:
+    fuz_inicial = 93
+    cuenta = 0
+    # Crear un DataFrame vacío para los procesados
+    procesados = pd.DataFrame(columns=c.columns)
+    while True:
+        fuzl = fuz_inicial - cuenta
+        cuenta = cuenta + 1
+        if cuenta > 15:
+            break
+
+        grouped_ean = c.groupby(['lo__ean_13'])
+        list_of_processed_groups = []
+        for name, group in grouped_ean:
+            if len(group) > 1:
+                group_sorted = group.sort_values(by=['cuantos_venden'], ascending=False)
+                if debug:
+                    print(f'Largo grupo={len(group)} cuenta={cuenta} largo de c={len(c)} largo procesados = {len(procesados)}')
+                    print('evaluo grupo', name)
+                    # print(tabulate(group_sorted, headers = 'keys', tablefmt = 'double_outline'))
+                processed_group = check_pd(group_sorted, 
+                        check_nombre=False, 
+                        check_ean=True,
+                        check_grados=False, 
+                        check_medida_cant=False, 
+                        check_envase=False, 
+                        check_unidades=False,
+                        check_talla=False,
+                        fuz_level=fuzl, 
+                        debug=debug)
+                list_of_processed_groups.append(processed_group)
+            else:
+                list_of_processed_groups.append(group)
+
+        c = pd.concat(list_of_processed_groups, ignore_index=True)
+
+        # c = reduce_c(c, procesados)
+        indices_a_mover = c[c['cuantos_venden'] == 0].index
+        procesados = pd.concat([procesados, c.loc[indices_a_mover]], ignore_index=True)
+        c.drop(indices_a_mover, inplace=True)
+
+
+        # grouped_envase = c.groupby(['lo__grados2', 'lo__medida_cant', 'lo__nombre'])
+        # list_of_processed_groups = []
+        # for name, group in grouped_envase:
+        #     if len(group) > 1:
+        #         group_sorted = group.sort_values(by=['cuantos_venden'], ascending=False)
+        #         if debug:
+        #             print('ENVASES evaluo grupo', name)
+        #             print(tabulate(group_sorted, headers = 'keys', tablefmt = 'double_outline'))
         ## Envase
         c = check_pd(c, check_nombre=False, check_ean=False, check_grados=False, check_medida_cant=False, check_envase=True, check_unidades=False, check_talla=False, fuz_level=fuzl, debug=debug)
         ## Grados
@@ -606,192 +775,39 @@ def intenta_marca(marca_id, debug, nombre=None):
         c = check_pd(c, check_nombre=False, check_ean=False, check_grados=False, check_medida_cant=True, check_envase=False, check_unidades=False, check_talla=False, fuz_level=fuzl, debug=debug)
         ## Talla
         c = check_pd(c, check_nombre=False, check_ean=False, check_grados=False, check_medida_cant=False, check_envase=False, check_unidades=False, check_talla=True, fuz_level=fuzl, debug=debug)
+        ## Nombre
+        c = check_pd(c, check_nombre=True, check_ean=False, check_grados=False, check_medida_cant=False, check_envase=False, check_unidades=False, check_talla=False, fuz_level=fuzl, debug=debug, level=3)
         
-    c = check_pd(c, 
-                     check_nombre=True,         ## Cierto .. debe ser al final
-                     check_ean=False, 
-                     check_grados=False, 
-                     check_medida_cant=False, 
-                     check_envase=False,  
-                     check_unidades=False,
-                     check_talla=False,
-                     fuz_level=93, 
-                     debug=debug,
-                     level=3
-                     )
-    c = check_pd(c, 
-                     check_nombre=True,         ## Cierto .. debe ser al final
-                     check_ean=False, 
-                     check_grados=False, 
-                     check_medida_cant=False, 
-                     check_envase=False,  
-                     check_unidades=False,
-                     check_talla=False,
-                     fuz_level=93, 
-                     debug=debug,
-                     level=2
-                     )
-    c = check_pd(c, 
-                     check_nombre=True,         ## Cierto .. debe ser al final
-                     check_ean=False, 
-                     check_grados=False, 
-                     check_medida_cant=False, 
-                     check_envase=False,  
-                     check_unidades=False,
-                     check_talla=False,
-                     fuz_level=93, 
-                     debug=debug,
-                     level=1
-                     )
+        indices_a_mover = c[c['cuantos_venden'] == 0].index
+        procesados = pd.concat([procesados, c.loc[indices_a_mover]], ignore_index=True)
+        c.drop(indices_a_mover, inplace=True)
+
+        if marca_obj.grados:
+            c = check_pd(c, check_nombre=True, check_ean=False, check_grados=False, check_medida_cant=False, check_envase=False, check_unidades=False, check_talla=False, fuz_level=(fuzl-50), debug=debug,level=3)
+            indices_a_mover = c[c['cuantos_venden'] == 0].index
+            procesados = pd.concat([procesados, c.loc[indices_a_mover]], ignore_index=True)
+            c.drop(indices_a_mover, inplace=True)
+
+        if marca_obj.talla :
+            c = check_pd(c, check_nombre=True, check_ean=False, check_grados=False, check_medida_cant=False, check_envase=False, check_unidades=False, check_talla=False, fuz_level=(fuzl-30), debug=debug,level=3)
+            indices_a_mover = c[c['cuantos_venden'] == 0].index
+            procesados = pd.concat([procesados, c.loc[indices_a_mover]], ignore_index=True)
+            c.drop(indices_a_mover, inplace=True)
+            
+
+        df_grados_uno = get_value_counts_df(c, 'lo__grados2')
+        c = check_grados_func(c, df_grados_uno, debug=debug)
+
+        c = check_sailers(c, cuenta, fuzl, debug)
+        indices_a_mover = c[c['cuantos_venden'] == 0].index
+        procesados = pd.concat([procesados, c.loc[indices_a_mover]], ignore_index=True)
+        c.drop(indices_a_mover, inplace=True)
+        
+        # c = reduce_c(c, procesados)
+        
+        
+
     
-    fuz_levels = (95,90 )
-    for fuzl in fuz_levels:
-        if debug:
-            print("Check- envase")
-        c = check_pd(c, 
-                     check_nombre=False, 
-                     check_ean=False, 
-                     check_grados=False, 
-                     check_medida_cant=False, 
-                     check_envase=True,         ## Cierto
-                     check_unidades=False,
-                     check_talla=False,
-                     fuz_level=fuzl, 
-                     debug=debug)
-        
-        # if debug:
-        #     print("Check- EAN")
-        # c = check_pd(c, 
-        #              check_nombre=False, 
-        #              check_ean=True,            ## Cierto
-        #              check_grados=False, 
-        #              check_medida_cant=False, 
-        #              check_envase=False, 
-        #              check_unidades=False,
-        #              check_talla=False,
-        #              fuz_level=fuzl, 
-        #              debug=debug)
-
-        if debug:
-            print("Check- Grados")
-        c = check_pd(c, 
-                     check_nombre=False, 
-                     check_ean=False, 
-                     check_grados=True,         ## Cierto
-                     check_medida_cant=False, 
-                     check_envase=False,  
-                     check_unidades=False,
-                     check_talla=False,
-                     fuz_level=fuzl, 
-                     debug=debug)
-
-        if debug:
-            print("Check- medida_cant")
-        c = check_pd(c, 
-                     check_nombre=False, 
-                     check_ean=False, 
-                     check_grados=False, 
-                     check_medida_cant=True,    ## Cierto
-                     check_envase=False, 
-                     check_unidades=False,
-                     check_talla=False,
-                     fuz_level=fuzl, 
-                     debug=debug)
-        
-        if debug:
-            print("Check- talla")
-        c = check_pd(c, 
-                     check_nombre=False, 
-                     check_ean=False, 
-                     check_grados=False, 
-                     check_medida_cant=False,    
-                     check_envase=False, 
-                     check_unidades=False,
-                     check_talla=True,          ## Cierto
-                     fuz_level=fuzl, 
-                     debug=debug)
-        
-        if debug:
-            print("Check- unidades")
-        c = check_pd(c, 
-                     check_nombre=False, 
-                     check_ean=False, 
-                     check_grados=False, 
-                     check_medida_cant=False,    
-                     check_envase=False, 
-                     check_unidades=True,
-                     check_talla=False,
-                     fuz_level=fuzl, 
-                     debug=debug)
-        
-        if debug:
-            print("Check- Nombre")
-        c = check_pd(c, 
-                     check_nombre=True,         ## Cierto .. debe ser al final
-                     check_ean=False, 
-                     check_grados=False, 
-                     check_medida_cant=False, 
-                     check_envase=False,  
-                     check_unidades=False,
-                     check_talla=False,
-                     fuz_level=fuzl, 
-                     debug=debug,
-                     level=3
-                     )
-    
-        
-    # if c.shape[0] <= 50:
-    # print(f'*** {marca_obj.slug}  c.size={c.shape[0]}')
-    # grouped_estricto = c.groupby([
-    #     'lo__medida_cant', 
-    #     'lo__unidades', 
-    #     'lo__grados2', 
-    #     'lo__envase', 
-    #     'lo__talla'
-    # ])
-    # list_of_processed_groups = []
-
-    # for name, group in grouped_estricto:
-    #     # print('***** lkernel group name', name)
-    #     processed_group = lkernel(group)
-    #     list_of_processed_groups.append(processed_group)
-
-    # c = pd.concat(list_of_processed_groups, ignore_index=True)
-
-
-    fuz_levels = (93,90)
-    for fuzl in fuz_levels:
-        if debug:
-            print(f"Check sailers min=1 fuz={fuzl}")
-        c = check_sailers(c, 1, fuzl, debug)
-
-        if debug:
-            print(f"Check sailers min=2 fuz={fuzl}")
-        c = check_sailers(c, 2, fuzl, debug)
-        
-    if marca_obj.grados:
-        c = check_pd(c, 
-            check_nombre=True,         ## Cierto .. debe ser al final
-            check_ean=False, 
-            check_grados=False, 
-            check_medida_cant=False, 
-            check_envase=False,  
-            check_unidades=False,
-            check_talla=False,
-            fuz_level=47, 
-            debug=debug)
-        
-    if marca_obj.talla :
-        c = check_pd(c, 
-            check_nombre=True,         ## Cierto .. debe ser al final
-            check_ean=False, 
-            check_grados=False, 
-            check_medida_cant=False, 
-            check_envase=False,  
-            check_unidades=False,
-            check_talla=False,
-            fuz_level=66, 
-            debug=debug)
     
     if debug:
         print(tabulate(c, headers = 'keys', tablefmt = 'double_outline'))
@@ -853,8 +869,7 @@ def intenta_marca(marca_id, debug, nombre=None):
     
 
     ### Genera lista de reglas
-    # for nombre in nombres:
-    for cuenta0, row0 in c.iterrows():
+    for cuenta0, row0 in procesados.iterrows():
         if      row0['articulo__nombre']        != row0['lo__nombre'] \
             or  row0['articulo__medida_cant']   != row0['lo__medida_cant'] \
             or  row0['articulo__unidades']      != row0['lo__unidades'] \
@@ -880,15 +895,47 @@ def intenta_marca(marca_id, debug, nombre=None):
                 'fuz'                   : 100,
             })
 
+
     if debug:
+        print('reglas de procesados')
         imprime_reglas(reglas)
-    
+    for cuenta0, row0 in c.iterrows():
+        if      row0['articulo__nombre']        != row0['lo__nombre'] \
+            or  row0['articulo__medida_cant']   != row0['lo__medida_cant'] \
+            or  row0['articulo__unidades']      != row0['lo__unidades'] \
+            or  row0['articulo__grados2']       != row0['lo__grados2'] \
+            or  row0['articulo__envase']        != row0['lo__envase'] \
+            or  row0['articulo__talla']         != row0['lo__talla']    :
+            reglas.append({
+                'si_marca'              : row0['articulo__marca'],
+                'si_nombre'             : row0['articulo__nombre'],
+                'si_grados'             : row0['articulo__grados2'],
+                'si_medida_cant'        : row0['articulo__medida_cant'],
+                'si_unidades'           : row0['articulo__unidades'],
+                'si_envase'             : row0['articulo__envase'],
+                'si_talla'              : row0['articulo__talla'],
+                'entonces_marca'        : row0['articulo__marca'],
+                'entonces_nombre'       : row0['lo__nombre'],
+                'entonces_grados'       : row0['lo__grados2'],
+                'entonces_medida_cant'  : row0['lo__medida_cant'],
+                'entonces_unidades'     : row0['lo__unidades'],
+                'entonces_envase'       : row0['lo__envase'],
+                'entonces_talla'        : row0['lo__talla'],
+                'tipo'                  : row0['rule'],
+                'fuz'                   : 100,
+            })
+    if debug:
+        print('***********************************')
+        print('reglas de TODOS')
+        imprime_reglas(reglas)
+
     if len(reglas) > 0:
         print(f"{marca_obj.slug} con {len(c)} articulos. Nuevas reglas={len(reglas)}")
         
     if debug:
         print(tabulate(c, headers = 'keys', tablefmt = 'psql'))
         print('===================')
+        print(tabulate(procesados, headers = 'keys', tablefmt = 'psql'))
 
     if not debug:
         generate_rules(reglas, debug)
@@ -929,25 +976,32 @@ def generate_rules(rules, debug):
 def create_PD_From(recordset):
     df_articulos = pd.DataFrame(list(recordset.values('articulo__pk',
                                                       'articulo__marca',
-                                                      'articulo__nombre',
-                                                      'articulo__medida_cant', 
-                                                      'articulo__unidades', 
-                                                      'articulo__grados2', 
                                                       'articulo__ean_13',
-                                                      'articulo__envase',
-                                                      'articulo__talla',
                                                       )
                                     )
                                 )
     
+    df_articulos['quienesvenden']           = {}
     df_articulos['cuantos_venden']          = 0
     df_articulos['rule']                    = ''
     df_articulos['get_price']               = 0
+
+    df_articulos['articulo__nombre']        = ''
     df_articulos['lo__nombre']              = ''
+
+    df_articulos['articulo__medida_cant']   = float(0)
     df_articulos['lo__medida_cant']         = float(0)
+    
+    df_articulos['articulo__unidades']      = 0
     df_articulos['lo__unidades']            = 0
+
+    df_articulos['articulo__grados2']       = float(0)
     df_articulos['lo__grados2']             = float(0)
+
+    df_articulos['articulo__envase']        = ''
     df_articulos['lo__envase']              = ''
+    
+    df_articulos['articulo__talla']         = ''
     df_articulos['lo__talla']               = ''
     df_articulos['lo__ean_13']              = ''
     
@@ -959,12 +1013,14 @@ def create_PD_From(recordset):
     df_articulos['r_unidades']  = 0
     df_articulos['r_talla']     = 0
     
-    df_articulos['quienesvenden']   = {}
+
     
 
     ## Fill some cols
     for cuenta, row in df_articulos.iterrows():
         art = Articulos.objects.get(pk=row['articulo__pk'])
+        
+
         df_articulos.at[cuenta,'get_price']             = art.get_price
         df_articulos.at[cuenta,'quienesvenden']         = art.quienesvenden()
         df_articulos.at[cuenta,'cuantos_venden']         = art.cuanntosvenden()
@@ -973,17 +1029,26 @@ def create_PD_From(recordset):
         else:
             df_articulos.at[cuenta,'articulo__envase']      = ''
 
-
+        df_articulos.at[cuenta,'articulo__nombre']      = art.nombre.strip(" ")
         df_articulos.at[cuenta,'lo__nombre']            = art.nombre.strip(" ")
-        df_articulos.at[cuenta,'lo__medida_cant']       = float(art.medida_cant)
+
+        df_articulos.at[cuenta,'articulo__medida_cant']     = float(art.medida_cant)
+        df_articulos.at[cuenta,'lo__medida_cant']           = float(art.medida_cant)
+
         df_articulos.at[cuenta,'lo__unidades']          = art.unidades
+        df_articulos.at[cuenta,'articulo__unidades']    = art.unidades
         df_articulos.at[cuenta,'lo__grados2']           = float(art.grados2)
+        df_articulos.at[cuenta,'articulo__grados2']     = float(art.grados2)
+
         if art.envase:
             df_articulos.at[cuenta,'lo__envase']            = art.envase.strip(" ")
+            df_articulos.at[cuenta,'articulo__envase']      = art.envase.strip(" ")
         else:
             df_articulos.at[cuenta,'lo__envase']            = ''
+
         if art.talla:
             df_articulos.at[cuenta,'lo__talla']            = art.talla.strip(" ")
+            df_articulos.at[cuenta,'articulo__talla']      = art.talla.strip(" ")
         else:
             df_articulos.at[cuenta,'lo__talla']            = ''
 
